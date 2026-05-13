@@ -3,117 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>صابويه المصري 3.0 | Edition Ultra</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- إضافة خط Cairo من Google Fonts للفخامة -->
+    <title>SABUYAH ELITE | صابويه الفخامة</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="game-container">
-    <!-- شاشة البداية (Main Menu) -->
-    <div id="startScreen" class="screen active">
-        <div class="title">SABUYAH</div>
-        <div class="subtitle">المصري - الإصدار الأسطوري</div>
+<div class="master-container">
+    <!-- شاشة البداية الملكية -->
+    <div id="startScreen" class="overlay active">
+        <div class="brand-glow"></div>
+        <h1 class="main-title">SABUYAH <span>ELITE</span></h1>
+        <p class="subtitle">الإصدار الملكي الأسطوري</p>
         
-        <div class="stats-container">
-            <div class="stat-card">
-                <span class="label">أعلى نتيجة</span>
+        <div class="stats-panel">
+            <div class="stat-item">
+                <span class="label">أعلى مجموع</span>
                 <span id="startHighScore" class="value">0</span>
             </div>
-            <div class="stat-card">
-                <span class="label">المحاولات</span>
+            <div class="stat-separator"></div>
+            <div class="stat-item">
+                <span class="label">الرحلات</span>
                 <span id="totalAttempts" class="value">0</span>
             </div>
         </div>
 
-        <div class="menu-actions">
-            <button id="playBtn" class="btn-primary">🎮 دخول الحلبة</button>
-            <div class="secondary-actions">
-                <button id="settingsBtn" class="btn-glass">⚙️</button>
-                <button id="creditsBtn" class="btn-glass">👑</button>
-            </div>
-        </div>
-
-        <div class="controls-guide">
-            <span>← → تحرك</span>
-            <span>↑ قفز</span>
-            <span>↓ انزلاق</span>
-        </div>
-        
-        <div class="dev-footer">Developed by Mohamed Ragab 🚀</div>
-    </div>
-
-    <!-- واجهة اللعب (In-Game HUD) -->
-    <div id="gameScreen" class="screen hidden">
-        <div class="game-header">
-            <div class="hud-item score-box">
-                <span class="hud-label">SCORE</span>
-                <span id="score">0</span>
-            </div>
-            <div class="hud-item speed-box">
-                <span class="hud-label">SPEED</span>
-                <span id="speedValue">1</span>
-            </div>
-            <div class="hud-item high-box">
-                <span class="hud-label">BEST</span>
-                <span id="highScoreGame">0</span>
+        <div class="action-buttons">
+            <button id="playBtn" class="btn-royal">انطلاق للمغامرة</button>
+            <div class="sub-buttons">
+                <button id="settingsBtn" class="btn-glass">الإعدادات</button>
+                <button id="creditsBtn" class="btn-glass">المطور</button>
             </div>
         </div>
         
-        <canvas id="gameCanvas" width="800" height="500"></canvas>
-
-        <div class="ingame-controls">
-            <button id="pauseGameBtn" class="btn-pause">⏸️</button>
-        </div>
+        <div class="hint-text">استخدم الأسهم ← → أو اسحب الشاشة للمراوغة</div>
     </div>
 
-    <!-- شاشة الإيقاف (Pause Screen) -->
-    <div id="pauseScreen" class="screen hidden">
-        <div class="popup blur-bg">
-            <h2 class="neon-text">توقف مؤقت</h2>
-            <button id="resumeBtn" class="btn-primary">استمرار ▶️</button>
-            <button id="exitFromPauseBtn" class="btn-glass">الرئيسية 🏠</button>
-        </div>
-    </div>
-
-    <!-- شاشة النهاية (Game Over) -->
-    <div id="gameOverScreen" class="screen hidden">
-        <div class="popup game-over-box">
-            <h2 class="critical-text">Game Over</h2>
-            <div class="final-results">
-                <div class="res-row"><span>النقاط:</span> <span id="finalScore">0</span></div>
-                <div class="res-row"><span>العملات:</span> <span id="finalCoins">0</span></div>
-                <div class="res-row"><span>أقصى كومبو:</span> <span id="finalCombo">0</span></div>
-            </div>
-            <button id="restartBtn" class="btn-primary">إعادة المحاولة 🔄</button>
-            <button id="menuFromOverBtn" class="btn-glass">خروج 🚪</button>
-        </div>
-    </div>
-
-    <!-- شاشة الإعدادات (Settings) -->
-    <div id="settingsScreen" class="screen hidden">
-        <div class="popup settings-box">
-            <h2 class="neon-text">الإعدادات</h2>
-            <div class="control-group">
-                <div class="setting-item">
-                    <span>الموسيقى</span>
-                    <label class="switch"><input type="checkbox" id="musicToggle" checked><span class="slider"></span></label>
-                </div>
-                <div class="setting-item">
-                    <span>الصوت</span>
-                    <label class="switch"><input type="checkbox" id="soundToggle" checked><span class="slider"></span></label>
-                </div>
-                <div class="setting-item">
-                    <span>الصعوبة</span>
-                    <select id="difficultySelect">
-                        <option value="easy">مبتدئ</option>
-                        <option value="normal" selected>محترف</option>
-                        <option value="hard">أسطورة</option>
-                    </select>
+    <!-- شاشة اللعبة -->
+    <div id="gameScreen" class="overlay hidden">
+        <div class="hud">
+            <div class="hud-left">
+                <div class="hud-box">
+                    <span class="hud-icon">🏆</span>
+                    <span id="score">0</span>
                 </div>
             </div>
-            <button id="saveSettingsBtn" class="btn-primary">حفظ وتأكيد ✅</button>
+            <div class="hud-right">
+                <div class="hud-box">
+                    <span class="hud-icon">💰</span>
+                    <span id="coinCount">0</span>
+                </div>
+                <button id="pauseGameBtn" class="mini-btn">⏸</button>
+            </div>
+        </div>
+        
+        <div id="activePowerups" class="powerup-container"></div>
+        
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <!-- شاشة الموت الفخمة -->
+    <div id="gameOverScreen" class="overlay hidden">
+        <div class="glass-card">
+            <h2 class="game-over-title">انتهت الرحلة</h2>
+            <div class="final-stats">
+                <div class="f-stat"><span>النقاط:</span> <b id="finalScore">0</b></div>
+                <div class="f-stat"><span>العملات:</span> <b id="finalCoins">0</b></div>
+                <div class="f-stat gold"><span>أفضل رقم:</span> <b id="finalHigh">0</b></div>
+            </div>
+            <button id="restartBtn" class="btn-royal">محاولة أخرى</button>
+            <button id="menuFromOverBtn" class="btn-glass">القائمة الرئيسية</button>
+        </div>
+    </div>
+
+    <!-- شاشة الإعدادات -->
+    <div id="settingsScreen" class="overlay hidden">
+        <div class="glass-card">
+            <h2>الإعدادات الملكية</h2>
+            <div class="setting-group">
+                <label>المؤثرات الصوتية</label>
+                <input type="checkbox" id="soundToggle" checked>
+            </div>
+            <div class="setting-group">
+                <label>مستوى الموسيقى</label>
+                <input type="range" id="volumeSlider" min="0" max="100" value="70">
+            </div>
+            <button id="saveSettingsBtn" class="btn-royal">حفظ</button>
         </div>
     </div>
 </div>
