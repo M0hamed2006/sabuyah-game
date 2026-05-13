@@ -2,159 +2,71 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Sabuyah | 3D Endless Runner</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المصري الذكي | AI Egypt</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+    <!-- MobileNet للتعرف على الصور -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@latest"></script>
 </head>
 <body>
+    <div class="container">
+        <!-- الشعار -->
+        <header>
+            <h1>🧠 المصري الذكي</h1>
+            <p>أول ذكاء اصطناعي مصري يشتغل من غير نت</p>
+        </header>
 
-<div id="game-container"></div>
+        <!-- الكاميرا -->
+        <div class="camera-section">
+            <video id="video" autoplay playsinline></video>
+            <canvas id="canvas"></canvas>
+            <button id="snapBtn" class="btn-primary">📸 صور واعرف</button>
+            <button id="uploadBtn" class="btn-secondary">📁 ارفع صورة</button>
+            <input type="file" id="fileInput" accept="image/*" hidden>
+        </div>
 
-<div class="ui-layer">
-    <!-- شاشة البداية -->
-    <div id="startScreen" class="overlay active">
-        <div class="train-bg-animation"></div>
-        <h1 class="main-title">SABUYAH <span>REALITY</span></h1>
-        <p class="subtitle">الجيل الجديد - 3D Endless Runner</p>
-        <div class="menu-buttons">
-            <button id="playBtn" class="btn-royal pulse">▶ العب الآن</button>
-            <button id="shopBtn" class="btn-glass">🛒 المتجر</button>
-            <button id="settingsBtn" class="btn-glass">⚙️ الإعدادات</button>
-            <button id="creditsBtn" class="btn-glass">👤 المطور</button>
+        <!-- النتيجة -->
+        <div id="result" class="result-box hidden">
+            <div class="result-icon">🔍</div>
+            <div id="resultText">جاري التحليل...</div>
+            <div id="resultConfidence"></div>
         </div>
-        <div class="hint">
-            <p>⬅️ ➡️ الأسهم: التنقل بين المسارات</p>
-            <p>⬆️ المسافة: القفز</p>
-            <p>⬇️ السهم للأسفل: الانزلاق</p>
-            <p>Shift: تفعيل البوست السريع</p>
-        </div>
-    </div>
 
-    <!-- واجهة اللعب -->
-    <div id="gameUI" class="overlay hidden">
-        <!-- شريط الخطر (المطارد) -->
-        <div id="dangerBar" class="danger-meter">
-            <div class="danger-fill"></div>
-            <span class="danger-label">⚠️ المطارد</span>
-        </div>
-        
-        <div class="hud">
-            <div class="hud-left">
-                <div class="score-box">🏃 النقاط: <span id="scoreVal">0</span></div>
-                <div class="distance-box">📏 المسافة: <span id="distVal">0</span>م</div>
-            </div>
-            <div class="hud-center">
-                <div class="boost-bar-container">
-                    <div id="boostBar" class="boost-bar"></div>
-                    <span>⚡ بوست</span>
-                </div>
-            </div>
-            <div class="hud-right">
-                <div class="coin-box">🪙 الذهب: <span id="coinVal">0</span></div>
-                <div class="level-box">⭐ المستوى: <span id="levelVal">1</span></div>
+        <!-- الشات -->
+        <div class="chat-section">
+            <div id="chatHistory" class="chat-history"></div>
+            <div class="chat-input">
+                <input type="text" id="chatInput" placeholder="اسألني أي حاجة...">
+                <button id="sendBtn" class="btn-primary">📨</button>
             </div>
         </div>
 
-        <!-- Power-ups النشطة -->
-        <div id="activePowerups" class="powerup-container"></div>
-
-        <!-- زر البوست للموبايل -->
-        <button id="boostBtn" class="boost-mobile-btn">⚡</button>
-    </div>
-
-    <!-- شاشة الخسارة -->
-    <div id="gameOverScreen" class="overlay hidden">
-        <div class="glass-card animate-in">
-            <h2>💀 انتهت اللعبة!</h2>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <span class="stat-label">النقاط</span>
-                    <span id="finalScore" class="stat-value">0</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">المسافة</span>
-                    <span id="finalDist" class="stat-value">0</span>م
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">الذهب</span>
-                    <span id="finalCoins" class="stat-value">0</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">أقصى سرعة</span>
-                    <span id="finalSpeed" class="stat-value">0</span>
-                </div>
+        <!-- المميزات -->
+        <div class="features">
+            <div class="feature">
+                <span class="feature-icon">📸</span>
+                <span>تعرف على الصور</span>
             </div>
-            <div class="achievements-popup" id="achievementsList"></div>
-            <button id="restartBtn" class="btn-royal">🔄 إعادة المحاولة</button>
-            <button id="menuBtn" class="btn-glass">🏠 القائمة الرئيسية</button>
+            <div class="feature">
+                <span class="feature-icon">💬</span>
+                <span>ردود ذكية</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🌐</span>
+                <span>يشتغل Offline</span>
+            </div>
+        </div>
+
+        <!-- التحميل -->
+        <div id="loading" class="loading-overlay">
+            <div class="spinner"></div>
+            <p>جاري تحميل الذكاء الاصطناعي... ⏳</p>
+            <p class="loading-sub">أول مرة بس، بعد كده يشتغل من غير نت!</p>
         </div>
     </div>
 
-    <!-- شاشة المتجر -->
-    <div id="shopScreen" class="overlay hidden">
-        <div class="glass-card wide">
-            <h2>🛒 المتجر</h2>
-            <div class="shop-tabs">
-                <button class="tab-btn active" data-tab="characters">👤 الشخصيات</button>
-                <button class="tab-btn" data-tab="skins">👕 السكنات</button>
-                <button class="tab-btn" data-tab="powerups">⚡ الطاقة</button>
-            </div>
-            <div id="shopContent" class="shop-content"></div>
-            <div class="shop-currency">🪙 <span id="shopCoins">0</span></div>
-            <button id="closeShopBtn" class="btn-glass">رجوع</button>
-        </div>
-    </div>
-
-    <!-- شاشة الإعدادات -->
-    <div id="settingsScreen" class="overlay hidden">
-        <div class="glass-card">
-            <h2>⚙️ الإعدادات</h2>
-            <div class="setting-item">
-                <label>🔊 الصوت</label>
-                <input type="range" id="volumeSlider" min="0" max="100" value="80">
-            </div>
-            <div class="setting-item">
-                <label>📳 الاهتزاز</label>
-                <input type="checkbox" id="vibrationToggle" checked>
-            </div>
-            <div class="setting-item">
-                <label>🎨 جودة الرسوميات</label>
-                <select id="qualitySelect">
-                    <option value="high">عالية</option>
-                    <option value="medium" selected>متوسطة</option>
-                    <option value="low">منخفضة</option>
-                </select>
-            </div>
-            <div class="setting-item">
-                <label>🎮 حساسية التحكم</label>
-                <input type="range" id="sensitivitySlider" min="1" max="10" value="5">
-            </div>
-            <button id="closeSettingsBtn" class="btn-glass">حفظ ورجوع</button>
-        </div>
-    </div>
-
-    <!-- شاشة المطور -->
-    <div id="creditsScreen" class="overlay hidden">
-        <div class="glass-card animate-in">
-            <h2>👨‍💻 المطور</h2>
-            <div class="dev-avatar">🎮</div>
-            <p class="dev-name">The Small Programmer</p>
-            <p class="dev-name-en">Mohamed Ragab Abdelmonem</p>
-            <p class="dev-quote">"صنع بحب في مصر 🇪🇬"</p>
-            <div class="social-links">
-                <a href="#" class="social-btn">GitHub</a>
-                <a href="#" class="social-btn">YouTube</a>
-            </div>
-            <button id="closeCreditsBtn" class="btn-glass">رجوع</button>
-        </div>
-    </div>
-</div>
-
-<!-- الملفات الجديدة -->
-<script src="audio.js"></script>
-<script src="ui.js"></script>
-<script src="game.js"></script>
+    <script src="ai.js"></script>
 </body>
 </html>
