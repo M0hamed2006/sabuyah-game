@@ -3,95 +3,90 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>صابويه Ultimate — النسخة النهائية</title>
+  <title>صابويه Ultimate — نظيف ومركّز</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <canvas id="gameCanvas"></canvas>
+  <canvas id="gameCanvas" aria-label="لعبة صابويه"></canvas>
 
   <div id="ui">
     <!-- شاشة البداية -->
     <div id="screenStart" class="screen active">
-      <div class="center-card" style="text-align:center">
+      <div class="card">
         <div class="logo-ar">صابويه</div>
-        <div class="logo-sub">ULTIMATE — النسخة النهائية</div>
-        <div style="display:flex;gap:12px;justify-content:center;margin-top:14px;flex-wrap:wrap">
-          <button id="btnPlay" class="btn btn-primary">▶ العب الآن</button>
-          <button id="btnChar" class="btn btn-ghost">👤 الشخصيات</button>
-          <button id="btnShop" class="btn btn-ghost">🏪 المتجر</button>
-          <button id="btnLeaders" class="btn btn-ghost">🏆 الأوائل</button>
-          <button id="btnSettings" class="btn btn-ghost">⚙️ الإعدادات</button>
+        <div class="logo-sub">ULTIMATE — نسخة مرتبة</div>
+
+        <div class="stats-row">
+          <div class="stat"><div class="stat-val" id="hsDisplay">0</div><div class="stat-lbl">🏆 أعلى</div></div>
+          <div class="stat"><div class="stat-val" id="totalCoinsDisplay">0</div><div class="stat-lbl">💰 جنيهات</div></div>
+          <div class="stat"><div class="stat-val" id="attemptsDisplay">0</div><div class="stat-lbl">🎮 محاولات</div></div>
         </div>
-        <div style="margin-top:14px;color:rgba(255,255,255,0.6)">أعلى: <span id="hsDisplay">0</span> • جنيهات: <span id="totalCoinsDisplay">0</span> • محاولات: <span id="attemptsDisplay">0</span></div>
-        <div style="margin-top:12px;color:rgba(255,255,255,0.45)">◀▶ للتحرك • ▲ للقفز • ▼ للانزلاق • Shift/⚡ للبوست</div>
+
+        <div class="controls-row">
+          <button id="btnPlay" class="btn btn-primary">▶ العب الآن</button>
+          <button id="btnSettings" class="btn btn-ghost">⚙️ إعدادات</button>
+        </div>
+
+        <div class="hint">◀▶ للتحرك • ▲ للقفز • ▼ للانزلاق • Shift/⚡ للبوست</div>
       </div>
     </div>
 
     <!-- HUD -->
-    <div id="hud" style="pointer-events:none">
-      <div style="display:flex;gap:8px">
+    <div id="hud" class="hud">
+      <div class="hud-left">
         <div class="hud-block"><div class="hud-lbl">النقاط</div><div class="hud-val" id="hudScore">0</div></div>
-        <div class="hud-block"><div class="hud-lbl">المرحلة</div><div class="hud-val" id="hudLevel">1</div></div>
+        <div class="hud-block"><div class="hud-lbl">المرحلة</div><div class="hud-val" id="hudLevel">القاهرة</div></div>
         <div class="hud-block"><div class="hud-lbl">💰</div><div class="hud-val" id="hudCoins">0</div></div>
       </div>
-      <div id="dangerBarWrap">
-        <div class="hud-block" style="display:flex;flex-direction:row;align-items:center;gap:8px;padding:8px 10px">
-          <div style="font-weight:900;color:var(--danger)">👮 الغيطي</div>
+
+      <div class="hud-right">
+        <div class="danger-wrap">
+          <div class="danger-label">👮 الغيطي</div>
           <div class="danger-track"><div id="dangerFill" class="danger-fill" style="width:8%"></div></div>
-          <div id="dangerPct" style="min-width:48px;color:rgba(255,255,255,0.7);font-weight:700">بعيد</div>
+          <div id="dangerPct" class="danger-pct">بعيد</div>
         </div>
       </div>
     </div>
 
-    <div class="boost-wrap" style="pointer-events:none">
-      <div style="font-weight:900;color:var(--gold);margin-right:8px">⚡</div>
+    <!-- Boost -->
+    <div class="boost-wrap">
       <div class="boost-track"><div id="boostFill" class="boost-fill" style="width:0%"></div></div>
-      <div id="boostPct" style="color:rgba(255,255,255,0.8);font-weight:900;margin-left:8px">0%</div>
+      <div id="boostPct" class="boost-pct">0%</div>
     </div>
 
-    <div class="hype-msg hidden" id="hypeMsg" style="display:none"></div>
-    <div class="achieve-toast hidden" id="achieveToast" style="display:none"></div>
-
-    <!-- touch buttons -->
-    <div class="touch-btns" style="pointer-events:auto">
-      <div style="display:flex;gap:8px;align-items:center">
-        <button id="tbLeft" class="tbtn">◀</button>
+    <!-- Touch controls -->
+    <div class="touch-btns">
+      <button id="tbLeft" class="tbtn">◀</button>
+      <div class="tbtn-col">
         <button id="tbUp" class="tbtn">▲</button>
         <button id="tbDown" class="tbtn">▼</button>
-        <button id="tbRight" class="tbtn">▶</button>
       </div>
-      <div>
-        <button id="tbBoost" class="tbtn">⚡</button>
-      </div>
+      <button id="tbRight" class="tbtn">▶</button>
+      <button id="tbBoost" class="tbtn tbtn-boost">⚡</button>
     </div>
 
     <!-- شاشة النهاية -->
-    <div id="screenOver" class="screen" style="pointer-events:auto;display:none;align-items:center;justify-content:center">
-      <div class="center-card over-card" style="text-align:center">
-        <div class="over-title">💥 انتهت اللعبة!</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
-          <div style="min-width:120px;background:rgba(255,255,255,0.03);padding:10px;border-radius:10px">
-            <div style="font-size:12px;color:rgba(255,255,255,0.6)">النقاط</div>
-            <div id="ovScore" style="font-weight:900;color:var(--gold)">0</div>
-          </div>
-          <div style="min-width:120px;background:rgba(255,255,255,0.03);padding:10px;border-radius:10px">
-            <div style="font-size:12px;color:rgba(255,255,255,0.6)">أقصى سرعة</div>
-            <div id="ovSpeed" style="font-weight:900;color:var(--gold)">0</div>
-          </div>
-          <div style="min-width:120px;background:rgba(255,255,255,0.03);padding:10px;border-radius:10px">
-            <div style="font-size:12px;color:rgba(255,255,255,0.6)">قطارات</div>
-            <div id="ovTrains" style="font-weight:900;color:var(--gold)">0</div>
-          </div>
+    <div id="screenOver" class="screen hidden">
+      <div class="card over-card">
+        <div class="over-title">💥 انتهت اللعبة</div>
+        <div class="over-stats">
+          <div class="ostat"><div class="ostat-lbl">النقاط</div><div id="ovScore" class="ostat-val">0</div></div>
+          <div class="ostat"><div class="ostat-lbl">أقصى سرعة</div><div id="ovSpeed" class="ostat-val">0</div></div>
+          <div class="ostat"><div class="ostat-lbl">قطارات</div><div id="ovTrains" class="ostat-val">0</div></div>
         </div>
-        <div style="margin-top:12px;display:flex;gap:8px;justify-content:center">
+        <div class="over-actions">
           <button id="btnRestart" class="btn btn-primary">🔄 مجدداً</button>
           <button id="btnHome" class="btn btn-ghost">🏠 الرئيسية</button>
         </div>
       </div>
     </div>
+
+    <div id="hypeMsg" class="hype-msg" aria-hidden="true"></div>
+    <div id="achieveToast" class="achieve-toast" aria-hidden="true"></div>
   </div>
 
   <script src="game.js"></script>
 </body>
 </html>
+
