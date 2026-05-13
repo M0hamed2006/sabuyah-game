@@ -2,17 +2,61 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>صابويه المصري | النسخة المنظمة</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>صابويه - Sabuyah</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { margin:0; background:#0a0a1f; font-family:Arial, sans-serif; }
+        .game-container {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            margin: 20px auto;
+            border: 5px solid #ffcc00;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(255, 204, 0, 0.5);
+        }
+        canvas { display: block; background: #0b1a2e; }
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+        }
+        .screen { pointer-events: all; }
+    </style>
 </head>
 <body>
     <div class="game-container">
-        <!-- سيتم ملء الشاشات ديناميكياً بواسطة ui.js -->
-        <div id="screens-root"></div>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        
+        <!-- شاشة البداية -->
+        <div id="screen-start" class="screen overlay" style="background:rgba(10,15,35,0.97); display:flex; flex-direction:column; align-items:center; justify-content:center; color:white;">
+            <h1 style="font-size:3rem; margin-bottom:10px; color:#ffcc00;">صابويه 🏃‍♂️</h1>
+            <p style="margin:10px; color:#aaa;">اللعبة المصرية اللي هتجننك</p>
+            
+            <div style="margin:20px 0; text-align:center; line-height:1.8;">
+                <p>أفضل مسافة: <span id="stat-best" style="color:#ffcc00;">0</span></p>
+                <p>عملات: <span id="stat-total" style="color:#ffcc00;">0</span></p>
+            </div>
+
+            <button id="btnPlay" style="font-size:1.8rem; padding:18px 60px; margin:20px; background:#ff4400; color:white; border:none; border-radius:50px; cursor:pointer; box-shadow:0 8px 20px rgba(255,68,0,0.4);">🚀 ابدأ اللعب</button>
+            
+            <div style="margin-top:30px; display:flex; gap:15px;">
+                <button id="btnShop" style="padding:12px 30px; background:#334455; color:white; border:none; border-radius:30px; cursor:pointer;">🛒 المتجر</button>
+                <button id="btnSettings" style="padding:12px 30px; background:#334455; color:white; border:none; border-radius:30px; cursor:pointer;">⚙️ إعدادات</button>
+            </div>
+        </div>
+
+        <!-- HUD -->
+        <div id="screen-hud" class="screen overlay hidden" style="background:transparent; padding:15px; color:white; font-size:1.2rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>مسافة: <span id="hud-score">0</span>m</div>
+                <button id="btnPause" style="background:none; border:none; font-size:2.2rem; color:white; cursor:pointer;">⏸</button>
+            </div>
+        </div>
     </div>
 
-    <!-- ملفات JavaScript المنظمة -->
     <script src="js/utils.js"></script>
     <script src="js/player.js"></script>
     <script src="js/enemy.js"></script>
