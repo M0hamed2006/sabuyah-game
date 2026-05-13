@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>صابويه Ultimate — نظيف ومركّز</title>
+  <title>صابويه — Ultimate (نسخة مطورة)</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -11,82 +11,71 @@
   <canvas id="gameCanvas" aria-label="لعبة صابويه"></canvas>
 
   <div id="ui">
-    <!-- شاشة البداية -->
     <div id="screenStart" class="screen active">
       <div class="card">
-        <div class="logo-ar">صابويه</div>
-        <div class="logo-sub">ULTIMATE — نسخة مرتبة</div>
-
-        <div class="stats-row">
-          <div class="stat"><div class="stat-val" id="hsDisplay">0</div><div class="stat-lbl">🏆 أعلى</div></div>
-          <div class="stat"><div class="stat-val" id="totalCoinsDisplay">0</div><div class="stat-lbl">💰 جنيهات</div></div>
-          <div class="stat"><div class="stat-val" id="attemptsDisplay">0</div><div class="stat-lbl">🎮 محاولات</div></div>
+        <div class="logo">صابويه <span class="sub">ULTIMATE</span></div>
+        <div class="stats">
+          <div class="stat"><div id="hsDisplay">0</div><div class="lbl">أعلى</div></div>
+          <div class="stat"><div id="totalCoinsDisplay">0</div><div class="lbl">جنيهات</div></div>
+          <div class="stat"><div id="attemptsDisplay">0</div><div class="lbl">محاولات</div></div>
         </div>
-
-        <div class="controls-row">
-          <button id="btnPlay" class="btn btn-primary">▶ العب الآن</button>
-          <button id="btnSettings" class="btn btn-ghost">⚙️ إعدادات</button>
+        <div class="actions">
+          <button id="btnPlay" class="btn primary">▶ العب الآن</button>
+          <button id="btnSettings" class="btn ghost">⚙️ إعدادات</button>
         </div>
-
-        <div class="hint">◀▶ للتحرك • ▲ للقفز • ▼ للانزلاق • Shift/⚡ للبوست</div>
+        <div class="hint">◀▶ للتحرك • ▲ للقفز • ▼ للانزلاق • Shift/⚡ للبوست • اسحب للتحكم</div>
       </div>
     </div>
 
-    <!-- HUD -->
     <div id="hud" class="hud">
-      <div class="hud-left">
-        <div class="hud-block"><div class="hud-lbl">النقاط</div><div class="hud-val" id="hudScore">0</div></div>
-        <div class="hud-block"><div class="hud-lbl">المرحلة</div><div class="hud-val" id="hudLevel">القاهرة</div></div>
-        <div class="hud-block"><div class="hud-lbl">💰</div><div class="hud-val" id="hudCoins">0</div></div>
+      <div class="left">
+        <div class="hud-block"><div class="lbl">النقاط</div><div id="hudScore" class="val">0</div></div>
+        <div class="hud-block"><div class="lbl">المرحلة</div><div id="hudLevel" class="val">القاهرة</div></div>
+        <div class="hud-block"><div class="lbl">💰</div><div id="hudCoins" class="val">0</div></div>
       </div>
-
-      <div class="hud-right">
-        <div class="danger-wrap">
-          <div class="danger-label">👮 الغيطي</div>
-          <div class="danger-track"><div id="dangerFill" class="danger-fill" style="width:8%"></div></div>
-          <div id="dangerPct" class="danger-pct">بعيد</div>
+      <div class="right">
+        <div class="danger">
+          <div class="d-label">👮 الغيطي</div>
+          <div class="d-track"><div id="dangerFill" class="d-fill" style="width:8%"></div></div>
+          <div id="dangerPct" class="d-pct">بعيد</div>
         </div>
       </div>
     </div>
 
-    <!-- Boost -->
     <div class="boost-wrap">
       <div class="boost-track"><div id="boostFill" class="boost-fill" style="width:0%"></div></div>
       <div id="boostPct" class="boost-pct">0%</div>
     </div>
 
-    <!-- Touch controls -->
     <div class="touch-btns">
       <button id="tbLeft" class="tbtn">◀</button>
-      <div class="tbtn-col">
+      <div class="tcol">
         <button id="tbUp" class="tbtn">▲</button>
         <button id="tbDown" class="tbtn">▼</button>
       </div>
       <button id="tbRight" class="tbtn">▶</button>
-      <button id="tbBoost" class="tbtn tbtn-boost">⚡</button>
+      <button id="tbBoost" class="tbtn boost">⚡</button>
     </div>
 
-    <!-- شاشة النهاية -->
     <div id="screenOver" class="screen hidden">
-      <div class="card over-card">
-        <div class="over-title">💥 انتهت اللعبة</div>
-        <div class="over-stats">
-          <div class="ostat"><div class="ostat-lbl">النقاط</div><div id="ovScore" class="ostat-val">0</div></div>
-          <div class="ostat"><div class="ostat-lbl">أقصى سرعة</div><div id="ovSpeed" class="ostat-val">0</div></div>
-          <div class="ostat"><div class="ostat-lbl">قطارات</div><div id="ovTrains" class="ostat-val">0</div></div>
+      <div class="card over">
+        <div class="title">💥 انتهت اللعبة</div>
+        <div class="over-grid">
+          <div><div class="lbl">النقاط</div><div id="ovScore" class="big">0</div></div>
+          <div><div class="lbl">أقصى سرعة</div><div id="ovSpeed" class="big">0</div></div>
+          <div><div class="lbl">قطارات</div><div id="ovTrains" class="big">0</div></div>
         </div>
-        <div class="over-actions">
-          <button id="btnRestart" class="btn btn-primary">🔄 مجدداً</button>
-          <button id="btnHome" class="btn btn-ghost">🏠 الرئيسية</button>
+        <div class="actions">
+          <button id="btnRestart" class="btn primary">🔄 مجدداً</button>
+          <button id="btnHome" class="btn ghost">🏠 الرئيسية</button>
         </div>
       </div>
     </div>
 
-    <div id="hypeMsg" class="hype-msg" aria-hidden="true"></div>
-    <div id="achieveToast" class="achieve-toast" aria-hidden="true"></div>
+    <div id="hypeMsg" class="hype hidden"></div>
+    <div id="achieveToast" class="toast hidden"></div>
   </div>
 
   <script src="game.js"></script>
 </body>
 </html>
-
