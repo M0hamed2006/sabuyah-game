@@ -1,57 +1,53 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Subway Legend | 3D Reality</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <!-- استدعاء مكتبة Three.js لعالم الـ 3D -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>صابويه | 3D Reality</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-<div id="game-container"></div>
+  <!-- المحرك الثلاثي الأبعاد -->
+  <div id="game-container"></div>
 
-<div class="ui-layer">
+  <!-- طبقة الواجهة -->
+  <div class="ui-layer">
+
     <!-- شاشة البداية -->
     <div id="startScreen" class="overlay active">
-        <h1 class="main-title">SUBWAY <span>REALITY</span></h1>
-        <p class="subtitle">الجيل الجديد - 3D</p>
-        <button id="playBtn" class="btn-royal">▶ العب الآن</button>
-        <button id="creditsBtn" class="btn-glass">المطور</button>
-        <div class="hint">اسحب يميناً ويساراً أو استخدم الأسهم<br>اضغط للقفز</div>
+      <h1 class="main-title">SABUYAH<span>REALITY</span></h1>
+      <p class="subtitle">الجيل الجديد · ثلاثي الأبعاد</p>
+      <button id="playBtn" class="btn-royal">▶ العب الآن</button>
+      <button id="creditsBtn" class="btn-glass">👨‍💻 المطور</button>
+      <p class="hint">
+        أسهم / WASD للتحرك · مسافة للقفز · S للانزلاق · B للبوست
+        <br>أو السحب على الشاشة اللمسية
+      </p>
     </div>
 
-    <!-- واجهة اللعب -->
-    <div id="gameUI" class="overlay hidden">
-        <div class="hud">
-            <div class="score-box">النقاط: <span id="scoreVal">0</span></div>
-            <div class="coin-box">الذهب: <span id="coinVal">0</span></div>
-        </div>
-    </div>
+    <!-- واجهة اللعب (يتم حقنها ديناميكياً من game.js) -->
+    <div id="gameUI" class="overlay hidden"></div>
 
-    <!-- شاشة الخسارة -->
-    <div id="gameOverScreen" class="overlay hidden">
-        <div class="glass-card">
-            <h2>انتهت اللعبة!</h2>
-            <p>النقاط: <span id="finalScore">0</span></p>
-            <p>الذهب: <span id="finalCoins">0</span></p>
-            <button id="restartBtn" class="btn-royal">إعادة المحاولة</button>
-        </div>
-    </div>
+    <!-- شاشة الخسارة (يتم حقنها ديناميكياً) -->
+    <div id="gameOverScreen" class="overlay hidden"></div>
 
     <!-- شاشة المطور -->
     <div id="creditsScreen" class="overlay hidden">
-        <div class="glass-card">
-            <h2>Developer</h2>
-            <p class="dev-name">The Small Programmer</p>
-            <p class="dev-name-en">Mohamed Ragab Abdelmonem</p>
-            <button id="closeCreditsBtn" class="btn-glass">رجوع</button>
-        </div>
+      <div class="glass-card">
+        <h2>👨‍💻 المطور</h2>
+        <p class="dev-name">The Small Programmer</p>
+        <p class="dev-name-en">Mohamed Ragab Abdelmonem</p>
+        <p style="color:#aaa;font-size:0.9rem;margin-bottom:20px">لعبة صابويه - نسخة ثلاثية الأبعاد</p>
+        <button id="closeCreditsBtn" class="btn-glass">← رجوع</button>
+      </div>
     </div>
-</div>
 
-<script src="game.js"></script>
+  </div>
+
+  <script src="game.js"></script>
 </body>
 </html>
