@@ -1,173 +1,97 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>صابويه</title>
-    <style>
-        body { margin:0; background:#0a0a1f; font-family:Arial; overflow:hidden; }
-        .container {
-            position: relative;
-            width: 800px;
-            height: 600px;
-            margin: 30px auto;
-            border: 6px solid #ffcc00;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 0 50px #ffcc00;
-        }
-        canvas { display:block; background:#0b1729; }
-        .start-screen {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(10,15,40,0.98);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            z-index: 10;
-        }
-        button {
-            padding: 15px 40px;
-            font-size: 1.6rem;
-            margin: 15px;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-        }
-        .play-btn { background:#ff4400; color:white; }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>صابويه Ultimate — النسخة النهائية</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <canvas id="gameCanvas"></canvas>
 
-<div class="container">
-    <canvas id="canvas" width="800" height="600"></canvas>
-    
-    <div id="startScreen" class="start-screen">
-        <h1 style="font-size:3.5rem;color:#ffcc00;margin-bottom:10px;">صابويه 🏃‍♂️</h1>
-        <p style="margin:10px;color:#bbb;">اللعبة المصرية الرهيبة</p>
-        
-        <div style="margin:20px 0;color:#aaa;">
-            <p>أفضل مسافة: <span id="best">0</span></p>
-            <p>عملات: <span id="coins">0</span></p>
+  <div id="ui">
+    <!-- شاشة البداية -->
+    <div id="screenStart" class="screen active">
+      <div class="center-card" style="text-align:center">
+        <div class="logo-ar">صابويه</div>
+        <div class="logo-sub">ULTIMATE — النسخة النهائية</div>
+        <div style="display:flex;gap:12px;justify-content:center;margin-top:14px;flex-wrap:wrap">
+          <button id="btnPlay" class="btn btn-primary">▶ العب الآن</button>
+          <button id="btnChar" class="btn btn-ghost">👤 الشخصيات</button>
+          <button id="btnShop" class="btn btn-ghost">🏪 المتجر</button>
+          <button id="btnLeaders" class="btn btn-ghost">🏆 الأوائل</button>
+          <button id="btnSettings" class="btn btn-ghost">⚙️ الإعدادات</button>
         </div>
-        
-        <button class="play-btn" id="playBtn">🚀 ابدأ اللعب</button>
+        <div style="margin-top:14px;color:rgba(255,255,255,0.6)">أعلى: <span id="hsDisplay">0</span> • جنيهات: <span id="totalCoinsDisplay">0</span> • محاولات: <span id="attemptsDisplay">0</span></div>
+        <div style="margin-top:12px;color:rgba(255,255,255,0.45)">◀▶ للتحرك • ▲ للقفز • ▼ للانزلاق • Shift/⚡ للبوست</div>
+      </div>
     </div>
-</div>
 
-<script>
-// ====================== كل الكود في ملف واحد مؤقتاً ======================
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+    <!-- HUD -->
+    <div id="hud" style="pointer-events:none">
+      <div style="display:flex;gap:8px">
+        <div class="hud-block"><div class="hud-lbl">النقاط</div><div class="hud-val" id="hudScore">0</div></div>
+        <div class="hud-block"><div class="hud-lbl">المرحلة</div><div class="hud-val" id="hudLevel">1</div></div>
+        <div class="hud-block"><div class="hud-lbl">💰</div><div class="hud-val" id="hudCoins">0</div></div>
+      </div>
+      <div id="dangerBarWrap">
+        <div class="hud-block" style="display:flex;flex-direction:row;align-items:center;gap:8px;padding:8px 10px">
+          <div style="font-weight:900;color:var(--danger)">👮 الغيطي</div>
+          <div class="danger-track"><div id="dangerFill" class="danger-fill" style="width:8%"></div></div>
+          <div id="dangerPct" style="min-width:48px;color:rgba(255,255,255,0.7);font-weight:700">بعيد</div>
+        </div>
+      </div>
+    </div>
 
-let score = 0;
-let speed = 5;
-let playerX = 400;
-let playerY = 420;
-let isJumping = false;
-let velocityY = 0;
-let lane = 2;
-const lanes = [160, 280, 400, 520, 640];
+    <div class="boost-wrap" style="pointer-events:none">
+      <div style="font-weight:900;color:var(--gold);margin-right:8px">⚡</div>
+      <div class="boost-track"><div id="boostFill" class="boost-fill" style="width:0%"></div></div>
+      <div id="boostPct" style="color:rgba(255,255,255,0.8);font-weight:900;margin-left:8px">0%</div>
+    </div>
 
-let obstacles = [];
-let coins = [];
-let gameRunning = false;
+    <div class="hype-msg hidden" id="hypeMsg" style="display:none"></div>
+    <div class="achieve-toast hidden" id="achieveToast" style="display:none"></div>
 
-document.getElementById('playBtn').onclick = startGame;
+    <!-- touch buttons -->
+    <div class="touch-btns" style="pointer-events:auto">
+      <div style="display:flex;gap:8px;align-items:center">
+        <button id="tbLeft" class="tbtn">◀</button>
+        <button id="tbUp" class="tbtn">▲</button>
+        <button id="tbDown" class="tbtn">▼</button>
+        <button id="tbRight" class="tbtn">▶</button>
+      </div>
+      <div>
+        <button id="tbBoost" class="tbtn">⚡</button>
+      </div>
+    </div>
 
-function startGame() {
-    document.getElementById('startScreen').style.display = 'none';
-    gameRunning = true;
-    score = 0;
-    obstacles = [];
-    coins = [];
-    playerX = lanes[2];
-    requestAnimationFrame(gameLoop);
-}
+    <!-- شاشة النهاية -->
+    <div id="screenOver" class="screen" style="pointer-events:auto;display:none;align-items:center;justify-content:center">
+      <div class="center-card over-card" style="text-align:center">
+        <div class="over-title">💥 انتهت اللعبة!</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+          <div style="min-width:120px;background:rgba(255,255,255,0.03);padding:10px;border-radius:10px">
+            <div style="font-size:12px;color:rgba(255,255,255,0.6)">النقاط</div>
+            <div id="ovScore" style="font-weight:900;color:var(--gold)">0</div>
+          </div>
+          <div style="min-width:120px;background:rgba(255,255,255,0.03);padding:10px;border-radius:10px">
+            <div style="font-size:12px;color:rgba(255,255,255,0.6)">أقصى سرعة</div>
+            <div id="ovSpeed" style="font-weight:900;color:var(--gold)">0</div>
+          </div>
+          <div style="min-width:120px;background:rgba(255,255,255,0.03);padding:10px;border-radius:10px">
+            <div style="font-size:12px;color:rgba(255,255,255,0.6)">قطارات</div>
+            <div id="ovTrains" style="font-weight:900;color:var(--gold)">0</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;justify-content:center">
+          <button id="btnRestart" class="btn btn-primary">🔄 مجدداً</button>
+          <button id="btnHome" class="btn btn-ghost">🏠 الرئيسية</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-function gameLoop() {
-    if (!gameRunning) return;
-
-    ctx.clearRect(0, 0, 800, 600);
-
-    // Background
-    ctx.fillStyle = '#0b1729';
-    ctx.fillRect(0, 0, 800, 600);
-
-    // Ground
-    ctx.fillStyle = '#1a2a1a';
-    ctx.fillRect(0, 480, 800, 120);
-
-    // Player
-    ctx.fillStyle = '#00ccff';
-    ctx.fillRect(playerX-25, playerY-60, 50, 70);
-    ctx.fillStyle = '#ffddaa';
-    ctx.beginPath();
-    ctx.arc(playerX, playerY-75, 18, 0, Math.PI*2);
-    ctx.fill();
-
-    // Spawn
-    if (Math.random() < 0.03) {
-        obstacles.push({x: lanes[Math.floor(Math.random()*5)], y: -50});
-    }
-    if (Math.random() < 0.04) {
-        coins.push({x: lanes[Math.floor(Math.random()*5)], y: -50});
-    }
-
-    // Update & Draw Obstacles
-    for (let i = obstacles.length-1; i >= 0; i--) {
-        let o = obstacles[i];
-        o.y += speed;
-        ctx.fillStyle = '#ff4444';
-        ctx.fillRect(o.x-30, o.y, 60, 60);
-        if (o.y > 600) obstacles.splice(i,1);
-    }
-
-    // Update & Draw Coins
-    for (let i = coins.length-1; i >= 0; i--) {
-        let c = coins[i];
-        c.y += speed;
-        ctx.fillStyle = '#ffcc00';
-        ctx.beginPath();
-        ctx.arc(c.x, c.y, 15, 0, Math.PI*2);
-        ctx.fill();
-        if (c.y > 600) coins.splice(i,1);
-    }
-
-    // Controls (Keyboard)
-    document.onkeydown = e => {
-        if (e.key === "ArrowLeft" && lane > 0) { lane--; playerX = lanes[lane]; }
-        if (e.key === "ArrowRight" && lane < 4) { lane++; playerX = lanes[lane]; }
-        if (e.key === " " && !isJumping) {
-            isJumping = true;
-            velocityY = -15;
-        }
-    };
-
-    // Jump Physics
-    if (isJumping) {
-        velocityY += 0.8;
-        playerY += velocityY;
-        if (playerY >= 420) {
-            playerY = 420;
-            isJumping = false;
-        }
-    }
-
-    score += speed / 2;
-    speed = Math.min(12, 5 + score/300);
-
-    // HUD
-    ctx.fillStyle = "white";
-    ctx.font = "bold 28px Arial";
-    ctx.fillText("مسافة: " + Math.floor(score), 30, 50);
-
-    requestAnimationFrame(gameLoop);
-}
-
-// Keyboard for mobile swipe later
-</script>
+  <script src="game.js"></script>
 </body>
 </html>
