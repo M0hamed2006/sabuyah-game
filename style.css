@@ -307,7 +307,6 @@ body{overflow:hidden;background:#000;width:100vw;height:100vh;touch-action:none;
 
 /* ======= استجابة ======= */
 @media(max-width:480px){
- 
- .over-card{padding:20px 14px;}
+  .over-card{padding:20px 14px;}
   .tbtn{width:52px;height:52px;font-size:1.3rem;}
 }
