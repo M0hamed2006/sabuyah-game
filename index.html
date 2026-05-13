@@ -3,92 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>SABUYAH ELITE | صابويه الفخامة</title>
+    <title>Subway Legend | 3D Reality</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <!-- استدعاء مكتبة Three.js لعالم الـ 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-<div class="master-container">
-    <!-- شاشة البداية الملكية -->
+<div id="game-container"></div>
+
+<div class="ui-layer">
+    <!-- شاشة البداية -->
     <div id="startScreen" class="overlay active">
-        <div class="brand-glow"></div>
-        <h1 class="main-title">SABUYAH <span>ELITE</span></h1>
-        <p class="subtitle">الإصدار الملكي الأسطوري</p>
-        
-        <div class="stats-panel">
-            <div class="stat-item">
-                <span class="label">أعلى مجموع</span>
-                <span id="startHighScore" class="value">0</span>
-            </div>
-            <div class="stat-separator"></div>
-            <div class="stat-item">
-                <span class="label">الرحلات</span>
-                <span id="totalAttempts" class="value">0</span>
-            </div>
-        </div>
-
-        <div class="action-buttons">
-            <button id="playBtn" class="btn-royal">انطلاق للمغامرة</button>
-            <div class="sub-buttons">
-                <button id="settingsBtn" class="btn-glass">الإعدادات</button>
-                <button id="creditsBtn" class="btn-glass">المطور</button>
-            </div>
-        </div>
-        
-        <div class="hint-text">استخدم الأسهم ← → أو اسحب الشاشة للمراوغة</div>
+        <h1 class="main-title">SUBWAY <span>REALITY</span></h1>
+        <p class="subtitle">الجيل الجديد - 3D</p>
+        <button id="playBtn" class="btn-royal">▶ العب الآن</button>
+        <button id="creditsBtn" class="btn-glass">المطور</button>
+        <div class="hint">اسحب يميناً ويساراً أو استخدم الأسهم<br>اضغط للقفز</div>
     </div>
 
-    <!-- شاشة اللعبة -->
-    <div id="gameScreen" class="overlay hidden">
+    <!-- واجهة اللعب -->
+    <div id="gameUI" class="overlay hidden">
         <div class="hud">
-            <div class="hud-left">
-                <div class="hud-box">
-                    <span class="hud-icon">🏆</span>
-                    <span id="score">0</span>
-                </div>
-            </div>
-            <div class="hud-right">
-                <div class="hud-box">
-                    <span class="hud-icon">💰</span>
-                    <span id="coinCount">0</span>
-                </div>
-                <button id="pauseGameBtn" class="mini-btn">⏸</button>
-            </div>
+            <div class="score-box">النقاط: <span id="scoreVal">0</span></div>
+            <div class="coin-box">الذهب: <span id="coinVal">0</span></div>
         </div>
-        
-        <div id="activePowerups" class="powerup-container"></div>
-        
-        <canvas id="gameCanvas"></canvas>
     </div>
 
-    <!-- شاشة الموت الفخمة -->
+    <!-- شاشة الخسارة -->
     <div id="gameOverScreen" class="overlay hidden">
         <div class="glass-card">
-            <h2 class="game-over-title">انتهت الرحلة</h2>
-            <div class="final-stats">
-                <div class="f-stat"><span>النقاط:</span> <b id="finalScore">0</b></div>
-                <div class="f-stat"><span>العملات:</span> <b id="finalCoins">0</b></div>
-                <div class="f-stat gold"><span>أفضل رقم:</span> <b id="finalHigh">0</b></div>
-            </div>
-            <button id="restartBtn" class="btn-royal">محاولة أخرى</button>
-            <button id="menuFromOverBtn" class="btn-glass">القائمة الرئيسية</button>
+            <h2>انتهت اللعبة!</h2>
+            <p>النقاط: <span id="finalScore">0</span></p>
+            <p>الذهب: <span id="finalCoins">0</span></p>
+            <button id="restartBtn" class="btn-royal">إعادة المحاولة</button>
         </div>
     </div>
 
-    <!-- شاشة الإعدادات -->
-    <div id="settingsScreen" class="overlay hidden">
+    <!-- شاشة المطور -->
+    <div id="creditsScreen" class="overlay hidden">
         <div class="glass-card">
-            <h2>الإعدادات الملكية</h2>
-            <div class="setting-group">
-                <label>المؤثرات الصوتية</label>
-                <input type="checkbox" id="soundToggle" checked>
-            </div>
-            <div class="setting-group">
-                <label>مستوى الموسيقى</label>
-                <input type="range" id="volumeSlider" min="0" max="100" value="70">
-            </div>
-            <button id="saveSettingsBtn" class="btn-royal">حفظ</button>
+            <h2>Developer</h2>
+            <p class="dev-name">The Small Programmer</p>
+            <p class="dev-name-en">Mohamed Ragab Abdelmonem</p>
+            <button id="closeCreditsBtn" class="btn-glass">رجوع</button>
         </div>
     </div>
 </div>

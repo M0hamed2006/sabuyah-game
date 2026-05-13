@@ -1,318 +1,288 @@
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+// 3D Game Engine Setup
+const container = document.getElementById('game-container');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xd08a55); // لون سماء يعطي طابع شعبي وقت الغروب
+scene.fog = new THREE.Fog(0xd08a55, 20, 100);
 
-// Settings & Globals
-let width, height, pixelRatio;
-let gameRunning = false;
-let paused = false;
-let score = 0;
-let coins = 0;
-let highscore = localStorage.getItem('sabuyah_high') || 0;
-let attempts = localStorage.getItem('sabuyah_attempts') || 0;
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 150);
+camera.position.set(0, 6, 12);
+camera.lookAt(0, 2, -10);
 
-// Game Config
-const CONFIG = {
-    laneCount: 3,
-    playerBaseY: 0.8, // 80% down
-    speedBase: 8,
-    speedMax: 22,
-    gravity: 0.6
-};
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+container.appendChild(renderer.domElement);
 
-// Colors
-const PALETTE = {
-    gold: '#ffcc00',
-    neon: '#00f2ff',
-    player: '#ffffff',
-    track: '#1a1a1a',
-    trackLines: '#333333'
-};
+// الإضاءة (تأثير الشمس المائلة)
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+scene.add(ambientLight);
+const dirLight = new THREE.DirectionalLight(0xffddaa, 0.8);
+dirLight.position.set(10, 20, 10);
+dirLight.castShadow = true;
+scene.add(dirLight);
 
-class Particle {
-    constructor(x, y, color) {
-        this.x = x; this.y = y;
-        this.vx = (Math.random() - 0.5) * 10;
-        this.vy = (Math.random() - 0.5) * 10;
-        this.alpha = 1;
-        this.color = color;
-        this.size = Math.random() * 4 + 2;
+// الأرضية (الشارع)
+const roadGeo = new THREE.PlaneGeometry(200, 200);
+const roadMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.8 });
+const road = new THREE.Mesh(roadGeo, roadMat);
+road.rotation.x = -Math.PI / 2;
+road.receiveShadow = true;
+scene.add(road);
+
+// خطوط الشارع
+const lineGeo = new THREE.PlaneGeometry(0.2, 200);
+const lineMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+const line1 = new THREE.Mesh(lineGeo, lineMat); line1.position.set(-1.5, 0.01, 0); line1.rotation.x = -Math.PI/2; scene.add(line1);
+const line2 = new THREE.Mesh(lineGeo, lineMat); line2.position.set(1.5, 0.01, 0); line2.rotation.x = -Math.PI/2; scene.add(line2);
+
+// بناء اللاعب (الولد)
+const playerGroup = new THREE.Group();
+const skinMat = new THREE.MeshLambertMaterial({ color: 0xffccaa });
+const shirtMat = new THREE.MeshLambertMaterial({ color: 0xcc2222 });
+const jeansMat = new THREE.MeshLambertMaterial({ color: 0x2244aa });
+
+const head = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), skinMat);
+head.position.y = 2.4; head.castShadow = true; playerGroup.add(head);
+
+const body = new THREE.Mesh(new THREE.BoxGeometry(1, 1.2, 0.5), shirtMat);
+body.position.y = 1.4; body.castShadow = true; playerGroup.add(body);
+
+const armGeo = new THREE.BoxGeometry(0.3, 1, 0.3);
+const leftArm = new THREE.Mesh(armGeo, skinMat); leftArm.position.set(-0.7, 1.5, 0); leftArm.castShadow = true; playerGroup.add(leftArm);
+const rightArm = new THREE.Mesh(armGeo, skinMat); rightArm.position.set(0.7, 1.5, 0); rightArm.castShadow = true; playerGroup.add(rightArm);
+
+const legGeo = new THREE.BoxGeometry(0.4, 1.2, 0.4);
+const leftLeg = new THREE.Mesh(legGeo, jeansMat); leftLeg.position.set(-0.25, 0.6, 0); leftLeg.castShadow = true; playerGroup.add(leftLeg);
+const rightLeg = new THREE.Mesh(legGeo, jeansMat); rightLeg.position.set(0.25, 0.6, 0); rightLeg.castShadow = true; playerGroup.add(rightLeg);
+
+scene.add(playerGroup);
+
+// متغيرات اللعبة
+let gameRunning = false, score = 0, coins = 0, speed = 0.4;
+let targetX = 0, playerVY = 0, isJumping = false;
+let obstacles = [], items = [], buildings = [];
+let clock = new THREE.Clock();
+
+// إنشاء المباني (طابع شعبي)
+const buildingColors = [0xcc9966, 0xaa7755, 0xddbb99, 0x887766];
+function spawnBuilding(z) {
+    let side = Math.random() > 0.5 ? 1 : -1;
+    let width = 4 + Math.random() * 4;
+    let height = 5 + Math.random() * 10;
+    let geo = new THREE.BoxGeometry(width, height, 5 + Math.random() * 5);
+    let mat = new THREE.MeshLambertMaterial({ color: buildingColors[Math.floor(Math.random()*buildingColors.length)] });
+    let mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(side * (5 + width/2), height/2, z);
+    mesh.castShadow = true; mesh.receiveShadow = true;
+    scene.add(mesh); buildings.push(mesh);
+}
+for(let i=0; i<20; i++) spawnBuilding(-i * 10);
+
+// إنشاء العقبات (عربيات وقطارات)
+function spawnObstacle() {
+    if(!gameRunning) return;
+    let lane = Math.floor(Math.random() * 3) - 1; // -1, 0, 1
+    let type = Math.random() > 0.6 ? 'train' : 'car';
+    let mesh;
+    if(type === 'train') {
+        mesh = new THREE.Mesh(new THREE.BoxGeometry(2, 3, 10), new THREE.MeshLambertMaterial({ color: 0x228822 }));
+        mesh.position.set(lane * 3, 1.5, -80);
+        mesh.userData = { type: 'train', bbox: new THREE.Box3() };
+    } else {
+        mesh = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.5, 4), new THREE.MeshLambertMaterial({ color: 0xccaa22 }));
+        mesh.position.set(lane * 3, 0.75, -80);
+        mesh.userData = { type: 'car', bbox: new THREE.Box3() };
     }
-    update() {
-        this.x += this.vx; this.y += this.vy;
-        this.alpha -= 0.02;
-    }
-    draw(ctx) {
-        ctx.globalAlpha = this.alpha;
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
-        ctx.fill();
-        ctx.globalAlpha = 1;
-    }
+    mesh.castShadow = true;
+    scene.add(mesh); obstacles.push(mesh);
 }
 
-class Player {
-    constructor() {
-        this.lane = 1;
-        this.targetX = 0;
-        this.currentX = 0;
-        this.y = 0;
-        this.vy = 0;
-        this.isJumping = false;
-        this.w = 40;
-        this.h = 60;
-    }
-    update() {
-        const laneWidth = width / CONFIG.laneCount;
-        this.targetX = (this.lane * laneWidth) + (laneWidth / 2);
-        
-        // Smooth Lerp movement
-        this.currentX += (this.targetX - this.currentX) * 0.15;
+// إنشاء الذهب
+function spawnCoin() {
+    if(!gameRunning) return;
+    let lane = Math.floor(Math.random() * 3) - 1;
+    let mesh = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.1, 16), new THREE.MeshLambertMaterial({ color: 0xffcc00 }));
+    mesh.rotation.x = Math.PI / 2;
+    mesh.position.set(lane * 3, 1, -80);
+    mesh.userData = { isCoin: true, bbox: new THREE.Box3() };
+    scene.add(mesh); items.push(mesh);
+}
 
-        // Physics
-        if (this.isJumping) {
-            this.y += this.vy;
-            this.vy += CONFIG.gravity;
-            if (this.y >= 0) {
-                this.y = 0;
-                this.isJumping = false;
+// نظام الموسيقى (Synthesizer)
+let audioCtx;
+function startMusic() {
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    
+    // إيقاع بسيط متكرر
+    setInterval(() => {
+        if(!gameRunning) return;
+        let osc = audioCtx.createOscillator();
+        let gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+    }, 400); // طبلة كل 400ms
+}
+function playCoinSound() {
+    if(!audioCtx) return;
+    let osc = audioCtx.createOscillator();
+    osc.type = 'sine'; osc.frequency.value = 1200;
+    osc.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+}
+
+// اللوب الرئيسي
+function animate() {
+    requestAnimationFrame(animate);
+    let time = clock.getElapsedTime();
+
+    if(gameRunning) {
+        // حركة اللاعب يميناً ويساراً (نعومة)
+        playerGroup.position.x += (targetX - playerGroup.position.x) * 0.15;
+        
+        // الجاذبية والقفز
+        if(isJumping) {
+            playerGroup.position.y += playerVY;
+            playerVY -= 0.02; // قوة الجاذبية
+            if(playerGroup.position.y <= 0) {
+                playerGroup.position.y = 0;
+                isJumping = false;
+                playerVY = 0;
             }
         }
-    }
-    draw(ctx) {
-        ctx.save();
-        ctx.translate(this.currentX, height * CONFIG.playerBaseY + this.y);
-        
-        // Draw Shadow
-        ctx.fillStyle = 'rgba(0,0,0,0.3)';
-        ctx.beginPath();
-        ctx.ellipse(0, 5, 20, 10, 0, 0, Math.PI*2);
-        ctx.fill();
 
-        // Draw Stylized Player (Neon Cube)
-        ctx.fillStyle = PALETTE.player;
-        ctx.shadowBlur = 20;
-        ctx.shadowColor = PALETTE.neon;
-        ctx.fillRect(-this.w/2, -this.h, this.w, this.h);
-        
-        // Face
-        ctx.fillStyle = '#000';
-        ctx.fillRect(-10, -50, 5, 5);
-        ctx.fillRect(5, -50, 5, 5);
-        
-        ctx.restore();
-    }
-}
-
-class Obstacle {
-    constructor(lane, speed) {
-        this.lane = lane;
-        this.y = -100;
-        this.speed = speed;
-        this.w = 50;
-        this.h = 80;
-        this.color = '#ff4444';
-        this.active = true;
-    }
-    update() { this.y += this.speed; }
-    draw(ctx) {
-        const laneWidth = width / CONFIG.laneCount;
-        const x = (this.lane * laneWidth) + (laneWidth / 2);
-        
-        ctx.fillStyle = this.color;
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = this.color;
-        ctx.fillRect(x - this.w/2, this.y, this.w, this.h);
-        ctx.shadowBlur = 0;
-    }
-}
-
-class Coin {
-    constructor(lane, speed) {
-        this.lane = lane;
-        this.y = -100;
-        this.speed = speed;
-        this.size = 15;
-    }
-    update() { this.y += speed; }
-    draw(ctx) {
-        const laneWidth = width / CONFIG.laneCount;
-        const x = (this.lane * laneWidth) + (laneWidth / 2);
-        ctx.fillStyle = PALETTE.gold;
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = PALETTE.gold;
-        ctx.beginPath();
-        ctx.arc(x, this.y, this.size, 0, Math.PI*2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
-    }
-}
-
-let player = new Player();
-let obstacles = [];
-let coinsArr = [];
-let particles = [];
-let speed = CONFIG.speedBase;
-let frame = 0;
-
-function resize() {
-    pixelRatio = window.devicePixelRatio || 1;
-    width = window.innerWidth;
-    height = window.innerHeight;
-    canvas.width = width * pixelRatio;
-    canvas.height = height * pixelRatio;
-    ctx.scale(pixelRatio, pixelRatio);
-}
-
-function spawn() {
-    if (frame % 60 === 0) {
-        obstacles.push(new Obstacle(Math.floor(Math.random()*3), speed));
-    }
-    if (frame % 40 === 0) {
-        coinsArr.push(new Coin(Math.floor(Math.random()*3), speed));
-    }
-}
-
-function checkCollision() {
-    const py = height * CONFIG.playerBaseY + player.y;
-    const px = player.currentX;
-
-    obstacles.forEach((obs, index) => {
-        const ox = (obs.lane * (width/3)) + (width/6);
-        if (Math.abs(px - ox) < 40 && Math.abs(py - obs.y) < 50) {
-            gameOver();
+        // تحريك أطراف الولد (الجري)
+        if(!isJumping) {
+            leftArm.rotation.x = Math.sin(time * 15) * 0.5;
+            rightArm.rotation.x = Math.sin(time * 15 + Math.PI) * 0.5;
+            leftLeg.rotation.x = Math.sin(time * 15 + Math.PI) * 0.5;
+            rightLeg.rotation.x = Math.sin(time * 15) * 0.5;
+        } else {
+            leftLeg.rotation.x = -0.5; rightLeg.rotation.x = 0;
         }
-    });
 
-    coinsArr.forEach((c, index) => {
-        const cx = (c.lane * (width/3)) + (width/6);
-        if (Math.abs(px - cx) < 30 && Math.abs(py - c.y) < 40) {
-            coins++;
-            score += 50;
-            // Add particles
-            for(let i=0; i<8; i++) particles.push(new Particle(cx, c.y, PALETTE.gold));
-            coinsArr.splice(index, 1);
-            document.getElementById('coinCount').innerText = coins;
+        // تحريك المباني
+        buildings.forEach(b => {
+            b.position.z += speed;
+            if(b.position.z > 20) b.position.z -= 200;
+        });
+
+        // حركة العقبات والاصطدام
+        let pBox = new THREE.Box3().setFromObject(playerGroup);
+        pBox.expandByScalar(-0.2); // تقليل حجم الاصطدام قليلاً ليكون عادلاً
+
+        for(let i=obstacles.length-1; i>=0; i--) {
+            let obs = obstacles[i];
+            obs.position.z += speed;
+            obs.userData.bbox.setFromObject(obs);
+            
+            if(pBox.intersectsBox(obs.userData.bbox)) {
+                gameOver();
+            }
+            if(obs.position.z > 20) {
+                scene.remove(obs);
+                obstacles.splice(i, 1);
+            }
         }
-    });
-}
 
-function update() {
-    if (!gameRunning || paused) return;
-    
-    frame++;
-    speed = Math.min(CONFIG.speedMax, CONFIG.speedBase + (score/2000));
-    score += Math.floor(speed/5);
-    document.getElementById('score').innerText = score;
+        // حركة الذهب
+        for(let i=items.length-1; i>=0; i--) {
+            let item = items[i];
+            item.position.z += speed;
+            item.rotation.y += 0.1;
+            item.userData.bbox.setFromObject(item);
+            
+            if(pBox.intersectsBox(item.userData.bbox)) {
+                coins++;
+                document.getElementById('coinVal').innerText = coins;
+                playCoinSound();
+                scene.remove(item);
+                items.splice(i, 1);
+                continue;
+            }
+            if(item.position.z > 20) { scene.remove(item); items.splice(i, 1); }
+        }
 
-    player.update();
-    spawn();
+        score += speed;
+        document.getElementById('scoreVal').innerText = Math.floor(score);
+        speed += 0.0001; // زيادة السرعة تدريجياً
 
-    obstacles.forEach((o, i) => {
-        o.update();
-        if (o.y > height) obstacles.splice(i, 1);
-    });
-
-    coinsArr.forEach((c, i) => {
-        c.y += speed;
-        if (c.y > height) coinsArr.splice(i, 1);
-    });
-
-    particles.forEach((p, i) => {
-        p.update();
-        if (p.alpha <= 0) particles.splice(i, 1);
-    });
-
-    checkCollision();
-}
-
-function draw() {
-    ctx.clearRect(0,0,width,height);
-    
-    // Background / Track
-    ctx.fillStyle = '#0a0a0a';
-    ctx.fillRect(0,0,width,height);
-    
-    // Lanes
-    ctx.strokeStyle = 'rgba(255,204,0,0.1)';
-    ctx.lineWidth = 2;
-    for(let i=1; i<CONFIG.laneCount; i++) {
-        ctx.beginPath();
-        ctx.moveTo(i * (width/3), 0);
-        ctx.lineTo(i * (width/3), height);
-        ctx.stroke();
+        // توليد عشوائي
+        if(Math.random() < 0.02) spawnObstacle();
+        if(Math.random() < 0.05) spawnCoin();
     }
 
-    obstacles.forEach(o => o.draw(ctx));
-    coinsArr.forEach(c => c.draw(ctx));
-    particles.forEach(p => p.draw(ctx));
-    player.draw(ctx);
+    renderer.render(scene, camera);
 }
+animate();
 
-function loop() {
-    update();
-    draw();
-    requestAnimationFrame(loop);
+// التحكم
+function moveLeft() { if(targetX > -3) targetX -= 3; }
+function moveRight() { if(targetX < 3) targetX += 3; }
+function jump() { if(!isJumping) { isJumping = true; playerVY = 0.4; } }
+
+window.addEventListener('keydown', (e) => {
+    if(!gameRunning) return;
+    if(e.key === 'ArrowLeft') moveLeft();
+    if(e.key === 'ArrowRight') moveRight();
+    if(e.key === 'ArrowUp' || e.key === ' ') jump();
+});
+
+let touchX = 0, touchY = 0;
+window.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; touchY = e.touches[0].clientY; });
+window.addEventListener('touchend', e => {
+    if(!gameRunning) return;
+    let dx = e.changedTouches[0].clientX - touchX;
+    let dy = e.changedTouches[0].clientY - touchY;
+    if(Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 30) {
+        if(dx > 0) moveRight(); else moveLeft();
+    } else if(dy < -30) {
+        jump();
+    } else { jump(); } // النقر للقفز
+});
+
+// UI Logic
+function startGame() {
+    obstacles.forEach(o => scene.remove(o)); obstacles = [];
+    items.forEach(i => scene.remove(i)); items = [];
+    score = 0; coins = 0; speed = 0.4; targetX = 0;
+    playerGroup.position.set(0,0,0);
+    document.getElementById('scoreVal').innerText = '0';
+    document.getElementById('coinVal').innerText = '0';
+    
+    document.getElementById('startScreen').classList.add('hidden');
+    document.getElementById('gameOverScreen').classList.add('hidden');
+    document.getElementById('gameUI').classList.remove('hidden');
+    
+    gameRunning = true;
+    startMusic();
 }
 
 function gameOver() {
     gameRunning = false;
-    if (score > highscore) {
-        highscore = score;
-        localStorage.setItem('sabuyah_high', highscore);
-    }
-    attempts++;
-    localStorage.setItem('sabuyah_attempts', attempts);
-    
-    document.getElementById('finalScore').innerText = score;
-    document.getElementById('finalCoins').innerText = coins;
-    document.getElementById('finalHigh').innerText = highscore;
-    
-    document.getElementById('gameScreen').classList.add('hidden');
+    document.getElementById('gameUI').classList.add('hidden');
     document.getElementById('gameOverScreen').classList.remove('hidden');
+    document.getElementById('finalScore').innerText = Math.floor(score);
+    document.getElementById('finalCoins').innerText = coins;
 }
 
-function start() {
-    score = 0; coins = 0; speed = CONFIG.speedBase;
-    obstacles = []; coinsArr = []; particles = [];
-    player = new Player();
-    gameRunning = true;
+document.getElementById('playBtn').onclick = startGame;
+document.getElementById('restartBtn').onclick = startGame;
+document.getElementById('creditsBtn').onclick = () => {
     document.getElementById('startScreen').classList.add('hidden');
-    document.getElementById('gameOverScreen').classList.add('hidden');
-    document.getElementById('gameScreen').classList.remove('hidden');
-}
+    document.getElementById('creditsScreen').classList.remove('hidden');
+};
+document.getElementById('closeCreditsBtn').onclick = () => {
+    document.getElementById('creditsScreen').classList.add('hidden');
+    document.getElementById('startScreen').classList.remove('hidden');
+};
 
-// Controls
-window.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft' && player.lane > 0) player.lane--;
-    if (e.key === 'ArrowRight' && player.lane < 2) player.lane++;
-    if ((e.key === 'ArrowUp' || e.key === ' ') && !player.isJumping) {
-        player.isJumping = true;
-        player.vy = -15;
-    }
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
 });
-
-// Mobile Swipe
-let touchStartX = 0;
-window.addEventListener('touchstart', e => touchStartX = e.touches[0].clientX);
-window.addEventListener('touchend', e => {
-    let diff = e.changedTouches[0].clientX - touchStartX;
-    if (Math.abs(diff) > 50) {
-        if (diff > 0 && player.lane < 2) player.lane++;
-        if (diff < 0 && player.lane > 0) player.lane--;
-    } else {
-        if (!player.isJumping) { player.isJumping = true; player.vy = -15; }
-    }
-});
-
-document.getElementById('playBtn').onclick = start;
-document.getElementById('restartBtn').onclick = start;
-document.getElementById('menuFromOverBtn').onclick = () => location.reload();
-
-window.addEventListener('resize', resize);
-resize();
-loop();
-
-// Init UI
-document.getElementById('startHighScore').innerText = highscore;
-document.getElementById('totalAttempts').innerText = attempts;
