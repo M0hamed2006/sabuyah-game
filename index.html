@@ -1,176 +1,24 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1">
-<title>صابويه - الأسطورة 🚇</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>صابويه المصري | النسخة المنظمة</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
-<canvas id="gameCanvas"></canvas>
-
-<div id="ui">
-
-  <!-- ===== شاشة البداية ===== -->
-  <div id="screen-start" class="screen active">
-    <div class="start-content">
-      <div class="logo-wrap">
-        <div class="logo-glow"></div>
-        <h1 class="logo-text">صابويه</h1>
-        <p class="logo-sub">THE LEGEND · الأسطورة</p>
-      </div>
-      <div class="start-stats-bar">
-        <div class="stat-pill">🏆 <strong id="stat-best">0</strong></div>
-        <div class="stat-pill">🪙 <strong id="stat-total">0</strong></div>
-        <div class="stat-pill">🎮 <strong id="stat-tries">0</strong></div>
-      </div>
-      <div class="char-select-wrap">
-        <p class="char-label">اختار شخصيتك</p>
-        <div class="char-cards" id="charCards"></div>
-      </div>
-      <div class="start-btns">
-        <button class="btn-play" id="btnPlay">▶ العب الآن</button>
-        <div class="secondary-btns">
-          <button class="btn-sec" id="btnLeaders">🏅 الأوائل</button>
-          <button class="btn-sec" id="btnShop">🛍️ المتجر</button>
-          <button class="btn-sec" id="btnSettings">⚙️ إعدادات</button>
-        </div>
-      </div>
-      <p class="hint-text">أسهم/WASD للحركة · مسافة للقفز · S للانزلاق · Shift للبوست</p>
+    <div class="game-container">
+        <!-- سيتم ملء الشاشات ديناميكياً بواسطة ui.js -->
+        <div id="screens-root"></div>
     </div>
-  </div>
 
-  <!-- ===== HUD اللعبة ===== -->
-  <div id="screen-hud" class="screen hidden">
-    <div class="hud-top">
-      <div class="hud-pill score-pill">🎯 <span id="hud-score">0</span></div>
-      <div class="hud-center-top">
-        <div class="danger-bar-wrap">
-          <span class="danger-label">⚠️ الغيطي</span>
-          <div class="danger-track">
-            <div id="dangerFill" class="danger-fill" style="width:20%"></div>
-          </div>
-          <span class="danger-icons"><span id="dangerMe">🏃</span><span id="dangerEnemy">👮</span></span>
-        </div>
-      </div>
-      <div class="hud-pill coin-pill">🪙 <span id="hud-coins">0</span></div>
-    </div>
-    <div class="hud-info-bar">
-      <span id="hud-level-name">القاهرة</span>
-      <span id="hud-speed">💨35</span>
-      <span id="hud-mult" class="mult-badge">×1</span>
-    </div>
-    <div class="boost-bar-wrap">
-      <span class="boost-label-txt">⚡BOOST</span>
-      <div class="boost-track"><div id="boostFill" class="boost-fill"></div></div>
-      <span class="boost-key-hint">SHIFT</span>
-    </div>
-    <div id="activePowerups" class="active-powerups"></div>
-    <div id="comboDisplay" class="combo-display hidden"></div>
-    <div id="motivationText" class="motivation-text hidden"></div>
-    <div class="mobile-controls">
-      <button class="ctrl-btn" id="ctrlLeft">◀</button>
-      <div class="ctrl-mid">
-        <button class="ctrl-btn ctrl-up" id="ctrlJump">▲</button>
-        <button class="ctrl-btn ctrl-down" id="ctrlSlide">▼</button>
-      </div>
-      <button class="ctrl-btn" id="ctrlRight">▶</button>
-      <button class="ctrl-boost-btn" id="ctrlBoost">⚡</button>
-    </div>
-    <button class="pause-btn" id="btnPause">⏸</button>
-  </div>
-
-  <!-- ===== إيقاف مؤقت ===== -->
-  <div id="screen-pause" class="screen hidden">
-    <div class="glass-card pause-card">
-      <h2>⏸ مؤقتاً</h2>
-      <button class="btn-play" id="btnResume">▶ استمر</button>
-      <button class="btn-sec" id="btnRestartPause">🔄 ابدأ من جديد</button>
-      <button class="btn-sec" id="btnMenuPause">🏠 القائمة</button>
-    </div>
-  </div>
-
-  <!-- ===== نهاية اللعبة ===== -->
-  <div id="screen-gameover" class="screen hidden">
-    <div class="glass-card gameover-card">
-      <div class="gameover-header">
-        <div class="gameover-emoji" id="gameoverEmoji">💥</div>
-        <h2 id="gameoverTitle">انتهت اللعبة!</h2>
-        <p id="gameoverMsg" class="gameover-msg">حاول تاني يلا!</p>
-      </div>
-      <div class="stats-grid">
-        <div class="stat-box"><span class="s-ico">🎯</span><span class="s-val" id="go-score">0</span><span class="s-lbl">النقاط</span></div>
-        <div class="stat-box"><span class="s-ico">🪙</span><span class="s-val" id="go-coins">0</span><span class="s-lbl">العملات</span></div>
-        <div class="stat-box"><span class="s-ico">🏆</span><span class="s-val" id="go-best">0</span><span class="s-lbl">أعلى</span></div>
-        <div class="stat-box"><span class="s-ico">💨</span><span class="s-val" id="go-speed">0</span><span class="s-lbl">أقصى سرعة</span></div>
-        <div class="stat-box"><span class="s-ico">🚆</span><span class="s-val" id="go-trains">0</span><span class="s-lbl">قطارات</span></div>
-        <div class="stat-box"><span class="s-ico">🔥</span><span class="s-val" id="go-combo">0</span><span class="s-lbl">كومبو</span></div>
-      </div>
-      <canvas id="scoreChart" width="300" height="70"></canvas>
-      <div class="leaderboard-mini">
-        <h3>🏅 أفضل 5</h3>
-        <ol id="leaderList"></ol>
-      </div>
-      <div class="gameover-btns">
-        <button class="btn-play" id="btnRestart">🔄 مرة تانية</button>
-        <button class="btn-sec" id="btnMenu">🏠 القائمة</button>
-        <button class="btn-sec" id="btnExport">📥 احفظ</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== الأوائل ===== -->
-  <div id="screen-leaders" class="screen hidden">
-    <div class="glass-card leaders-card">
-      <h2>🏅 لوحة الأوائل</h2>
-      <ol id="fullLeaderList" class="full-leader-list"></ol>
-      <button class="btn-sec" id="btnCloseLeaders">← رجوع</button>
-    </div>
-  </div>
-
-  <!-- ===== المتجر ===== -->
-  <div id="screen-shop" class="screen hidden">
-    <div class="glass-card shop-card">
-      <div class="shop-header">
-        <h2>🛍️ المتجر</h2>
-        <div class="shop-balance">🪙 <span id="shopBalance">0</span></div>
-      </div>
-      <div id="shopItems" class="shop-grid"></div>
-      <button class="btn-sec" id="btnCloseShop">← رجوع</button>
-    </div>
-  </div>
-
-  <!-- ===== الإعدادات ===== -->
-  <div id="screen-settings" class="screen hidden">
-    <div class="glass-card settings-card">
-      <h2>⚙️ إعدادات</h2>
-      <div class="settings-list">
-        <div class="setting-row"><label>🎵 الموسيقى</label><div class="toggle-wrap"><input type="checkbox" id="setMusic" checked><label for="setMusic" class="toggle"></label></div></div>
-        <div class="setting-row"><label>🔊 المؤثرات</label><div class="toggle-wrap"><input type="checkbox" id="setSfx" checked><label for="setSfx" class="toggle"></label></div></div>
-        <div class="setting-row"><label>💬 التعليقات</label><div class="toggle-wrap"><input type="checkbox" id="setVoice" checked><label for="setVoice" class="toggle"></label></div></div>
-        <div class="setting-row"><label>📳 اهتزاز</label><div class="toggle-wrap"><input type="checkbox" id="setVibrate" checked><label for="setVibrate" class="toggle"></label></div></div>
-        <div class="setting-row"><label>✨ جودة الجسيمات</label>
-          <select id="setParticles" class="setting-select">
-            <option value="high">عالية</option>
-            <option value="med" selected>متوسطة</option>
-            <option value="low">منخفضة</option>
-          </select>
-        </div>
-        <div class="setting-row"><label>📸 اهتزاز كاميرا</label><div class="toggle-wrap"><input type="checkbox" id="setShake" checked><label for="setShake" class="toggle"></label></div></div>
-      </div>
-      <button class="btn-play" id="btnSaveSettings">✅ حفظ</button>
-      <button class="btn-sec" id="btnCloseSettings">← رجوع</button>
-    </div>
-  </div>
-
-  <!-- بوبابات -->
-  <div id="achievementPopup" class="achievement-popup hidden"></div>
-  <div id="powerupPopup" class="powerup-popup hidden"></div>
-
-</div>
-
-<script src="game.js"></script>
+    <!-- ملفات JavaScript المنظمة -->
+    <script src="js/utils.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/enemy.js"></script>
+    <script src="js/spawn.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
