@@ -9,702 +9,27 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@latest"></script>
-    <style>
-        /* ========== GLOBAL RESET & FONTS ========== */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --primary: #ff6b6b;
-            --secondary: #feca57;
-            --accent: #48dbfb;
-            --dark: #0a0a1a;
-            --glass: rgba(255,255,255,0.05);
-            --glass-border: rgba(255,255,255,0.1);
-        }
-        body {
-            font-family: 'Cairo', sans-serif;
-            background: var(--dark);
-            color: #fff;
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
-
-        /* ========== THREE.JS CANVAS ========== */
-        #canvas-container {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        /* ========== AUDIO CONTROL ========== */
-        .audio-control {
-            position: fixed;
-            top: 20px; left: 20px;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 50px;
-            padding: 8px 15px;
-            transition: all 0.3s;
-        }
-        .audio-control:hover {
-            background: rgba(255,255,255,0.1);
-            box-shadow: 0 0 20px rgba(72,219,251,0.3);
-        }
-        .audio-control button {
-            background: none;
-            border: none;
-            color: var(--accent);
-            font-size: 1.2rem;
-            cursor: pointer;
-            width: 35px; height: 35px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.3s;
-        }
-        .audio-control button:hover {
-            background: rgba(72,219,251,0.2);
-            transform: scale(1.1);
-        }
-        .audio-control input[type="range"] {
-            width: 80px;
-            accent-color: var(--accent);
-        }
-        .audio-control span {
-            font-size: 0.8rem;
-            color: var(--accent);
-            min-width: 35px;
-        }
-
-        /* ========== DEVELOPER CREDIT ========== */
-        .dev-credit {
-            position: fixed;
-            top: 20px; right: 20px;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, rgba(255,107,107,0.2), rgba(254,202,87,0.2));
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,107,107,0.3);
-            border-radius: 50px;
-            padding: 10px 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 700;
-            font-size: 0.9rem;
-        }
-        .dev-credit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(255,107,107,0.3);
-            border-color: var(--primary);
-        }
-        .dev-credit i { color: var(--primary); }
-
-        /* ========== API KEY SECTION ========== */
-        .api-section {
-            position: fixed;
-            top: 70px; left: 20px;
-            z-index: 999;
-            display: flex;
-            gap: 5px;
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 5px;
-            transition: all 0.3s;
-        }
-        .api-section input {
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--glass-border);
-            border-radius: 8px;
-            padding: 8px 12px;
-            color: #fff;
-            font-family: 'Cairo', sans-serif;
-            font-size: 0.8rem;
-            width: 200px;
-            outline: none;
-        }
-        .api-section input::placeholder { color: #666; }
-        .api-section input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 10px rgba(72,219,251,0.2);
-        }
-        .api-section button {
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            border: none;
-            border-radius: 8px;
-            color: #1a1a2e;
-            width: 35px; height: 35px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .api-section button:hover { transform: scale(1.1); }
-
-        /* ========== MAIN CONTAINER ========== */
-        .main-container {
-            position: relative;
-            z-index: 10;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-            padding-top: 120px;
-        }
-
-        /* ========== GLASSMORPHISM ========== */
-        .glass {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-        }
-        .glass-header {
-            background: linear-gradient(135deg, rgba(255,107,107,0.1), rgba(254,202,87,0.1), rgba(72,219,251,0.1));
-            backdrop-filter: blur(30px);
-            border: 1px solid var(--glass-border);
-            border-radius: 30px;
-            padding: 40px 30px;
-            text-align: center;
-            margin-bottom: 30px;
-            position: relative;
-            overflow: hidden;
-        }
-        .glass-header::before {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(255,107,107,0.1) 0%, transparent 70%);
-            animation: rotate 20s linear infinite;
-        }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-        /* ========== GLITCH TITLE ========== */
-        .glitch {
-            font-size: 3.5rem;
-            font-weight: 900;
-            background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            position: relative;
-            animation: glow 3s ease-in-out infinite;
-            margin-bottom: 10px;
-        }
-        @keyframes glow {
-            0%, 100% { filter: brightness(1) drop-shadow(0 0 10px rgba(255,107,107,0.5)); }
-            50% { filter: brightness(1.3) drop-shadow(0 0 30px rgba(72,219,251,0.8)); }
-        }
-        .subtitle {
-            color: #a0a0c0;
-            font-size: 1.1rem;
-            margin-bottom: 20px;
-        }
-        .badges {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .badge {
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 50px;
-            padding: 8px 16px;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.3s;
-        }
-        .badge:hover {
-            background: rgba(255,255,255,0.15);
-            transform: translateY(-2px);
-        }
-        .badge i { color: var(--accent); }
-
-        /* ========== SECTIONS ========== */
-        .glass-section {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 25px;
-            margin-bottom: 25px;
-            transition: all 0.3s;
-        }
-        .glass-section:hover {
-            border-color: rgba(255,255,255,0.2);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-        }
-        .glass-section h2 {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--secondary);
-        }
-
-        /* ========== CAMERA ========== */
-        .camera-wrapper {
-            position: relative;
-            border-radius: 20px;
-            overflow: hidden;
-            background: rgba(0,0,0,0.3);
-        }
-        #video, #canvas {
-            width: 100%;
-            border-radius: 20px;
-            display: none;
-        }
-        #video.active, #canvas.active { display: block; }
-        .camera-overlay {
-            display: flex;
-            gap: 10px;
-            padding: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        /* ========== BUTTONS ========== */
-        .btn-glow {
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            border: none;
-            border-radius: 16px;
-            padding: 15px 30px;
-            color: #1a1a2e;
-            font-family: 'Cairo', sans-serif;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            position: relative;
-            overflow: hidden;
-        }
-        .btn-glow::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transition: 0.5s;
-        }
-        .btn-glow:hover::before { left: 100%; }
-        .btn-glow:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(255,107,107,0.4);
-        }
-        .btn-glass {
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 16px;
-            padding: 12px 24px;
-            color: #fff;
-            font-family: 'Cairo', sans-serif;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .btn-glass:hover {
-            background: rgba(255,255,255,0.15);
-            border-color: var(--accent);
-            transform: translateY(-2px);
-        }
-        .btn-glass.small { padding: 8px 16px; font-size: 0.8rem; }
-
-        /* ========== RESULT BOX ========== */
-        .result-box {
-            background: linear-gradient(135deg, rgba(72,219,251,0.1), rgba(255,107,107,0.1));
-            border: 2px solid var(--accent);
-            border-radius: 20px;
-            padding: 25px;
-            margin-top: 20px;
-            text-align: center;
-            animation: slideUp 0.6s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .result-box::before {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(72,219,251,0.1) 0%, transparent 70%);
-            animation: pulse 4s ease-in-out infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.1); opacity: 1; }
-        }
-        @keyframes slideUp {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .result-icon { font-size: 3rem; margin-bottom: 15px; position: relative; z-index: 1; }
-        #resultText {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 10px;
-            position: relative;
-            z-index: 1;
-        }
-        #resultConfidence {
-            color: #a0a0c0;
-            font-size: 0.9rem;
-            position: relative;
-            z-index: 1;
-        }
-        .hidden { display: none !important; }
-
-        /* ========== CHAT ========== */
-        .chat-controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-        .chat-history {
-            max-height: 400px;
-            overflow-y: auto;
-            padding: 15px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 20px;
-            margin-bottom: 15px;
-            scrollbar-width: thin;
-            scrollbar-color: var(--primary) transparent;
-        }
-        .chat-history::-webkit-scrollbar { width: 6px; }
-        .chat-history::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
-        .chat-message {
-            padding: 15px 20px;
-            border-radius: 20px;
-            margin: 10px 0;
-            max-width: 85%;
-            animation: fadeIn 0.4s ease;
-            position: relative;
-            line-height: 1.8;
-            font-size: 0.95rem;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9) translateY(10px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        .chat-message.user {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: #1a1a2e;
-            margin-left: auto;
-            text-align: right;
-            font-weight: 600;
-            border-bottom-right-radius: 5px;
-        }
-        .chat-message.ai {
-            background: rgba(255,255,255,0.08);
-            color: #fff;
-            margin-right: auto;
-            text-align: right;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-bottom-left-radius: 5px;
-        }
-        .chat-message.ai.searching {
-            border-color: var(--accent);
-            background: linear-gradient(135deg, rgba(72,219,251,0.1), transparent);
-        }
-        .chat-message.ai .search-badge {
-            display: inline-block;
-            background: var(--accent);
-            color: #1a1a2e;
-            font-size: 0.7rem;
-            padding: 2px 8px;
-            border-radius: 50px;
-            margin-bottom: 8px;
-            font-weight: 700;
-        }
-        .chat-input-wrapper {
-            display: flex;
-            gap: 10px;
-        }
-        #chatInput {
-            flex: 1;
-            padding: 15px 20px;
-            border-radius: 16px;
-            border: 2px solid rgba(255,255,255,0.15);
-            background: rgba(0,0,0,0.3);
-            color: #fff;
-            font-family: 'Cairo', sans-serif;
-            font-size: 1rem;
-            outline: none;
-            transition: all 0.3s;
-        }
-        #chatInput:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 20px rgba(72,219,251,0.2);
-        }
-        #chatInput::placeholder { color: #666; }
-
-        /* ========== CODE SECTION ========== */
-        .code-controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-        .code-controls select {
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 12px;
-            padding: 10px 15px;
-            color: #fff;
-            font-family: 'Cairo', sans-serif;
-            outline: none;
-            cursor: pointer;
-        }
-        .code-controls select option { background: #1a1a2e; }
-        .code-output {
-            background: rgba(0,0,0,0.4);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 16px;
-            padding: 20px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.85rem;
-            line-height: 1.6;
-            color: #a0f0a0;
-            overflow-x: auto;
-            white-space: pre-wrap;
-            direction: ltr;
-            text-align: left;
-        }
-
-        /* ========== FEATURES GRID ========== */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .feature-card {
-            padding: 30px 20px;
-            text-align: center;
-            transition: all 0.4s;
-            cursor: pointer;
-        }
-        .feature-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            border-color: var(--accent);
-            box-shadow: 0 20px 50px rgba(72,219,251,0.2);
-        }
-        .feature-card i {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-            background: linear-gradient(45deg, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .feature-card h3 { font-size: 1.2rem; margin-bottom: 8px; }
-        .feature-card p { color: #888; font-size: 0.9rem; }
-
-        /* ========== FOOTER ========== */
-        .glass-footer {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 30px;
-            text-align: center;
-            margin-top: 20px;
-        }
-        .glass-footer p { color: #888; margin: 5px 0; }
-        .glass-footer strong { color: var(--secondary); }
-
-        /* ========== LOADING ========== */
-        .loading-overlay {
-            position: fixed;
-            inset: 0;
-            background: #050510;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            transition: opacity 0.8s;
-        }
-        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
-        .space-loader {
-            position: relative;
-            width: 120px;
-            height: 120px;
-            margin-bottom: 30px;
-        }
-        .planet {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 50px; height: 50px;
-            background: linear-gradient(135deg, #ff6b6b, #feca57);
-            border-radius: 50%;
-            box-shadow: 0 0 30px rgba(255,107,107,0.6), inset -5px -5px 10px rgba(0,0,0,0.3);
-            animation: planetPulse 2s ease-in-out infinite;
-        }
-        @keyframes planetPulse {
-            0%, 100% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.1); }
-        }
-        .orbit {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100px; height: 100px;
-            border: 2px solid rgba(72,219,251,0.3);
-            border-radius: 50%;
-            animation: orbitSpin 3s linear infinite;
-        }
-        .orbit::before {
-            content: '';
-            position: absolute;
-            top: -4px; left: 50%;
-            transform: translateX(-50%);
-            width: 8px; height: 8px;
-            background: var(--accent);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--accent);
-        }
-        @keyframes orbitSpin { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
-        .loading-overlay p {
-            font-size: 1.3rem;
-            color: #fff;
-            font-weight: 700;
-            margin-top: 20px;
-        }
-        .loading-sub {
-            color: #666 !important;
-            font-size: 0.9rem !important;
-            font-weight: 400 !important;
-        }
-
-        /* ========== MODAL ========== */
-        .modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10001;
-            backdrop-filter: blur(10px);
-        }
-        .modal.hidden { display: none !important; }
-        .modal-content {
-            max-width: 450px;
-            width: 90%;
-            padding: 40px;
-            position: relative;
-            text-align: center;
-        }
-        .close-btn {
-            position: absolute;
-            top: 15px; left: 15px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #888;
-            transition: color 0.3s;
-        }
-        .close-btn:hover { color: var(--primary); }
-        .dev-profile { margin-top: 20px; }
-        .dev-avatar {
-            width: 80px; height: 80px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: #1a1a2e;
-            margin: 0 auto 20px;
-            box-shadow: 0 10px 30px rgba(255,107,107,0.3);
-        }
-        .dev-title {
-            color: var(--secondary);
-            font-weight: 700;
-            margin-bottom: 15px;
-        }
-        .dev-social {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        .social-btn {
-            width: 45px; height: 45px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 1.2rem;
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-        .social-btn:hover {
-            background: var(--accent);
-            color: #1a1a2e;
-            transform: translateY(-3px);
-        }
-
-        /* ========== RESPONSIVE ========== */
-        @media (max-width: 768px) {
-            .glitch { font-size: 2.2rem; }
-            .main-container { padding-top: 140px; }
-            .audio-control { top: 10px; left: 10px; }
-            .dev-credit { top: 10px; right: 10px; font-size: 0.75rem; padding: 8px 12px; }
-            .api-section { top: 55px; left: 10px; }
-            .api-section input { width: 150px; }
-            .features-grid { grid-template-columns: 1fr; }
-            .chat-message { max-width: 95%; }
-        }
-
-        /* ========== SCROLLBAR ========== */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0a0a1a; }
-        ::-webkit-scrollbar-thumb { background: linear-gradient(var(--primary), var(--accent)); border-radius: 10px; }
-    </style>
-<base target="_blank">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="canvas-container"></div>
-
+    
     <div class="audio-control">
         <button id="musicToggle" title="تشغيل/إيقاف الموسيقى"><i class="fas fa-play"></i></button>
         <input type="range" id="volumeSlider" min="0" max="100" value="25">
         <span id="volumeLabel">25%</span>
     </div>
-
+    
     <div class="dev-credit" onclick="showDevInfo()" title="معلومات المطور">
         <i class="fas fa-code"></i>
         <span>المطور: Mohamed Ragab Abdelmonem</span>
     </div>
-
+    
     <div class="api-section">
         <input type="password" id="apiKeyInput" placeholder="🔑 مفتاح API (اختياري)">
         <button id="apiKeyBtn" title="حفظ المفتاح"><i class="fas fa-check"></i></button>
     </div>
-
+    
     <div class="main-container">
         <header class="glass-header">
             <h1 class="glitch" data-text="المصري الذكي">المصري الذكي</h1>
@@ -715,10 +40,11 @@
                 <span class="badge"><i class="fas fa-microphone"></i> نطق عربي</span>
                 <span class="badge"><i class="fas fa-camera"></i> رؤية بصرية</span>
                 <span class="badge"><i class="fas fa-code"></i> مولد أكواد</span>
-                <span class="badge"><i class="fas fa-wifi-slash" style="display:none" id="offlineBadge"></i><i class="fas fa-wifi" id="onlineBadge"></i> <span id="netStatus">متصل</span></span>
+                <span class="badge"><i class="fas fa-music"></i> موسيقى هادية</span>
+                <span class="badge"><i class="fas fa-wifi" id="onlineBadge"></i><i class="fas fa-wifi-slash" id="offlineBadge" style="display:none"></i> <span id="netStatus">متصل</span></span>
             </div>
         </header>
-
+        
         <section class="glass-section camera-section">
             <h2><i class="fas fa-eye"></i> الرؤية الذكية</h2>
             <div class="camera-wrapper">
@@ -736,7 +62,7 @@
                 <div id="resultConfidence"></div>
             </div>
         </section>
-
+        
         <section class="glass-section chat-section">
             <h2><i class="fas fa-comment-dots"></i> المحادثة العبقرية</h2>
             <div class="chat-controls">
@@ -751,7 +77,7 @@
                 <button id="sendBtn" class="btn-glow"><i class="fas fa-rocket"></i></button>
             </div>
         </section>
-
+        
         <section class="glass-section code-section">
             <h2><i class="fas fa-terminal"></i> معالج الأكواد</h2>
             <div class="code-controls">
@@ -773,7 +99,7 @@
             </div>
             <div id="codeOutput" class="code-output hidden"></div>
         </section>
-
+        
         <section class="features-grid">
             <div class="feature-card glass" onclick="ai.askAbout('food')">
                 <i class="fas fa-utensils"></i>
@@ -821,14 +147,14 @@
                 <p>استثمار، تسويق، ريادة</p>
             </div>
         </section>
-
+        
         <footer class="glass-footer">
             <p>© 2026 <strong>المصري الذكي</strong> | AI Egypt Ultra v4.0</p>
             <p>مطور بواسطة <strong style="color:#feca57">Mohamed Ragab Abdelmonem</strong> — The Small Programmer 🇪🇬</p>
             <p style="font-size:0.8rem; color:#555; margin-top:10px">"اللي ياكل وحده يموت وحده" — حكمة مصرية</p>
         </footer>
     </div>
-
+    
     <div id="loading" class="loading-overlay">
         <div class="space-loader">
             <div class="planet"></div>
@@ -838,7 +164,7 @@
         <p class="loading-sub">TensorFlow.js + Three.js + Mega Knowledge Base</p>
         <p class="loading-sub">أول مرة بس، بعد كده يشتغل Offline!</p>
     </div>
-
+    
     <div id="devModal" class="modal hidden">
         <div class="modal-content glass">
             <span class="close-btn" onclick="hideDevInfo()">&times;</span>
@@ -862,3 +188,12 @@
             </div>
         </div>
     </div>
+
+    <!-- Scripts - Load in order -->
+    <script src="space.js"></script>
+    <script src="ai-audio.js"></script>
+    <script src="ai-search.js"></script>
+    <script src="ai-knowledge.js"></script>
+    <script src="ai-core.js"></script>
+</body>
+</html>
