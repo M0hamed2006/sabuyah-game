@@ -3,55 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Subway Legend | 3D Reality</title>
+    <title>Sabuyah - Subway Legend</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <!-- استدعاء مكتبة Three.js لعالم الـ 3D -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
-
-<div id="game-container"></div>
-
-<div class="ui-layer">
-    <!-- شاشة البداية -->
-    <div id="startScreen" class="overlay active">
-        <h1 class="main-title">SUBWAY <span>REALITY</span></h1>
-        <p class="subtitle">الجيل الجديد - 3D</p>
-        <button id="playBtn" class="btn-royal">▶ العب الآن</button>
-        <button id="creditsBtn" class="btn-glass">المطور</button>
-        <div class="hint">اسحب يميناً ويساراً أو استخدم الأسهم<br>اضغط للقفز</div>
-    </div>
-
-    <!-- واجهة اللعب -->
-    <div id="gameUI" class="overlay hidden">
-        <div class="hud">
-            <div class="score-box">النقاط: <span id="scoreVal">0</span></div>
-            <div class="coin-box">الذهب: <span id="coinVal">0</span></div>
+    <div id="game-container"></div>
+    
+    <div class="ui-layer">
+        <!-- Loading Screen -->
+        <div id="loadingScreen" class="overlay active">
+            <div class="loader"></div>
+            <p class="loading-text">جاري التحميل...</p>
+        </div>
+        
+        <!-- Start Screen -->
+        <div id="startScreen" class="overlay">
+            <div class="logo-container">
+                <h1 class="main-title">SABUYAH</h1>
+                <p class="subtitle">أسطورة المترو</p>
+            </div>
+            <div class="menu-buttons">
+                <button id="playBtn" class="btn-royal">▶ ابدأ اللعب</button>
+                <button id="charactersBtn" class="btn-glass">👤 الشخصيات</button>
+                <button id="shopBtn" class="btn-glass">🛒 المتجر</button>
+                <button id="settingsBtn" class="btn-glass">⚙️ الإعدادات</button>
+                <button id="leaderboardBtn" class="btn-glass">🏆 المتصدرين</button>
+                <button id="achievementsBtn" class="btn-glass">🎯 الإنجازات</button>
+                <button id="creditsBtn" class="btn-glass">ℹ️ عن اللعبة</button>
+            </div>
+            <div class="hint">
+                <p>🎮 اسحب يميناً ويساراً للتحريك</p>
+                <p>⬆️ اسحب للأعلى للقفز | ⬇️ اسحب للأسفل للانزلاق</p>
+            </div>
+        </div>
+        
+        <!-- Character Selection -->
+        <div id="charactersScreen" class="overlay hidden">
+            <h2 class="screen-title">اختر شخصيتك</h2>
+            <div class="characters-grid" id="charactersGrid"></div>
+            <button id="closeCharactersBtn" class="btn-glass">رجوع</button>
+        </div>
+        
+        <!-- Shop -->
+        <div id="shopScreen" class="overlay hidden">
+            <h2 class="screen-title">🛒 المتجر</h2>
+            <div class="coins-display">💰 <span id="shopCoins">0</span></div>
+            <div class="shop-grid" id="shopGrid"></div>
+            <button id="closeShopBtn" class="btn-glass">رجوع</button>
+        </div>
+        
+        <!-- Settings -->
+        <div id="settingsScreen" class="overlay hidden">
+            <h2 class="screen-title">⚙️ الإعدادات</h2>
+            <div class="settings-list">
+                <div class="setting-item">
+                    <span>🔊 الموسيقى</span>
+                    <label class="toggle"><input type="checkbox" id="musicToggle" checked><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-item">
+                    <span>🔉 المؤثرات الصوتية</span>
+                    <label class="toggle"><input type="checkbox" id="sfxToggle" checked><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-item">
+                    <span>📳 الاهتزاز</span>
+                    <label class="toggle"><input type="checkbox" id="vibrationToggle" checked><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-item">
+                    <span>🎨 الجودة العالية</span>
+                    <label class="toggle"><input type="checkbox" id="qualityToggle" checked><span class="toggle-slider"></span></label>
+                </div>
+                <div class="setting-item">
+                    <span>👆 حساسية التحكم</span>
+                    <input type="range" id="sensitivityRange" min="1" max="10" value="5">
+                </div>
+            </div>
+            <button id="closeSettingsBtn" class="btn-glass">رجوع</button>
+        </div>
+        
+        <!-- Leaderboard -->
+        <div id="leaderboardScreen" class="overlay hidden">
+            <h2 class="screen-title">🏆 المتصدرين</h2>
+            <div class="leaderboard-list" id="leaderboardList"></div>
+            <button id="closeLeaderboardBtn" class="btn-glass">رجوع</button>
+        </div>
+        
+        <!-- Achievements -->
+        <div id="achievementsScreen" class="overlay hidden">
+            <h2 class="screen-title">🎯 الإنجازات</h2>
+            <div class="achievements-grid" id="achievementsGrid"></div>
+            <button id="closeAchievementsBtn" class="btn-glass">رجوع</button>
+        </div>
+        
+        <!-- Game UI -->
+        <div id="gameUI" class="overlay hidden">
+            <!-- Danger Meter -->
+            <div class="danger-meter-container">
+                <div class="danger-label">⚠️ الخطر</div>
+                <div class="danger-bar">
+                    <div class="danger-fill" id="dangerFill"></div>
+                </div>
+            </div>
+            
+            <!-- Boost Bar -->
+            <div class="boost-container">
+                <div class="boost-label">⚡ BOOST</div>
+                <div class="boost-bar">
+                    <div class="boost-fill" id="boostFill"></div>
+                </div>
+            </div>
+            
+            <!-- HUD -->
+            <div class="hud">
+                <div class="hud-left">
+                    <div class="score-box">
+                        <span class="hud-label">النقاط</span>
+                        <span id="scoreVal" class="hud-value">0</span>
+                    </div>
+                    <div class="distance-box">
+                        <span class="hud-label">المسافة</span>
+                        <span id="distanceVal" class="hud-value">0m</span>
+                    </div>
+                </div>
+                <div class="hud-center">
+                    <div class="level-badge" id="levelBadge">المستوى 1</div>
+                    <div class="environment-badge" id="envBadge">🌆 المدينة</div>
+                </div>
+                <div class="hud-right">
+                    <div class="coin-box">
+                        <span class="hud-label">الذهب</span>
+                        <span id="coinVal" class="hud-value">0</span>
+                    </div>
+                    <div class="speed-box">
+                        <span class="hud-label">السرعة</span>
+                        <span id="speedVal" class="hud-value">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Power-up Icons -->
+            <div class="powerups-bar" id="powerupsBar"></div>
+            
+            <!-- Combo Display -->
+            <div class="combo-display hidden" id="comboDisplay">
+                <span class="combo-text">COMBO x<span id="comboCount">2</span></span>
+            </div>
+            
+            <!-- Touch Controls -->
+            <div class="touch-controls">
+                <div class="touch-zone touch-left" id="touchLeft"></div>
+                <div class="touch-zone touch-center" id="touchCenter"></div>
+                <div class="touch-zone touch-right" id="touchRight"></div>
+            </div>
+        </div>
+        
+        <!-- Game Over -->
+        <div id="gameOverScreen" class="overlay hidden">
+            <div class="glass-card game-over-card">
+                <h2>💀 انتهت اللعبة!</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-label">النقاط</span>
+                        <span class="stat-value" id="finalScore">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">المسافة</span>
+                        <span class="stat-value" id="finalDistance">0m</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">الذهب</span>
+                        <span class="stat-value" id="finalCoins">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">أقصى سرعة</span>
+                        <span class="stat-value" id="finalMaxSpeed">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">العملات المجمعة</span>
+                        <span class="stat-value" id="finalCoinsCollected">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">العقبات المتجنبة</span>
+                        <span class="stat-value" id="finalObstaclesAvoided">0</span>
+                    </div>
+                </div>
+                <div class="new-record hidden" id="newRecord">🎉 رقم قياسي جديد!</div>
+                <button id="restartBtn" class="btn-royal">🔄 إعادة المحاولة</button>
+                <button id="mainMenuBtn" class="btn-glass">🏠 القائمة الرئيسية</button>
+            </div>
+        </div>
+        
+        <!-- Pause Menu -->
+        <div id="pauseScreen" class="overlay hidden">
+            <div class="glass-card">
+                <h2>⏸️ توقف مؤقت</h2>
+                <button id="resumeBtn" class="btn-royal">▶ استئناف</button>
+                <button id="pauseSettingsBtn" class="btn-glass">⚙️ الإعدادات</button>
+                <button id="quitBtn" class="btn-glass">🏠 الخروج للقائمة</button>
+            </div>
+        </div>
+        
+        <!-- Credits -->
+        <div id="creditsScreen" class="overlay hidden">
+            <div class="glass-card credits-card">
+                <h2>🎮 Sabuyah</h2>
+                <p class="version">الإصدار 2.0 - النسخة الاحترافية</p>
+                <div class="credits-content">
+                    <p class="dev-name">The Small Programmer</p>
+                    <p class="dev-name-en">Mohamed Ragab Abdelmonem</p>
+                    <p class="credit-line">تطوير: Mohamed Ragab</p>
+                    <p class="credit-line">تصميم: Mohamed Ragab</p>
+                    <p class="credit-line">موسيقى: Web Audio API</p>
+                </div>
+                <button id="closeCreditsBtn" class="btn-glass">رجوع</button>
+            </div>
         </div>
     </div>
-
-    <!-- شاشة الخسارة -->
-    <div id="gameOverScreen" class="overlay hidden">
-        <div class="glass-card">
-            <h2>انتهت اللعبة!</h2>
-            <p>النقاط: <span id="finalScore">0</span></p>
-            <p>الذهب: <span id="finalCoins">0</span></p>
-            <button id="restartBtn" class="btn-royal">إعادة المحاولة</button>
-        </div>
-    </div>
-
-    <!-- شاشة المطور -->
-    <div id="creditsScreen" class="overlay hidden">
-        <div class="glass-card">
-            <h2>Developer</h2>
-            <p class="dev-name">The Small Programmer</p>
-            <p class="dev-name-en">Mohamed Ragab Abdelmonem</p>
-            <button id="closeCreditsBtn" class="btn-glass">رجوع</button>
-        </div>
-    </div>
-</div>
-
-<script src="game.js"></script>
+    
+    <script type="module" src="game.js"></script>
 </body>
 </html>
