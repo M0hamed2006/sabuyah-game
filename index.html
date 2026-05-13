@@ -3,36 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,maximum-scale=1">
-<title>صابويه أولتيميت 🚇</title>
+<title>صابويه أولتيميت</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <canvas id="gameCanvas"></canvas>
 <div id="ui">
-
-  <!-- ══════════════════════════════════
-       شاشة البداية
-  ══════════════════════════════════ -->
+  <!-- شاشة البداية -->
   <div id="screenStart" class="screen active">
     <div class="logo-wrap">
-      <div class="logo-ar">صـابـويـه</div>
+      <div class="logo-ar">صابويه</div>
       <div class="logo-en">ULTIMATE</div>
-      <div class="logo-sub">⚡ الجيل الجديد الأسطوري ⚡</div>
+      <div class="logo-sub">الجيل الجديد الأسطوري</div>
     </div>
     <div class="start-stats">
-      <div class="stat-card">
-        <div class="stat-val" id="hsDisplay">0</div>
-        <div class="stat-lbl">🏆 أعلى نقطة</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-val" id="totalCoinsDisplay">0</div>
-        <div class="stat-lbl">💰 إجمالي الجنيهات</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-val" id="attemptsDisplay">0</div>
-        <div class="stat-lbl">🎮 المحاولات</div>
-      </div>
+      <div class="stat-card"><div class="stat-val" id="hsDisplay">0</div><div class="stat-lbl">🏆 أعلى نقطة</div></div>
+      <div class="stat-card"><div class="stat-val" id="totalCoinsDisplay">0</div><div class="stat-lbl">💰 إجمالي الجنيهات</div></div>
+      <div class="stat-card"><div class="stat-val" id="attemptsDisplay">0</div><div class="stat-lbl">🎮 المحاولات</div></div>
     </div>
     <div class="start-btns">
       <button class="btn-mega" id="btnPlay">▶ العب الآن</button>
@@ -45,21 +33,17 @@
         <button class="btn-sec" id="btnSettings">⚙️ الإعدادات</button>
       </div>
     </div>
-    <div class="hint-bar">◀▶ للتحرك &nbsp;|&nbsp; ▲ للقفز &nbsp;|&nbsp; ▼ للانزلاق &nbsp;|&nbsp; Shift/⚡ للبوست</div>
+    <div class="hint-bar">◀▶ للتحرك • ▲ للقفز • ▼ للانزلاق • Shift/⚡ للبوست</div>
   </div>
 
-  <!-- ══════════════════════════════════
-       اختيار الشخصية
-  ══════════════════════════════════ -->
+  <!-- اختيار الشخصية -->
   <div id="screenChar" class="screen hidden">
     <div class="panel-title">👤 اختر شخصيتك</div>
     <div class="char-grid" id="charGrid"></div>
     <button class="btn-sec mt20" id="btnCharBack">← رجوع</button>
   </div>
 
-  <!-- ══════════════════════════════════
-       المتجر
-  ══════════════════════════════════ -->
+  <!-- المتجر -->
   <div id="screenShop" class="screen hidden">
     <div class="panel-title">🏪 المتجر</div>
     <div class="shop-coins-bar">💰 جنيهاتك: <span id="shopCoinsVal">0</span></div>
@@ -67,181 +51,86 @@
     <button class="btn-sec mt20" id="btnShopBack">← رجوع</button>
   </div>
 
-  <!-- ══════════════════════════════════
-       لوحة الأوائل
-  ══════════════════════════════════ -->
+  <!-- الأوائل -->
   <div id="screenLeaders" class="screen hidden">
     <div class="panel-title">🏆 لوحة الأوائل</div>
     <div class="leaders-list" id="leadersList"></div>
     <button class="btn-sec mt20" id="btnLeadersBack">← رجوع</button>
   </div>
 
-  <!-- ══════════════════════════════════
-       الإعدادات
-  ══════════════════════════════════ -->
+  <!-- الإعدادات -->
   <div id="screenSettings" class="screen hidden">
     <div class="panel-title">⚙️ الإعدادات</div>
     <div class="settings-list">
-      <label class="setting-row">
-        <span>🎵 الموسيقى</span>
-        <input type="checkbox" id="settMusic" checked>
-      </label>
-      <label class="setting-row">
-        <span>🔊 مؤثرات صوتية</span>
-        <input type="checkbox" id="settSfx" checked>
-      </label>
-      <label class="setting-row">
-        <span>💬 تعليقات صوتية</span>
-        <input type="checkbox" id="settVoice" checked>
-      </label>
-      <label class="setting-row">
-        <span>📳 اهتزاز الكاميرا</span>
-        <input type="checkbox" id="settShake" checked>
-      </label>
-      <label class="setting-row">
-        <span>✨ جودة الجسيمات</span>
-        <select id="settQuality">
-          <option value="high">عالية</option>
-          <option value="med" selected>متوسطة</option>
-          <option value="low">منخفضة</option>
-        </select>
+      <label class="setting-row"><span>🎵 الموسيقى</span><input type="checkbox" id="settMusic" checked></label>
+      <label class="setting-row"><span>🔊 مؤثرات صوتية</span><input type="checkbox" id="settSfx" checked></label>
+      <label class="setting-row"><span>💬 تعليقات صوتية</span><input type="checkbox" id="settVoice" checked></label>
+      <label class="setting-row"><span>📳 اهتزاز كاميرا</span><input type="checkbox" id="settShake" checked></label>
+      <label class="setting-row"><span>✨ جودة الجسيمات</span>
+        <select id="settQuality"><option value="high">عالية</option><option value="med" selected>متوسطة</option><option value="low">منخفضة</option></select>
       </label>
     </div>
-    <button class="btn-mega mt20" id="btnSettSave">✓ حفظ الإعدادات</button>
+    <button class="btn-mega mt20" id="btnSettSave">✓ حفظ</button>
     <button class="btn-sec mt10" id="btnSettBack">← رجوع</button>
   </div>
 
-  <!-- ══════════════════════════════════
-       HUD اللعب
-  ══════════════════════════════════ -->
+  <!-- HUD اللعب -->
   <div id="screenHUD" class="screen hidden">
-
-    <!-- شريط خطر الغيطي -->
     <div class="danger-bar-wrap">
       <span class="danger-label">👮 الغيطي</span>
-      <div class="danger-track">
-        <div class="danger-fill" id="dangerFill" style="width:10%"></div>
-      </div>
+      <div class="danger-track"><div class="danger-fill" id="dangerFill" style="width:10%"></div></div>
       <span class="danger-pct" id="dangerPct">بعيد</span>
     </div>
-
-    <!-- معلومات اللعبة الرئيسية -->
     <div class="hud-top">
-      <div class="hud-block">
-        <div class="hud-lbl">النقاط</div>
-        <div class="hud-val" id="hudScore">0</div>
-      </div>
-      <div class="hud-block hud-center-block">
-        <div class="hud-lbl" id="hudLevelLbl">القاهرة</div>
-        <div class="hud-val hud-lvl" id="hudLevel">1</div>
-      </div>
-      <div class="hud-block">
-        <div class="hud-lbl">💰</div>
-        <div class="hud-val" id="hudCoins">0</div>
-      </div>
+      <div class="hud-block"><div class="hud-lbl">النقاط</div><div class="hud-val" id="hudScore">0</div></div>
+      <div class="hud-block hud-center-block"><div class="hud-lbl" id="hudLevelLbl">القاهرة</div><div class="hud-val hud-lvl" id="hudLevel">1</div></div>
+      <div class="hud-block"><div class="hud-lbl">💰</div><div class="hud-val" id="hudCoins">0</div></div>
     </div>
-
-    <!-- شريط البوست -->
     <div class="boost-wrap">
       <span class="boost-lbl">⚡</span>
-      <div class="boost-track">
-        <div class="boost-fill" id="boostFill" style="width:0%"></div>
-      </div>
+      <div class="boost-track"><div class="boost-fill" id="boostFill" style="width:0%"></div></div>
       <span class="boost-pct" id="boostPct">0%</span>
     </div>
-
-    <!-- كومبو -->
     <div class="combo-display hidden" id="comboDisplay">🔥 <span id="comboVal">0</span>x</div>
-
-    <!-- بوستات نشطة -->
     <div class="active-boosts" id="activeBoosts"></div>
-
-    <!-- رسائل التحفيز -->
     <div class="hype-msg hidden" id="hypeMsg"></div>
-    <div class="big-money-msg hidden" id="bigMoneyMsg"></div>
-
-    <!-- أزرار اللمس -->
     <div class="touch-btns">
-      <button class="tbtn tbtn-left"
-              ontouchstart="touchAction('left')" onclick="touchAction('left')">◀</button>
+      <button class="tbtn" id="tbLeft" ontouchstart="touchAction('left')" onclick="touchAction('left')">◀</button>
       <div class="tbtn-center">
-        <button class="tbtn tbtn-up"
-                ontouchstart="touchAction('up')" onclick="touchAction('up')">▲</button>
-        <button class="tbtn tbtn-down"
-                ontouchstart="touchAction('down')" onclick="touchAction('down')">▼</button>
+        <button class="tbtn tbtn-up" id="tbUp" ontouchstart="touchAction('up')" onclick="touchAction('up')">▲</button>
+        <button class="tbtn tbtn-down" id="tbDown" ontouchstart="touchAction('down')" onclick="touchAction('down')">▼</button>
       </div>
-      <button class="tbtn tbtn-right"
-              ontouchstart="touchAction('right')" onclick="touchAction('right')">▶</button>
-      <button class="tbtn tbtn-boost"
-              ontouchstart="touchAction('boost')" onclick="touchAction('boost')">⚡</button>
+      <button class="tbtn" id="tbRight" ontouchstart="touchAction('right')" onclick="touchAction('right')">▶</button>
+      <button class="tbtn tbtn-boost" id="tbBoost" ontouchstart="touchAction('boost')" onclick="touchAction('boost')">⚡</button>
     </div>
+  </div>
 
-  </div><!-- /screenHUD -->
-
-  <!-- ══════════════════════════════════
-       شاشة نهاية اللعبة
-  ══════════════════════════════════ -->
+  <!-- نهاية اللعبة -->
   <div id="screenOver" class="screen hidden">
     <div class="over-card">
-      <div class="over-title">💥 انتهت اللعبة!</div>
+      <div class="over-title" id="overTitle">💥 انتهت اللعبة!</div>
       <div class="over-stats">
-        <div class="ostat">
-          <div class="ostat-icon">🎯</div>
-          <div class="ostat-lbl">النقاط</div>
-          <div class="ostat-val" id="ovScore">0</div>
-        </div>
-        <div class="ostat">
-          <div class="ostat-icon">🏆</div>
-          <div class="ostat-lbl">الأعلى</div>
-          <div class="ostat-val" id="ovHS">0</div>
-        </div>
-        <div class="ostat">
-          <div class="ostat-icon">💰</div>
-          <div class="ostat-lbl">جنيهات</div>
-          <div class="ostat-val" id="ovCoins">0</div>
-        </div>
-        <div class="ostat">
-          <div class="ostat-icon">💨</div>
-          <div class="ostat-lbl">أقصى سرعة</div>
-          <div class="ostat-val" id="ovSpeed">0</div>
-        </div>
-        <div class="ostat">
-          <div class="ostat-icon">🚆</div>
-          <div class="ostat-lbl">قطارات</div>
-          <div class="ostat-val" id="ovTrains">0</div>
-        </div>
-        <div class="ostat">
-          <div class="ostat-icon">⏱️</div>
-          <div class="ostat-lbl">الوقت</div>
-          <div class="ostat-val" id="ovTime">0s</div>
-        </div>
+        <div class="ostat"><div class="ostat-icon">🎯</div><div class="ostat-lbl">النقاط</div><div class="ostat-val" id="ovScore">0</div></div>
+        <div class="ostat"><div class="ostat-icon">🏆</div><div class="ostat-lbl">الأعلى</div><div class="ostat-val" id="ovHS">0</div></div>
+        <div class="ostat"><div class="ostat-icon">💰</div><div class="ostat-lbl">جنيهات</div><div class="ostat-val" id="ovCoins">0</div></div>
+        <div class="ostat"><div class="ostat-icon">💨</div><div class="ostat-lbl">أقصى سرعة</div><div class="ostat-val" id="ovSpeed">0</div></div>
+        <div class="ostat"><div class="ostat-icon">🚆</div><div class="ostat-lbl">قطارات</div><div class="ostat-val" id="ovTrains">0</div></div>
+        <div class="ostat"><div class="ostat-icon">⏱️</div><div class="ostat-lbl">الوقت</div><div class="ostat-val" id="ovTime">0s</div></div>
       </div>
       <canvas id="scoreChart" width="300" height="70"></canvas>
       <div class="new-record hidden" id="newRecord">🎉 رقم قياسي جديد!</div>
       <div class="over-btns">
-        <button class="btn-mega" id="btnRestart">🔄 العب مجدداً</button>
+        <button class="btn-mega" id="btnRestart">🔄 مجدداً</button>
         <button class="btn-sec" id="btnHome">🏠 الرئيسية</button>
       </div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════
-       عناصر عائمة (Toasts / overlays)
-  ══════════════════════════════════ -->
   <!-- إنجاز Toast -->
   <div id="achieveToast" class="achieve-toast hidden"></div>
-
-  <!-- تحذير مؤقت عند الإيقاف المؤقت -->
-  <div id="pauseOverlay" class="pause-overlay hidden">
-    <div class="pause-box">
-      <div class="pause-title">⏸ متوقف</div>
-      <button class="btn-mega" id="btnResume">▶ استمر</button>
-      <button class="btn-sec mt10" id="btnQuit">🏠 الخروج</button>
-    </div>
-  </div>
-
-</div><!-- /ui -->
-
+  <!-- رسالة وسط الشاشة عند المال الكبير -->
+  <div id="bigMoneyMsg" class="big-money-msg hidden"></div>
+</div>
 <script src="game.js"></script>
 </body>
 </html>
