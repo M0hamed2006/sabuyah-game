@@ -3,106 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>صابويه المصري الجديد 🔥 | سب واي سيرفرس بس أحلى</title>
+    <title>صابويه المصري 3.0 | Edition Ultra</title>
     <link rel="stylesheet" href="style.css">
+    <!-- إضافة خط Cairo من Google Fonts للفخامة -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
 <div class="game-container">
-    <!-- شاشة البداية -->
+    <!-- شاشة البداية (Main Menu) -->
     <div id="startScreen" class="screen active">
-        <div class="title">🚇 صابويه المصري</div>
-        <div class="subtitle">نسخة الركض الأسطورية</div>
-        <div class="stats-box">
-            <div>⭐ أعلى نتيجة: <span id="startHighScore">0</span></div>
-            <div>🎮 عدد المحاولات: <span id="totalAttempts">0</span></div>
+        <div class="title">SABUYAH</div>
+        <div class="subtitle">المصري - الإصدار الأسطوري</div>
+        
+        <div class="stats-container">
+            <div class="stat-card">
+                <span class="label">أعلى نتيجة</span>
+                <span id="startHighScore" class="value">0</span>
+            </div>
+            <div class="stat-card">
+                <span class="label">المحاولات</span>
+                <span id="totalAttempts" class="value">0</span>
+            </div>
         </div>
-        <button id="playBtn" class="btn-primary">🎮 ابدأ اللعب</button>
-        <button id="settingsBtn" class="btn-secondary">⚙️ الإعدادات</button>
-        <button id="creditsBtn" class="btn-secondary">👨‍💻 المطور</button>
-        <div class="controls-hint">
-            <div>← → تحرك | ↑ قفز | ↓ انزلاق</div>
-            <div>🖱️ التمرير على الشاشة (للهواتف)</div>
+
+        <div class="menu-actions">
+            <button id="playBtn" class="btn-primary">🎮 دخول الحلبة</button>
+            <div class="secondary-actions">
+                <button id="settingsBtn" class="btn-glass">⚙️</button>
+                <button id="creditsBtn" class="btn-glass">👑</button>
+            </div>
         </div>
-        <div class="footer">من تصميم محمد رجب عبد المنعم 👑</div>
+
+        <div class="controls-guide">
+            <span>← → تحرك</span>
+            <span>↑ قفز</span>
+            <span>↓ انزلاق</span>
+        </div>
+        
+        <div class="dev-footer">Developed by Mohamed Ragab 🚀</div>
     </div>
 
-    <!-- شاشة اللعبة الأساسية -->
+    <!-- واجهة اللعب (In-Game HUD) -->
     <div id="gameScreen" class="screen hidden">
         <div class="game-header">
-            <div>🏆 <span id="score">0</span></div>
-            <div>⭐ <span id="highScoreGame">0</span></div>
-            <div>⚡ السرعة <span id="speedValue">1</span></div>
+            <div class="hud-item score-box">
+                <span class="hud-label">SCORE</span>
+                <span id="score">0</span>
+            </div>
+            <div class="hud-item speed-box">
+                <span class="hud-label">SPEED</span>
+                <span id="speedValue">1</span>
+            </div>
+            <div class="hud-item high-box">
+                <span class="hud-label">BEST</span>
+                <span id="highScoreGame">0</span>
+            </div>
         </div>
+        
         <canvas id="gameCanvas" width="800" height="500"></canvas>
-        <div class="game-controls">
-            <button id="pauseGameBtn" class="pause-btn">⏸️ إيقاف</button>
-            <button id="exitToMenuBtn" class="exit-btn">🚪 قائمة</button>
+
+        <div class="ingame-controls">
+            <button id="pauseGameBtn" class="btn-pause">⏸️</button>
         </div>
     </div>
 
-    <!-- شاشة الإيقاف المؤقت -->
+    <!-- شاشة الإيقاف (Pause Screen) -->
     <div id="pauseScreen" class="screen hidden">
-        <div class="popup">
-            <h2>⏸️ اللعبة متوقفة</h2>
-            <button id="resumeBtn" class="btn-primary">▶️ استئناف</button>
-            <button id="exitFromPauseBtn" class="btn-secondary">🏠 خروج</button>
+        <div class="popup blur-bg">
+            <h2 class="neon-text">توقف مؤقت</h2>
+            <button id="resumeBtn" class="btn-primary">استمرار ▶️</button>
+            <button id="exitFromPauseBtn" class="btn-glass">الرئيسية 🏠</button>
         </div>
     </div>
 
-    <!-- شاشة نهاية اللعبة -->
+    <!-- شاشة النهاية (Game Over) -->
     <div id="gameOverScreen" class="screen hidden">
-        <div class="popup">
-            <h2>💀 انتهت اللعبة</h2>
-            <div class="gameover-stats">
-                <p>نقاطك: <span id="finalScore">0</span></p>
-                <p>أعلى نتيجة: <span id="finalHigh">0</span></p>
-                <p>أفضل مسيرة: <span id="finalCombo">0</span></p>
-                <p>العملات المجمعة: <span id="finalCoins">0</span></p>
+        <div class="popup game-over-box">
+            <h2 class="critical-text">Game Over</h2>
+            <div class="final-results">
+                <div class="res-row"><span>النقاط:</span> <span id="finalScore">0</span></div>
+                <div class="res-row"><span>العملات:</span> <span id="finalCoins">0</span></div>
+                <div class="res-row"><span>أقصى كومبو:</span> <span id="finalCombo">0</span></div>
             </div>
-            <button id="restartBtn" class="btn-primary">🔄 العب مرة أخرى</button>
-            <button id="menuFromOverBtn" class="btn-secondary">🏠 قائمة</button>
+            <button id="restartBtn" class="btn-primary">إعادة المحاولة 🔄</button>
+            <button id="menuFromOverBtn" class="btn-glass">خروج 🚪</button>
         </div>
     </div>
 
-    <!-- شاشة الإعدادات -->
+    <!-- شاشة الإعدادات (Settings) -->
     <div id="settingsScreen" class="screen hidden">
-        <div class="popup">
-            <h2>⚙️ الإعدادات</h2>
-            <div class="setting-row">
-                <span>🎵 تأثيرات صوتية</span>
-                <input type="checkbox" id="soundToggle" checked>
+        <div class="popup settings-box">
+            <h2 class="neon-text">الإعدادات</h2>
+            <div class="control-group">
+                <div class="setting-item">
+                    <span>الموسيقى</span>
+                    <label class="switch"><input type="checkbox" id="musicToggle" checked><span class="slider"></span></label>
+                </div>
+                <div class="setting-item">
+                    <span>الصوت</span>
+                    <label class="switch"><input type="checkbox" id="soundToggle" checked><span class="slider"></span></label>
+                </div>
+                <div class="setting-item">
+                    <span>الصعوبة</span>
+                    <select id="difficultySelect">
+                        <option value="easy">مبتدئ</option>
+                        <option value="normal" selected>محترف</option>
+                        <option value="hard">أسطورة</option>
+                    </select>
+                </div>
             </div>
-            <div class="setting-row">
-                <span>📢 الموسيقى</span>
-                <input type="checkbox" id="musicToggle" checked>
-            </div>
-            <div class="setting-row">
-                <span>🔊 مستوى الصوت</span>
-                <input type="range" id="volumeSlider" min="0" max="100" value="70">
-            </div>
-            <div class="setting-row">
-                <span>🎚️ مستوى الصعوبة</span>
-                <select id="difficultySelect">
-                    <option value="easy">سهل</option>
-                    <option value="normal" selected>عادي</option>
-                    <option value="hard">صعب</option>
-                </select>
-            </div>
-            <button id="saveSettingsBtn" class="btn-primary">💾 حفظ</button>
-            <button id="closeSettingsBtn" class="btn-secondary">🔙 رجوع</button>
-        </div>
-    </div>
-
-    <!-- شاشة معلومات المطور -->
-    <div id="creditsScreen" class="screen hidden">
-        <div class="popup">
-            <h2>👨‍💻 المطور</h2>
-            <p><strong>محمد رجب عبد المنعم</strong></p>
-            <p>The Small Programmer 👑</p>
-            <p>جميع الحقوق محفوظة © 2026</p>
-            <p>إصدار 3.0 - النسخة الأفخم</p>
-            <button id="closeCreditsBtn" class="btn-primary">🔙 رجوع</button>
+            <button id="saveSettingsBtn" class="btn-primary">حفظ وتأكيد ✅</button>
         </div>
     </div>
 </div>
