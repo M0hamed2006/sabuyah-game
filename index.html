@@ -1,40 +1,57 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Sabuyah — Ultimate Runner</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Subway Legend | 3D Reality</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- استدعاء مكتبة Three.js لعالم الـ 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
-  <canvas id="gameCanvas"></canvas>
 
-  <!-- واجهة البداية -->
-  <div id="startScreen" class="screen active">
-    <h1>صابويه ULTIMATE</h1>
-    <button id="btnPlay">▶ ابدأ اللعب</button>
-  </div>
+<div id="game-container"></div>
 
-  <!-- HUD -->
-  <div id="hud">
-    <div class="hud-block">النقاط: <span id="score">0</span></div>
-    <div class="hud-block">المرحلة: <span id="level">القاهرة</span></div>
-    <div class="hud-block">💰 <span id="coins">0</span></div>
-    <div class="hud-block danger">
-      خطر: <div class="danger-bar"><div id="dangerFill"></div></div>
+<div class="ui-layer">
+    <!-- شاشة البداية -->
+    <div id="startScreen" class="overlay active">
+        <h1 class="main-title">SUBWAY <span>REALITY</span></h1>
+        <p class="subtitle">الجيل الجديد - 3D</p>
+        <button id="playBtn" class="btn-royal">▶ العب الآن</button>
+        <button id="creditsBtn" class="btn-glass">المطور</button>
+        <div class="hint">اسحب يميناً ويساراً أو استخدم الأسهم<br>اضغط للقفز</div>
     </div>
-    <div class="hud-block boost">
-      ⚡ <div class="boost-bar"><div id="boostFill"></div></div>
+
+    <!-- واجهة اللعب -->
+    <div id="gameUI" class="overlay hidden">
+        <div class="hud">
+            <div class="score-box">النقاط: <span id="scoreVal">0</span></div>
+            <div class="coin-box">الذهب: <span id="coinVal">0</span></div>
+        </div>
     </div>
-  </div>
 
-  <!-- شاشة النهاية -->
-  <div id="gameOver" class="screen">
-    <h2>انتهت اللعبة 💥</h2>
-    <p>النقاط: <span id="finalScore">0</span></p>
-    <button id="btnRestart">🔄 مجدداً</button>
-  </div>
+    <!-- شاشة الخسارة -->
+    <div id="gameOverScreen" class="overlay hidden">
+        <div class="glass-card">
+            <h2>انتهت اللعبة!</h2>
+            <p>النقاط: <span id="finalScore">0</span></p>
+            <p>الذهب: <span id="finalCoins">0</span></p>
+            <button id="restartBtn" class="btn-royal">إعادة المحاولة</button>
+        </div>
+    </div>
 
-  <script src="game.js"></script>
+    <!-- شاشة المطور -->
+    <div id="creditsScreen" class="overlay hidden">
+        <div class="glass-card">
+            <h2>Developer</h2>
+            <p class="dev-name">The Small Programmer</p>
+            <p class="dev-name-en">Mohamed Ragab Abdelmonem</p>
+            <button id="closeCreditsBtn" class="btn-glass">رجوع</button>
+        </div>
+    </div>
+</div>
+
+<script src="game.js"></script>
 </body>
 </html>

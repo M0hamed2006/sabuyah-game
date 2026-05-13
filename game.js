@@ -1,344 +1,288 @@
-// تكملة دالة spawnTrain
-  });
+// 3D Game Engine Setup
+const container = document.getElementById('game-container');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xd08a55); // لون سماء يعطي طابع شعبي وقت الغروب
+scene.fog = new THREE.Fog(0xd08a55, 20, 100);
+
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 150);
+camera.position.set(0, 6, 12);
+camera.lookAt(0, 2, -10);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+container.appendChild(renderer.domElement);
+
+// الإضاءة (تأثير الشمس المائلة)
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+scene.add(ambientLight);
+const dirLight = new THREE.DirectionalLight(0xffddaa, 0.8);
+dirLight.position.set(10, 20, 10);
+dirLight.castShadow = true;
+scene.add(dirLight);
+
+// الأرضية (الشارع)
+const roadGeo = new THREE.PlaneGeometry(200, 200);
+const roadMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.8 });
+const road = new THREE.Mesh(roadGeo, roadMat);
+road.rotation.x = -Math.PI / 2;
+road.receiveShadow = true;
+scene.add(road);
+
+// خطوط الشارع
+const lineGeo = new THREE.PlaneGeometry(0.2, 200);
+const lineMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+const line1 = new THREE.Mesh(lineGeo, lineMat); line1.position.set(-1.5, 0.01, 0); line1.rotation.x = -Math.PI/2; scene.add(line1);
+const line2 = new THREE.Mesh(lineGeo, lineMat); line2.position.set(1.5, 0.01, 0); line2.rotation.x = -Math.PI/2; scene.add(line2);
+
+// بناء اللاعب (الولد)
+const playerGroup = new THREE.Group();
+const skinMat = new THREE.MeshLambertMaterial({ color: 0xffccaa });
+const shirtMat = new THREE.MeshLambertMaterial({ color: 0xcc2222 });
+const jeansMat = new THREE.MeshLambertMaterial({ color: 0x2244aa });
+
+const head = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), skinMat);
+head.position.y = 2.4; head.castShadow = true; playerGroup.add(head);
+
+const body = new THREE.Mesh(new THREE.BoxGeometry(1, 1.2, 0.5), shirtMat);
+body.position.y = 1.4; body.castShadow = true; playerGroup.add(body);
+
+const armGeo = new THREE.BoxGeometry(0.3, 1, 0.3);
+const leftArm = new THREE.Mesh(armGeo, skinMat); leftArm.position.set(-0.7, 1.5, 0); leftArm.castShadow = true; playerGroup.add(leftArm);
+const rightArm = new THREE.Mesh(armGeo, skinMat); rightArm.position.set(0.7, 1.5, 0); rightArm.castShadow = true; playerGroup.add(rightArm);
+
+const legGeo = new THREE.BoxGeometry(0.4, 1.2, 0.4);
+const leftLeg = new THREE.Mesh(legGeo, jeansMat); leftLeg.position.set(-0.25, 0.6, 0); leftLeg.castShadow = true; playerGroup.add(leftLeg);
+const rightLeg = new THREE.Mesh(legGeo, jeansMat); rightLeg.position.set(0.25, 0.6, 0); rightLeg.castShadow = true; playerGroup.add(rightLeg);
+
+scene.add(playerGroup);
+
+// متغيرات اللعبة
+let gameRunning = false, score = 0, coins = 0, speed = 0.4;
+let targetX = 0, playerVY = 0, isJumping = false;
+let obstacles = [], items = [], buildings = [];
+let clock = new THREE.Clock();
+
+// إنشاء المباني (طابع شعبي)
+const buildingColors = [0xcc9966, 0xaa7755, 0xddbb99, 0x887766];
+function spawnBuilding(z) {
+    let side = Math.random() > 0.5 ? 1 : -1;
+    let width = 4 + Math.random() * 4;
+    let height = 5 + Math.random() * 10;
+    let geo = new THREE.BoxGeometry(width, height, 5 + Math.random() * 5);
+    let mat = new THREE.MeshLambertMaterial({ color: buildingColors[Math.floor(Math.random()*buildingColors.length)] });
+    let mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(side * (5 + width/2), height/2, z);
+    mesh.castShadow = true; mesh.receiveShadow = true;
+    scene.add(mesh); buildings.push(mesh);
 }
+for(let i=0; i<20; i++) spawnBuilding(-i * 10);
 
-// ─── رسائل التحفيز والفلوس الكبيرة ────────────────────────────────
-function triggerBigMoney() {
-  const el = document.getElementById('bigMoneyMsg');
-  if (el) {
-    el.textContent = "عاش يا وحش الفلوس! 💸";
-    el.classList.remove('hidden');
-    setTimeout(() => { el.classList.add('hidden'); }, 2200);
-  }
-}
-
-function showHypeMsg(text, color) {
-  const el = document.getElementById('hypeMsg');
-  if (el) {
-    el.innerHTML = text;
-    el.style.color = color || '#ffcc00';
-    el.classList.remove('hidden');
-    // إعادة تشغيل الأنيميشن
-    el.style.animation = 'none';
-    void el.offsetWidth; 
-    el.style.animation = 'hypeAnim 1.8s ease forwards';
-  }
-}
-
-// ─── الذكاء الاصطناعي والمطاردة (الغيطي) ──────────────────────────
-function updateEnemy(dt) {
-  if (!G.enemyVisible) {
-    // لو اللاعب غلط، الغيطي بيظهر
-    if (G.score > 500 && Math.random() < 0.001) G.enemyVisible = true;
-    return;
-  }
-  
-  // سرعة الغيطي بتزيد مع سرعتك، وبيحاول يقلد حركتك ببطء
-  const speedDiff = G.speed - 5.5; 
-  let enemySpeed = G.speed + 0.2 + (speedDiff * 0.1);
-
-  // لو أنت عامل Boost هو بيتأخر
-  if (G.boosting) {
-    G.enemyDist += 5;
-  } else {
-    // الغيطي بيقرب ببطء
-    G.enemyDist -= 0.5; 
-  }
-
-  // تحديث المسار (بيحاول يروح لمسارك)
-  if (G.frame % 30 === 0 && G.enemyLane !== G.targetLane) {
-    G.enemyLane += (G.targetLane > G.enemyLane) ? 1 : -1;
-  }
-
-  // تحديث شريط الخطر في الـ UI
-  const dangerTrack = document.getElementById('dangerFill');
-  const dangerPct = document.getElementById('dangerPct');
-  if (dangerTrack && dangerPct) {
-    let dangerLevel = Math.max(0, 100 - (G.enemyDist / 8)); // 800 هو الأمان، 0 هو الموت
-    dangerTrack.style.width = dangerLevel + '%';
-    
-    if (dangerLevel > 80) dangerPct.textContent = 'هيمسكك!';
-    else if (dangerLevel > 50) dangerPct.textContent = 'بيقرب!';
-    else dangerPct.textContent = 'بعيد';
-  }
-
-  if (G.enemyDist > 1000) G.enemyVisible = false; // هربت منه
-  
-  // الموت بواسطة الغيطي
-  if (G.enemyDist <= 0) {
-    gameOver("مسكك الغيطي!");
-  }
-}
-
-// ─── نظام التصادم (Collisions) ───────────────────────────────────
-function checkCollisions() {
-  if (G.invincible > 0 || G.activeBoosts.tunnel) return; // النفق السري يجعلك لا تقهر
-
-  const pRect = { x: G.px - 10, y: G.py - 30, w: 20, h: 30 };
-  
-  // تصادم العقبات
-  for (let ob of G.obstacles) {
-    const oRect = { x: px(ob.x) - px(ob.w/2||15), y: py2(ob.y) - py2(ob.h||30), w: px(ob.w||30), h: py2(ob.h||30) };
-    
-    if (isCollide(pRect, oRect)) {
-      if (ob.ghost) {
-        // القطار الشبح بيعطيك بونص مش بيموتك
-        G.score += 500;
-        showHypeMsg("عديت من الشبح!", "#aaaaff");
-        ob.y = 9999; 
-        continue;
-      }
-
-      // لو معاك درع حمادة أو الدرع الثلاثي
-      if (G.activeBoosts.shield3 > 0) {
-        G.activeBoosts.shield3 = 0; // استهلاك الدرع
-        G.invincible = 60;
-        SFX.crash();
-        addParticle({x: G.px, y: G.py, r: 20, color: '#00ccff', type: 'explosion', life: 1.5});
-        ob.y = 9999; // تدمير العقبة
-        return;
-      }
-
-      // لو العقبة صغيرة (حاجز) بتتعثر والغيطي بيقرب
-      if (ob.type === 'barrier' || ob.type === 'wire') {
-        G.speed *= 0.7; // تباطؤ
-        G.enemyVisible = true;
-        G.enemyDist -= 200; // الغيطي يقفز مسافة كبيرة نحوك
-        SFX.crash();
-        G.invincible = 30;
-      } else {
-        // قطار أو عربية = Game Over
-        gameOver("خبطت في " + (ob.type==='train' ? 'القطر!' : 'العربية!'));
-      }
-    }
-  }
-
-  // تصادم العملات
-  for (let i = G.coinItems.length - 1; i >= 0; i--) {
-    let c = G.coinItems[i];
-    // المغناطيس يجذب العملات
-    if (G.activeBoosts.magnet) {
-      let dx = G.px - px(c.x);
-      let dy = (G.py - 15) - py2(c.y);
-      let dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist < px(150)) {
-        c.x += dx * 0.1;
-        c.y += dy * 0.1;
-      }
-    }
-
-    const cRect = { x: px(c.x) - 10, y: py2(c.y) - 10, w: 20, h: 20 };
-    if (isCollide(pRect, cRect)) {
-      let multiplier = G.activeBoosts.x10 ? 10 : 1;
-      let coinVal = 1 * multiplier;
-      
-      // عواطف بتجمع x1.5
-      if (DB.selectedChar === 'awatef') coinVal = Math.ceil(coinVal * 1.5);
-
-      G.coins += coinVal;
-      G.boostMeter = Math.min(100, G.boostMeter + 2); // شحن البوست
-      SFX.coin();
-      G.coinItems.splice(i, 1);
-      
-      // رسالة الفلوس الكبيرة
-      if (G.coins > 0 && G.coins % 100 === 0) triggerBigMoney();
-    }
-  }
-}
-
-function isCollide(r1, r2) {
-  return !(r2.x > r1.x + r1.w || r2.x + r2.w < r1.x || r2.y > r1.y + r1.h || r2.y + r2.h < r1.y);
-}
-
-// ─── الحلقة الرئيسية للمحرك (Main Game Loop) ─────────────────────
-let lastTime = 0;
-function loop(timestamp) {
-  if (!G.running) return;
-  const dt = (timestamp - lastTime) / 1000 || 0.016;
-  lastTime = timestamp;
-  G.frame++;
-
-  // 1. التحديثات (Updates)
-  if (!G.paused) {
-    G.score += G.speed * 0.02;
-    if (G.score > LEVELS[G.level].scoreThresh && G.level < LEVELS.length - 1) {
-      G.level++;
-      showHypeMsg(`مرحلة ${LEVELS[G.level].name}!`, LEVELS[G.level].color);
-      SFX.levelUp();
-    }
-
-    // حركة اللاعب بين المسارات
-    const targetX = LANES_X[G.targetLane];
-    G.px += (targetX - G.px) * 0.15; // حركة سلسة (Lerp)
-
-    // القفز والجاذبية
-    if (G.jumping) {
-      G.py += G.jumpVY;
-      G.jumpVY += 0.8; // الجاذبية
-      if (G.py >= GROUND_Y) {
-        G.py = GROUND_Y;
-        G.jumping = false;
-        G.doubleJumpUsed = false;
-        SFX.land();
-      }
-    }
-
-    // تحديث البوست
-    if (G.boosting) {
-      G.boostTimer--;
-      G.speed = 12; // سرعة جنونية
-      if (G.frame % 3 === 0) addParticle({x: G.px, y: G.py, color: '#ffcc00', type: 'line', life: 0.5});
-      if (G.boostTimer <= 0) {
-        G.boosting = false;
-        G.speed = 5.5 + (G.level * 0.5); // عودة للسرعة الطبيعية
-      }
+// إنشاء العقبات (عربيات وقطارات)
+function spawnObstacle() {
+    if(!gameRunning) return;
+    let lane = Math.floor(Math.random() * 3) - 1; // -1, 0, 1
+    let type = Math.random() > 0.6 ? 'train' : 'car';
+    let mesh;
+    if(type === 'train') {
+        mesh = new THREE.Mesh(new THREE.BoxGeometry(2, 3, 10), new THREE.MeshLambertMaterial({ color: 0x228822 }));
+        mesh.position.set(lane * 3, 1.5, -80);
+        mesh.userData = { type: 'train', bbox: new THREE.Box3() };
     } else {
-      G.speed = Math.min(10, 5.5 + (G.score * 0.0005)); // السرعة تزيد مع الوقت
+        mesh = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.5, 4), new THREE.MeshLambertMaterial({ color: 0xccaa22 }));
+        mesh.position.set(lane * 3, 0.75, -80);
+        mesh.userData = { type: 'car', bbox: new THREE.Box3() };
     }
-
-    // تحديث الغيطي والعقبات والتصادم
-    updateEnemy(dt);
-    spawnObstacles(dt);
-    
-    // تحريك العقبات للخلف (إعطاء إحساس الجري للأمام)
-    G.obstacles.forEach(ob => ob.y += G.speed);
-    G.coinItems.forEach(c => c.y += G.speed);
-    
-    // تنظيف المصفوفات
-    G.obstacles = G.obstacles.filter(ob => ob.y < BASE_H + 100);
-    G.coinItems = G.coinItems.filter(c => c.y < BASE_H + 100);
-    if (G.invincible > 0) G.invincible--;
-
-    checkCollisions();
-    
-    // تحديث الـ UI
-    document.getElementById('hudScore').textContent = Math.floor(G.score);
-    document.getElementById('hudCoins').textContent = G.coins;
-    document.getElementById('boostFill').style.width = G.boostMeter + '%';
-  }
-
-  // 2. الرسم (Render)
-  ctx.clearRect(0, 0, W, H);
-  drawBackground();
-  drawCoins();
-  drawPowerups();
-  drawObstacles();
-  drawEnemy();
-  drawPlayer();
-  drawParticles();
-  drawDrone();
-
-  requestAnimationFrame(loop);
+    mesh.castShadow = true;
+    scene.add(mesh); obstacles.push(mesh);
 }
 
-// ─── التحكم (Inputs) ─────────────────────────────────────────────
+// إنشاء الذهب
+function spawnCoin() {
+    if(!gameRunning) return;
+    let lane = Math.floor(Math.random() * 3) - 1;
+    let mesh = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.1, 16), new THREE.MeshLambertMaterial({ color: 0xffcc00 }));
+    mesh.rotation.x = Math.PI / 2;
+    mesh.position.set(lane * 3, 1, -80);
+    mesh.userData = { isCoin: true, bbox: new THREE.Box3() };
+    scene.add(mesh); items.push(mesh);
+}
+
+// نظام الموسيقى (Synthesizer)
+let audioCtx;
+function startMusic() {
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    
+    // إيقاع بسيط متكرر
+    setInterval(() => {
+        if(!gameRunning) return;
+        let osc = audioCtx.createOscillator();
+        let gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+    }, 400); // طبلة كل 400ms
+}
+function playCoinSound() {
+    if(!audioCtx) return;
+    let osc = audioCtx.createOscillator();
+    osc.type = 'sine'; osc.frequency.value = 1200;
+    osc.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+}
+
+// اللوب الرئيسي
+function animate() {
+    requestAnimationFrame(animate);
+    let time = clock.getElapsedTime();
+
+    if(gameRunning) {
+        // حركة اللاعب يميناً ويساراً (نعومة)
+        playerGroup.position.x += (targetX - playerGroup.position.x) * 0.15;
+        
+        // الجاذبية والقفز
+        if(isJumping) {
+            playerGroup.position.y += playerVY;
+            playerVY -= 0.02; // قوة الجاذبية
+            if(playerGroup.position.y <= 0) {
+                playerGroup.position.y = 0;
+                isJumping = false;
+                playerVY = 0;
+            }
+        }
+
+        // تحريك أطراف الولد (الجري)
+        if(!isJumping) {
+            leftArm.rotation.x = Math.sin(time * 15) * 0.5;
+            rightArm.rotation.x = Math.sin(time * 15 + Math.PI) * 0.5;
+            leftLeg.rotation.x = Math.sin(time * 15 + Math.PI) * 0.5;
+            rightLeg.rotation.x = Math.sin(time * 15) * 0.5;
+        } else {
+            leftLeg.rotation.x = -0.5; rightLeg.rotation.x = 0;
+        }
+
+        // تحريك المباني
+        buildings.forEach(b => {
+            b.position.z += speed;
+            if(b.position.z > 20) b.position.z -= 200;
+        });
+
+        // حركة العقبات والاصطدام
+        let pBox = new THREE.Box3().setFromObject(playerGroup);
+        pBox.expandByScalar(-0.2); // تقليل حجم الاصطدام قليلاً ليكون عادلاً
+
+        for(let i=obstacles.length-1; i>=0; i--) {
+            let obs = obstacles[i];
+            obs.position.z += speed;
+            obs.userData.bbox.setFromObject(obs);
+            
+            if(pBox.intersectsBox(obs.userData.bbox)) {
+                gameOver();
+            }
+            if(obs.position.z > 20) {
+                scene.remove(obs);
+                obstacles.splice(i, 1);
+            }
+        }
+
+        // حركة الذهب
+        for(let i=items.length-1; i>=0; i--) {
+            let item = items[i];
+            item.position.z += speed;
+            item.rotation.y += 0.1;
+            item.userData.bbox.setFromObject(item);
+            
+            if(pBox.intersectsBox(item.userData.bbox)) {
+                coins++;
+                document.getElementById('coinVal').innerText = coins;
+                playCoinSound();
+                scene.remove(item);
+                items.splice(i, 1);
+                continue;
+            }
+            if(item.position.z > 20) { scene.remove(item); items.splice(i, 1); }
+        }
+
+        score += speed;
+        document.getElementById('scoreVal').innerText = Math.floor(score);
+        speed += 0.0001; // زيادة السرعة تدريجياً
+
+        // توليد عشوائي
+        if(Math.random() < 0.02) spawnObstacle();
+        if(Math.random() < 0.05) spawnCoin();
+    }
+
+    renderer.render(scene, camera);
+}
+animate();
+
+// التحكم
+function moveLeft() { if(targetX > -3) targetX -= 3; }
+function moveRight() { if(targetX < 3) targetX += 3; }
+function jump() { if(!isJumping) { isJumping = true; playerVY = 0.4; } }
+
 window.addEventListener('keydown', (e) => {
-  if (!G.running || G.paused) return;
-  if (e.key === 'ArrowLeft' && G.targetLane > 0) G.targetLane--;
-  if (e.key === 'ArrowRight' && G.targetLane < LANE_CNT - 1) G.targetLane++;
-  if (e.key === 'ArrowUp') executeJump();
-  if (e.key === 'ArrowDown') executeSlide();
-  if (e.key === 'Shift') executeBoost();
+    if(!gameRunning) return;
+    if(e.key === 'ArrowLeft') moveLeft();
+    if(e.key === 'ArrowRight') moveRight();
+    if(e.key === 'ArrowUp' || e.key === ' ') jump();
 });
 
-function touchAction(action) {
-  if (!G.running || G.paused) return;
-  if (action === 'left' && G.targetLane > 0) G.targetLane--;
-  if (action === 'right' && G.targetLane < LANE_CNT - 1) G.targetLane++;
-  if (action === 'up') executeJump();
-  if (action === 'down') executeSlide();
-  if (action === 'boost') executeBoost();
-}
+let touchX = 0, touchY = 0;
+window.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; touchY = e.touches[0].clientY; });
+window.addEventListener('touchend', e => {
+    if(!gameRunning) return;
+    let dx = e.changedTouches[0].clientX - touchX;
+    let dy = e.changedTouches[0].clientY - touchY;
+    if(Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 30) {
+        if(dx > 0) moveRight(); else moveLeft();
+    } else if(dy < -30) {
+        jump();
+    } else { jump(); } // النقر للقفز
+});
 
-function executeJump() {
-  if (!G.jumping) {
-    G.jumping = true;
-    G.jumpVY = -14;
-    SFX.jump();
-    addParticle({x: G.px, y: GROUND_Y, r: 10, color: '#aaa', life: 0.8}); // غبار القفز
-  } else if (G.activeBoosts.doubleJump > 0 && !G.doubleJumpUsed) {
-    G.jumpVY = -12; // قفزة مزدوجة
-    G.doubleJumpUsed = true;
-    SFX.jump();
-    addParticle({x: G.px, y: G.py, r: 15, color: '#ffaa00', life: 1}); 
-  }
-}
-
-function executeSlide() {
-  if (!G.jumping && !G.sliding) {
-    G.sliding = true;
-    SFX.slide();
-    setTimeout(() => { G.sliding = false; }, 800); // مدة الانزلاق
-  } else if (G.jumping) {
-    // هبوط سريع
-    G.jumpVY = 15;
-  }
-}
-
-function executeBoost() {
-  if (G.boostMeter >= 100 && !G.boosting) {
-    G.boosting = true;
-    G.boostMeter = 0;
-    G.boostTimer = 300; // 5 ثواني (60 فريم)
-    G.invincible = 300;
-    SFX.boost();
-    showHypeMsg("طياااارة!", "#ff4400");
-  }
-}
-
-// ─── دورة حياة اللعبة ───────────────────────────────────────────
+// UI Logic
 function startGame() {
-  resetGameState();
-  G.running = true;
-  document.querySelectorAll('.screen').forEach(s => {
-    s.classList.remove('active'); s.classList.add('hidden');
-  });
-  document.getElementById('screenHUD').classList.remove('hidden');
-  document.getElementById('screenHUD').classList.add('active');
-  initAudio();
-  startMusic();
-  lastTime = performance.now();
-  requestAnimationFrame(loop);
+    obstacles.forEach(o => scene.remove(o)); obstacles = [];
+    items.forEach(i => scene.remove(i)); items = [];
+    score = 0; coins = 0; speed = 0.4; targetX = 0;
+    playerGroup.position.set(0,0,0);
+    document.getElementById('scoreVal').innerText = '0';
+    document.getElementById('coinVal').innerText = '0';
+    
+    document.getElementById('startScreen').classList.add('hidden');
+    document.getElementById('gameOverScreen').classList.add('hidden');
+    document.getElementById('gameUI').classList.remove('hidden');
+    
+    gameRunning = true;
+    startMusic();
 }
 
-function gameOver(reason) {
-  G.running = false;
-  stopMusic();
-  SFX.crash();
-  
-  DB.attempts++;
-  DB.totalCoins += G.coins;
-  let isNewRecord = false;
-  if (G.score > DB.highScore) {
-    DB.highScore = Math.floor(G.score);
-    isNewRecord = true;
-  }
-  saveDB();
-
-  setTimeout(() => {
-    document.getElementById('screenHUD').classList.remove('active');
-    document.getElementById('screenHUD').classList.add('hidden');
-    
-    document.getElementById('overTitle').textContent = reason || "انتهت اللعبة!";
-    document.getElementById('ovScore').textContent = Math.floor(G.score);
-    document.getElementById('ovCoins').textContent = G.coins;
-    document.getElementById('ovHS').textContent = DB.highScore;
-    
-    const recEl = document.getElementById('newRecord');
-    if (isNewRecord) recEl.classList.remove('hidden');
-    else recEl.classList.add('hidden');
-
-    document.getElementById('screenOver').classList.remove('hidden');
-    document.getElementById('screenOver').classList.add('active');
-  }, 1000);
+function gameOver() {
+    gameRunning = false;
+    document.getElementById('gameUI').classList.add('hidden');
+    document.getElementById('gameOverScreen').classList.remove('hidden');
+    document.getElementById('finalScore').innerText = Math.floor(score);
+    document.getElementById('finalCoins').innerText = coins;
 }
 
-// ─── أزرار الـ HTML ─────────────────────────────────────────────
-document.getElementById('btnPlay')?.addEventListener('click', startGame);
-document.getElementById('btnRestart')?.addEventListener('click', startGame);
-document.getElementById('btnHome')?.addEventListener('click', () => location.reload());
+document.getElementById('playBtn').onclick = startGame;
+document.getElementById('restartBtn').onclick = startGame;
+document.getElementById('creditsBtn').onclick = () => {
+    document.getElementById('startScreen').classList.add('hidden');
+    document.getElementById('creditsScreen').classList.remove('hidden');
+};
+document.getElementById('closeCreditsBtn').onclick = () => {
+    document.getElementById('creditsScreen').classList.add('hidden');
+    document.getElementById('startScreen').classList.remove('hidden');
+};
 
-// تحميل البيانات في الشاشة الرئيسية
-document.getElementById('hsDisplay').textContent = DB.highScore;
-document.getElementById('totalCoinsDisplay').textContent = DB.totalCoins;
-document.getElementById('attemptsDisplay').textContent = DB.attempts;
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
