@@ -3,31 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المصري الذكي | AI Egypt - Mohamed Ragab Abdelmonem</title>
+    <title>المصري الذكي | AI Egypt</title>
+    
+    <!-- Preconnect for faster loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@latest"></script>
     <link rel="stylesheet" href="style.css">
+    
+    <!-- Fixed versions instead of @latest -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.0/dist/mobilenet.min.js"></script>
+    
+    <!-- Fallback for CDN failure -->
+    <script>
+        window.addEventListener('load', function() {
+            if (typeof THREE === 'undefined') {
+                console.warn('Three.js CDN failed, loading fallback');
+                var script = document.createElement('script');
+                script.src = 'https://cdn.skypack.dev/three@0.128.0/build/three.min.js';
+                document.head.appendChild(script);
+            }
+            if (typeof tf === 'undefined') {
+                console.warn('TensorFlow.js CDN failed, loading fallback');
+                var script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js';
+                document.head.appendChild(script);
+            }
+        });
+    </script>
 </head>
 <body>
     <div id="canvas-container"></div>
     
     <div class="audio-control">
-        <button id="musicToggle" title="تشغيل/إيقاف الموسيقى"><i class="fas fa-play"></i></button>
-        <input type="range" id="volumeSlider" min="0" max="100" value="25">
+        <button id="musicToggle" aria-label="تشغيل/إيقاف الموسيقى"><i class="fas fa-play"></i></button>
+        <input type="range" id="volumeSlider" min="0" max="100" value="25" aria-label="مستوى الصوت">
         <span id="volumeLabel">25%</span>
     </div>
     
-    <div class="dev-credit" onclick="showDevInfo()" title="معلومات المطور">
+    <div class="dev-credit" id="devCreditBtn" title="معلومات المطور">
         <i class="fas fa-code"></i>
         <span>المطور: Mohamed Ragab Abdelmonem</span>
     </div>
     
     <div class="api-section">
-        <input type="password" id="apiKeyInput" placeholder="🔑 مفتاح API (اختياري)">
-        <button id="apiKeyBtn" title="حفظ المفتاح"><i class="fas fa-check"></i></button>
+        <input type="password" id="apiKeyInput" placeholder="🔑 مفتاح API (اختياري)" aria-label="مفتاح API">
+        <button id="apiKeyBtn" title="حفظ المفتاح" aria-label="حفظ"><i class="fas fa-check"></i></button>
     </div>
     
     <div class="main-container">
@@ -51,8 +75,8 @@
                 <video id="video" autoplay playsinline></video>
                 <canvas id="canvas"></canvas>
                 <div class="camera-overlay">
-                    <button id="snapBtn" class="btn-glow"><i class="fas fa-camera"></i> صور واعرف</button>
-                    <button id="uploadBtn" class="btn-glass"><i class="fas fa-image"></i> ارفع صورة</button>
+                    <button id="snapBtn" class="btn-glow" aria-label="التقاط صورة"><i class="fas fa-camera"></i> صور واعرف</button>
+                    <button id="uploadBtn" class="btn-glass" aria-label="رفع صورة"><i class="fas fa-image"></i> ارفع صورة</button>
                     <input type="file" id="fileInput" accept="image/*" hidden>
                 </div>
             </div>
@@ -66,22 +90,22 @@
         <section class="glass-section chat-section">
             <h2><i class="fas fa-comment-dots"></i> المحادثة العبقرية</h2>
             <div class="chat-controls">
-                <button id="deepSearchBtn" class="btn-glass small"><i class="fas fa-spider"></i> بحث عميق</button>
-                <button id="voiceInputBtn" class="btn-glass small"><i class="fas fa-microphone-lines"></i> تحدث</button>
-                <button id="speakToggleBtn" class="btn-glass small"><i class="fas fa-volume-high"></i> النطق: ON</button>
-                <button id="clearChatBtn" class="btn-glass small"><i class="fas fa-eraser"></i> مسح</button>
+                <button id="deepSearchBtn" class="btn-glass small" aria-label="بحث عميق"><i class="fas fa-spider"></i> بحث عميق</button>
+                <button id="voiceInputBtn" class="btn-glass small" aria-label="إدخال صوتي"><i class="fas fa-microphone-lines"></i> تحدث</button>
+                <button id="speakToggleBtn" class="btn-glass small" aria-label="تبديل النطق"><i class="fas fa-volume-high"></i> النطق: ON</button>
+                <button id="clearChatBtn" class="btn-glass small" aria-label="مسح المحادثة"><i class="fas fa-eraser"></i> مسح</button>
             </div>
             <div id="chatHistory" class="chat-history"></div>
             <div class="chat-input-wrapper">
-                <input type="text" id="chatInput" placeholder="اسألني أي حاجة... (جرب: 'بحث عميق عن...' أو 'اكتب كود...' أو 'قولي نكتة')">
-                <button id="sendBtn" class="btn-glow"><i class="fas fa-rocket"></i></button>
+                <input type="text" id="chatInput" placeholder="اسألني أي حاجة... (جرب: 'بحث عميق عن...' أو 'اكتب كود...' أو 'قولي نكتة')" aria-label="سؤال">
+                <button id="sendBtn" class="btn-glow" aria-label="إرسال"><i class="fas fa-rocket"></i></button>
             </div>
         </section>
         
         <section class="glass-section code-section">
             <h2><i class="fas fa-terminal"></i> معالج الأكواد</h2>
             <div class="code-controls">
-                <select id="langSelect">
+                <select id="langSelect" aria-label="لغة البرمجة">
                     <option value="javascript">JavaScript</option>
                     <option value="python">Python</option>
                     <option value="cpp">C++</option>
@@ -95,53 +119,53 @@
                     <option value="nodejs">Node.js</option>
                     <option value="typescript">TypeScript</option>
                 </select>
-                <button id="generateCodeBtn" class="btn-glow"><i class="fas fa-wand-magic-sparkles"></i> اكتب كود</button>
+                <button id="generateCodeBtn" class="btn-glow" aria-label="إنشاء كود"><i class="fas fa-wand-magic-sparkles"></i> اكتب كود</button>
             </div>
             <div id="codeOutput" class="code-output hidden"></div>
         </section>
         
         <section class="features-grid">
-            <div class="feature-card glass" onclick="ai.askAbout('food')">
+            <div class="feature-card glass" data-topic="food">
                 <i class="fas fa-utensils"></i>
                 <h3>🍽️ الأكل المصري</h3>
                 <p>50+ وصفة تقليدية وتاريخها</p>
             </div>
-            <div class="feature-card glass" onclick="ai.askAbout('history')">
+            <div class="feature-card glass" data-topic="history">
                 <i class="fas fa-landmark"></i>
                 <h3>🏛️ الحضارة المصرية</h3>
                 <p>7000 سنة من العظمة</p>
             </div>
-            <div class="feature-card glass" onclick="ai.askAbout('sports')">
+            <div class="feature-card glass" data-topic="sports">
                 <i class="fas fa-futbol"></i>
                 <h3>⚽ الرياضة المصرية</h3>
                 <p>كل الفرق والأساطير</p>
             </div>
-            <div class="feature-card glass" onclick="ai.askAbout('health')">
+            <div class="feature-card glass" data-topic="health">
                 <i class="fas fa-heart-pulse"></i>
                 <h3>❤️ الصحة والتغذية</h3>
                 <p>نصائح طبية ووصفات طبيعية</p>
             </div>
-            <div class="feature-card glass" onclick="ai.askAbout('tech')">
+            <div class="feature-card glass" data-topic="tech">
                 <i class="fas fa-laptop-code"></i>
                 <h3>💻 البرمجة والتقنية</h3>
                 <p>12 لغة برمجة + ذكاء اصطناعي</p>
             </div>
-            <div class="feature-card glass" onclick="ai.askAbout('movies')">
+            <div class="feature-card glass" data-topic="movies">
                 <i class="fas fa-film"></i>
                 <h3>🎬 السينما المصرية</h3>
                 <p>أفلام ومسلسلات ونجوم</p>
             </div>
-            <div class="feature-card glass" onclick="ai.askAbout('islam')">
+            <div class="feature-card glass" data-topic="islam">
                 <i class="fas fa-mosque"></i>
                 <h3>🕌 الإسلام والروحانيات</h3>
                 <p>أحاديث وأدعية وتفسير</p>
             </div>
-            <div class="feature-card glass" onclick="ai.askAbout('science')">
+            <div class="feature-card glass" data-topic="science">
                 <i class="fas fa-atom"></i>
                 <h3>🔬 العلوم والفضاء</h3>
                 <p>فيزياء، كيمياء، فلك</p>
             </div>
-            <div class="feature-card glass" onclick="ai.askAbout('business')">
+            <div class="feature-card glass" data-topic="business">
                 <i class="fas fa-chart-line"></i>
                 <h3>📈 البيزنس والتجارة</h3>
                 <p>استثمار، تسويق، ريادة</p>
@@ -149,7 +173,7 @@
         </section>
         
         <footer class="glass-footer">
-            <p>© 2026 <strong>المصري الذكي</strong> | AI Egypt Ultra v4.0</p>
+            <p>© 2026 <strong>المصري الذكي</strong> | AI Egypt v4.0</p>
             <p>مطور بواسطة <strong style="color:#feca57">Mohamed Ragab Abdelmonem</strong> — The Small Programmer 🇪🇬</p>
             <p style="font-size:0.8rem; color:#555; margin-top:10px">"اللي ياكل وحده يموت وحده" — حكمة مصرية</p>
         </footer>
@@ -160,14 +184,14 @@
             <div class="planet"></div>
             <div class="orbit"></div>
         </div>
-        <p>جاري إيقاظ العبقرية المصرية... 🧠⚡</p>
-        <p class="loading-sub">TensorFlow.js + Three.js + Mega Knowledge Base</p>
-        <p class="loading-sub">أول مرة بس، بعد كده يشتغل Offline!</p>
+        <p>جاري تجهيز العقل المصري... 🧠⚡</p>
+        <p class="loading-sub">TensorFlow.js + Three.js + قاعدة معرفية ضخمة</p>
+        <p class="loading-sub">أول مرة فقط، بعد كده يعمل دون اتصال!</p>
     </div>
     
     <div id="devModal" class="modal hidden">
         <div class="modal-content glass">
-            <span class="close-btn" onclick="hideDevInfo()">&times;</span>
+            <span class="close-btn" id="closeDevModalBtn" aria-label="إغلاق">&times;</span>
             <h2><i class="fas fa-user-astronaut" style="color:var(--accent)"></i> مطور الموقع</h2>
             <div class="dev-profile">
                 <div class="dev-avatar">MR</div>
@@ -177,23 +201,93 @@
                     <p>🎓 طالب علوم حاسب</p>
                     <p>🇪🇬 من مصر، لمصر، لأجل مصر</p>
                     <p>💻 شغف: البرمجة + الذكاء الاصطناعي + الألعاب</p>
-                    <p>🧠 باني "المصري الذكي" — أذكى AI مصري في التاريخ</p>
+                    <p>🧠 باني "المصري الذكي"</p>
                 </div>
                 <div class="dev-social">
-                    <a href="#" class="social-btn" title="GitHub"><i class="fab fa-github"></i></a>
-                    <a href="#" class="social-btn" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                    <a href="#" class="social-btn" title="YouTube"><i class="fab fa-youtube"></i></a>
-                    <a href="#" class="social-btn" title="Twitter"><i class="fab fa-x-twitter"></i></a>
+                    <a href="#" class="social-btn" title="GitHub" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                    <a href="#" class="social-btn" title="LinkedIn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="social-btn" title="YouTube" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    <a href="#" class="social-btn" title="Twitter" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Scripts - Load in order -->
-    <script src="space.js"></script>
-    <script src="ai-audio.js"></script>
-    <script src="ai-search.js"></script>
-    <script src="ai-knowledge.js"></script>
-    <script src="ai-core.js"></script>
+    <!-- Scripts loading with defer and correct order -->
+    <script defer src="space.js"></script>
+    <script defer src="ai-audio.js"></script>
+    <script defer src="ai-search.js"></script>
+    <script defer src="ai-knowledge.js"></script>
+    <script defer src="ai-core.js"></script>
+    
+    <!-- No inline onclick anymore: this script attaches all event listeners safely -->
+    <script>
+        (function() {
+            function waitForElement(selector, callback) {
+                const element = document.querySelector(selector);
+                if (element) {
+                    callback(element);
+                } else {
+                    const observer = new MutationObserver((mutations, obs) => {
+                        const el = document.querySelector(selector);
+                        if (el) {
+                            obs.disconnect();
+                            callback(el);
+                        }
+                    });
+                    observer.observe(document.body, { childList: true, subtree: true });
+                }
+            }
+            
+            // استبدال onclick الخاص بـ dev-credit
+            waitForElement('.dev-credit', (btn) => {
+                btn.removeAttribute('onclick');
+                btn.addEventListener('click', () => {
+                    if (typeof showDevInfo === 'function') showDevInfo();
+                    else console.warn('showDevInfo not defined yet');
+                });
+            });
+            
+            // ربط feature cards بـ askAbout
+            const featureCards = document.querySelectorAll('.feature-card');
+            featureCards.forEach(card => {
+                card.removeAttribute('onclick');
+                const topic = card.getAttribute('data-topic');
+                if (topic) {
+                    card.addEventListener('click', () => {
+                        if (window.ai && typeof window.ai.askAbout === 'function') {
+                            window.ai.askAbout(topic);
+                        } else {
+                            console.warn('AI not ready');
+                            const chatInput = document.getElementById('chatInput');
+                            if (chatInput) {
+                                chatInput.value = `قولي عن ${topic}`;
+                                const sendBtn = document.getElementById('sendBtn');
+                                if (sendBtn) sendBtn.click();
+                            }
+                        }
+                    });
+                }
+            });
+            
+            // إغلاق المودال عبر الـ id (بدلاً من onclick)
+            const closeModalBtn = document.getElementById('closeDevModalBtn');
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', () => {
+                    if (typeof hideDevInfo === 'function') hideDevInfo();
+                });
+            }
+            
+            // منع أي أخطاء بسبب العناصر غير الموجودة (مثال)
+            function safeAddEventListener(elementId, event, handler) {
+                const el = document.getElementById(elementId);
+                if (el) el.addEventListener(event, handler);
+                else console.warn(`Element ${elementId} not found`);
+            }
+            
+            // إعادة تعريف بعض الأحداث إن لزم (لكن الأصلية في ai-core.js كافية)
+            console.log('Index enhanced: no inline onclick, CDN versions fixed, accessibility improved');
+        })();
+    </script>
 </body>
 </html>
