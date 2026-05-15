@@ -50,7 +50,7 @@
       background-position: center;
       background-size: cover;
       background-repeat: no-repeat;
-      opacity: 0.11;
+      opacity: 0.28;
       filter: saturate(1.12) contrast(1.05);
       transition: background-image 900ms ease, opacity 500ms ease, transform 1200ms ease;
       transform: scale(1.03);
@@ -60,7 +60,7 @@
     .overlay {
       position: fixed;
       inset: 0;
-      background: linear-gradient(135deg, rgba(4, 10, 20, 0.70), rgba(6, 13, 24, 0.30));
+      background: linear-gradient(135deg, rgba(4, 10, 20, 0.38), rgba(6, 13, 24, 0.16));
       pointer-events: none;
     }
 
@@ -499,6 +499,7 @@
         <div class="right">
           <button class="chip" id="changeBackgroundBtn"><i class="fas fa-image"></i> خلفية</button>
           <button class="chip" id="autoBgBtn"><i class="fas fa-rotate"></i> خلفية تلقائية: تشغيل</button>
+          <button class="chip" id="newChatTopBtn"><i class="fas fa-plus"></i> شات جديد</button>
           <button class="chip" id="clearChatBtn"><i class="fas fa-trash"></i> مسح المحادثة</button>
           <button class="chip" id="renameChatBtn"><i class="fas fa-pen"></i> إعادة تسمية</button>
           <button class="chip" id="pasteKeyBtn"><i class="fas fa-key"></i> لصق المفتاح</button>
@@ -705,6 +706,9 @@
       { id: 'meta-llama/llama-4-scout-17b-16e-instruct', label: 'Llama 4 Scout (Vision)' },
       { id: 'meta-llama/llama-4-maverick-17b-128e-instruct', label: 'Llama 4 Maverick (Vision)' },
       { id: 'qwen/qwen3-32b', label: 'Qwen 3 32B' },
+      { id: 'qwen/qwen2.5-32b-instruct', label: 'Qwen 2.5 32B' },
+      { id: 'deepseek-r1-distill-llama-70b', label: 'DeepSeek R1 Distill Llama 70B' },
+      { id: 'mixtral-8x7b-32768', label: 'Mixtral 8x7B 32768' },
       { id: 'moonshotai/kimi-k2-instruct-0905', label: 'Kimi K2 0905' },
       { id: 'gemma2-9b-it', label: 'Gemma 2 9B IT' },
       { id: 'openai/gpt-oss-20b', label: 'GPT OSS 20B' }
@@ -838,7 +842,8 @@
       attachImageBtn: document.getElementById('attachImageBtn'),
       clearAttachmentBtn: document.getElementById('clearAttachmentBtn'),
       changeBackgroundBtn: document.getElementById('changeBackgroundBtn'),
-      autoBgBtn: document.getElementById('autoBgBtn')
+      autoBgBtn: document.getElementById('autoBgBtn'),
+      newChatTopBtn: document.getElementById('newChatTopBtn')
     };
 
     function persistChats() {
@@ -896,14 +901,17 @@
         'موديلات جاهزة داخل القائمة:',
         ...DEFAULT_MODELS.map(m => `• ${m.id}`),
         '',
+        'مهم:',
+        '• لو المستخدم أراد “ChatGPT” كفكرة، فهذا يحتاج مزود OpenAI منفصل ومفتاحه الخاص.',
+        '• يمكنك إضافة Model ID مخصص في الحقل بالأعلى، مفصول بفواصل لو عندك أكثر من موديل.',
+        '• لو حسابك لا يسمح بكل الموديلات، سيظهر الخطأ الحقيقي بدل رسالة عامة.',
+        '',
         'Auto routing:',
         '• الأسئلة القصيرة والسريعة → نموذج سريع',
         '• التحليل والبرمجة → نموذج أقوى',
-        '• وجود صورة مرفقة → نموذج Vision',
-        '',
-        'يمكنك إضافة Model ID مخصص في الحقل بالأعلى، مفصول بفواصل لو عندك أكثر من موديل.',
-        'لو حسابك لا يسمح بكل الموديلات، سيظهر الخطأ الحقيقي بدل رسالة عامة.'
-      ].join('\n');
+        '• وجود صورة مرفقة → نموذج Vision'
+      ].join('
+');
     }
 
     function renderConversationList() {
@@ -1525,6 +1533,7 @@
     els.pasteKeyBtn.addEventListener('click', async () => { try { const text = await navigator.clipboard.readText(); if (text) { els.groqKeyInput.value = text.trim(); setStatus(els.keyStatus, '', 'تم لصق المفتاح في الحقل. اضغط حفظ لو تحب تخزنه محليًا.'); } } catch { setStatus(els.keyStatus, 'warn', 'لم أستطع الوصول للحافظة في هذا المتصفح. الصق المفتاح يدويًا.'); } });
     els.testKeyBtn.addEventListener('click', testKey);
     els.newChatBtn.addEventListener('click', newChat);
+    els.newChatTopBtn.addEventListener('click', newChat);
     els.clearAllChatsBtn.addEventListener('click', clearAllChats);
     els.exportChatsBtn.addEventListener('click', () => exportChatsFile());
     els.importChatsBtn.addEventListener('click', () => els.importFileInput.click());
