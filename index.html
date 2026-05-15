@@ -2,187 +2,156 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>المصري الذكي – النسر الرقمي الفاخر</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <style>
         :root {
             --primary: #10a37f;
-            --primary-dark: #0a5c3e;
-            --accent: #ffd700;
+            --gold: #ffd700;
+            --dark: #0a1428;
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: 'Cairo', system-ui, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
-            color: #e2e8f0;
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #0a1428 0%, #1a2338 100%);
+            color: #e0f2fe;
             height: 100vh;
             overflow: hidden;
             position: relative;
         }
 
-        /* خلفية فاخرة */
         body::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
+            inset: 0;
             background: url('https://picsum.photos/id/1015/1920/1080') center/cover;
-            opacity: 0.08;
-            z-index: -1;
-            filter: brightness(0.6) contrast(1.2);
+            opacity: 0.12;
+            z-index: -2;
+            filter: brightness(0.7) contrast(1.3);
         }
 
-        /* شريط جانبي فاخر */
+        /* تأثير Particles خفيف */
+        #particles {
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+        }
+
         .sidebar {
-            width: 300px;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(20px);
-            border-left: 1px solid rgba(255,255,255,0.1);
+            width: 320px;
+            background: rgba(10, 20, 40, 0.96);
+            backdrop-filter: blur(24px);
+            border-left: 2px solid rgba(16, 163, 127, 0.3);
+            box-shadow: 0 0 60px rgba(16, 163, 127, 0.25);
             display: flex;
             flex-direction: column;
-            box-shadow: 0 0 40px rgba(16, 163, 127, 0.2);
-            z-index: 10;
         }
 
         .logo-area {
-            padding: 32px 24px;
+            padding: 40px 24px 30px;
             text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            position: relative;
+            border-bottom: 1px solid rgba(255,215,0,0.2);
         }
 
         .logo {
-            font-size: 2.1rem;
+            font-size: 2.4rem;
             font-weight: 900;
-            background: linear-gradient(135deg, #10a37f, #ffd700, #10a37f);
+            background: linear-gradient(90deg, #10a37f, #ffd700, #10a37f);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            text-shadow: 0 0 30px rgba(16, 163, 127, 0.5);
-            letter-spacing: -2px;
+            text-shadow: 0 0 40px rgba(255,215,0,0.6);
         }
 
-        .logo-subtitle {
-            font-size: 0.85rem;
-            color: var(--accent);
-            margin-top: 6px;
-            letter-spacing: 1px;
+        .subtitle {
+            color: #ffd700;
+            font-size: 1rem;
+            margin-top: 8px;
+            letter-spacing: 2px;
         }
 
         .tabs {
             flex: 1;
-            padding: 24px 16px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
 
         .tab-btn {
-            background: rgba(255,255,255,0.05);
+            padding: 18px 24px;
+            border-radius: 22px;
+            background: rgba(255,255,255,0.06);
             border: none;
-            padding: 16px 20px;
-            border-radius: 20px;
-            font-size: 1.05rem;
+            color: #cbd5e1;
+            font-size: 1.1rem;
             font-weight: 600;
-            text-align: right;
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 16px;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            color: #cbd5e1;
+            transition: all 0.4s ease;
         }
 
-        .tab-btn:hover {
-            background: rgba(16, 163, 127, 0.15);
-            transform: translateX(-8px);
-        }
-
-        .tab-btn.active {
-            background: linear-gradient(90deg, rgba(16,163,127,0.3), rgba(255,215,0,0.1));
+        .tab-btn:hover, .tab-btn.active {
+            background: linear-gradient(90deg, rgba(16,163,127,0.25), rgba(255,215,0,0.1));
             color: white;
-            box-shadow: 0 10px 30px rgba(16, 163, 127, 0.3);
-            border-right: 4px solid #ffd700;
+            transform: translateX(-10px);
+            box-shadow: 0 10px 30px rgba(16,163,127,0.3);
         }
 
-        /* المحتوى الرئيسي */
         .main-content {
             flex: 1;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
             position: relative;
-        }
-
-        .chat-header {
-            padding: 20px 32px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            backdrop-filter: blur(10px);
-        }
-
-        .model-selector {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .model-select {
-            padding: 12px 20px;
-            border-radius: 50px;
-            border: 1px solid rgba(255,255,255,0.2);
-            background: rgba(15,23,42,0.8);
-            color: white;
-            font-family: inherit;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
         .chat-messages {
             flex: 1;
             overflow-y: auto;
-            padding: 32px;
+            padding: 30px;
             display: flex;
             flex-direction: column;
-            gap: 24px;
-            scrollbar-width: thin;
+            gap: 28px;
         }
 
         .message {
             display: flex;
             gap: 16px;
-            animation: messagePop 0.5s ease;
+            animation: fadeInUp 0.6s ease;
         }
 
-        @keyframes messagePop {
-            from { opacity: 0; transform: translateY(30px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .message-avatar {
-            width: 48px;
-            height: 48px;
+            width: 52px;
+            height: 52px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), #0a5c3e);
+            background: linear-gradient(135deg, #10a37f, #ffd700);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.4rem;
-            box-shadow: 0 8px 25px rgba(16,163,127,0.4);
+            font-size: 1.6rem;
+            box-shadow: 0 10px 30px rgba(16,163,127,0.5);
         }
 
         .message-content {
-            max-width: 75%;
-            background: rgba(255,255,255,0.08);
-            padding: 18px 24px;
+            max-width: 78%;
+            padding: 20px 26px;
             border-radius: 28px 28px 8px 28px;
-            line-height: 1.75;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            background: rgba(255,255,255,0.09);
             border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            line-height: 1.8;
         }
 
         .message.user .message-content {
@@ -191,158 +160,216 @@
             color: white;
         }
 
-        .message-footer {
-            margin-top: 12px;
-            display: flex;
-            gap: 20px;
-            font-size: 0.85rem;
-        }
-
-        .copy-btn, .speak-btn {
-            background: none;
-            border: none;
-            color: rgba(255,255,255,0.7);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .copy-btn:hover, .speak-btn:hover {
-            color: var(--accent);
-            transform: scale(1.2);
-        }
-
-        /* Input Area */
         .input-area {
-            padding: 28px 32px;
-            background: rgba(15,23,42,0.95);
-            border-top: 1px solid rgba(255,255,255,0.1);
+            padding: 24px 32px;
+            background: rgba(10,20,40,0.95);
         }
 
         .input-group {
             display: flex;
-            gap: 12px;
             background: rgba(255,255,255,0.08);
             border-radius: 9999px;
             padding: 8px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
 
         textarea {
             flex: 1;
-            padding: 18px 28px;
-            border: none;
             background: transparent;
-            color: white;
-            font-family: inherit;
-            font-size: 1.05rem;
-            resize: none;
-            max-height: 180px;
-        }
-
-        button {
-            background: linear-gradient(135deg, #10a37f, #ffd700);
             border: none;
-            padding: 0 32px;
-            border-radius: 9999px;
-            color: #0f172a;
-            font-weight: 800;
+            color: white;
+            padding: 18px 24px;
             font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 10px 25px rgba(16,163,127,0.4);
+            resize: none;
         }
 
-        button:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 15px 35px rgba(16,163,127,0.5);
+        button#mainSend {
+            background: linear-gradient(135deg, #10a37f, #ffd700);
+            color: #0a1428;
+            font-weight: 900;
+            padding: 0 36px;
+            border-radius: 9999px;
+            font-size: 1.15rem;
         }
 
-        /* Developer Credit */
+        .model-select {
+            background: rgba(15,23,42,0.9);
+            color: white;
+            border: 1px solid #10a37f;
+            padding: 12px 20px;
+            border-radius: 50px;
+        }
+
         .developer-credit {
             position: absolute;
-            bottom: 16px;
+            bottom: 18px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 0.75rem;
-            color: rgba(255,255,255,0.5);
+            font-size: 0.82rem;
+            color: rgba(255,215,0,0.7);
             text-align: center;
-            z-index: 100;
+        }
+
+        .status-bar {
+            position: absolute;
+            top: 12px;
+            right: 20px;
+            font-size: 0.8rem;
+            background: rgba(16,163,127,0.2);
+            padding: 6px 14px;
+            border-radius: 30px;
         }
     </style>
 </head>
 <body>
+
 <div class="sidebar">
     <div class="logo-area">
         <div class="logo">🦅 المصري الذكي</div>
-        <div class="logo-subtitle">النسر الرقمي الفاخر</div>
+        <div class="subtitle">النسر الرقمي الفاخر</div>
     </div>
-    
+
     <div class="tabs">
-        <button class="tab-btn active" data-tab="chat"><i class="fas fa-comment-dots"></i> دردشة ذكية</button>
-        <button class="tab-btn" data-tab="search"><i class="fas fa-globe"></i> بحث عميق</button>
-        <button class="tab-btn" data-tab="image"><i class="fas fa-palette"></i> توليد صور فاخر</button>
-        <button class="tab-btn" data-tab="settings"><i class="fas fa-sliders-h"></i> الإعدادات</button>
+        <button class="tab-btn active" data-tab="chat"><i class="fas fa-comments"></i> دردشة</button>
+        <button class="tab-btn" data-tab="search"><i class="fas fa-search"></i> بحث عميق</button>
+        <button class="tab-btn" data-tab="image"><i class="fas fa-image"></i> توليد صور</button>
+        <button class="tab-btn" data-tab="settings"><i class="fas fa-cog"></i> الإعدادات</button>
     </div>
-    
-    <div style="padding:20px; text-align:center; border-top:1px solid rgba(255,255,255,0.1);">
-        <div style="font-size:0.8rem; color:#94a3b8;">مطور الموقع</div>
-        <div style="font-weight:700; color:#ffd700; margin-top:4px;">Mohamed Ragab Abdel Moneim</div>
+
+    <div style="padding:20px; text-align:center; border-top:1px solid rgba(255,215,0,0.2);">
+        <strong style="color:#ffd700;">Mohamed Ragab Abdel Moneim</strong><br>
+        <small>مطور المشروع</small>
     </div>
 </div>
 
 <div class="main-content">
-    <!-- Chat Panel -->
-    <div id="chatPanel" style="display: flex; flex-direction: column; height: 100%;">
-        <div class="chat-header">
-            <div class="model-selector">
-                <select id="modelSelect" class="model-select">
-                    <optgroup label="نماذج فاخرة">
-                        <option value="llama-3.3-70b-versatile">🦙 Llama 3.3 70B</option>
-                        <option value="mixtral-8x7b-32768">🌀 Mixtral 8x7B</option>
-                        <option value="qwen-2.5-32b">🌟 Qwen 2.5 32B</option>
-                    </optgroup>
-                </select>
-                <button id="clearChatBtn" style="background:rgba(255,255,255,0.1); color:white; padding:12px 20px; border-radius:50px;"><i class="fas fa-trash-alt"></i></button>
-            </div>
+    <div class="status-bar" id="status">✅ متصل • Groq + Pollinations</div>
+
+    <!-- دردشة -->
+    <div id="chatPanel" style="display:flex; flex-direction:column; height:100%;">
+        <div style="padding:20px 32px; border-bottom:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; align-items:center;">
+            <select id="modelSelect" class="model-select">
+                <optgroup label="🔥 Groq - النماذج المجانية">
+                    <option value="llama-3.3-70b-versatile">Llama 3.3 70B</option>
+                    <option value="llama-3.1-8b-instant">Llama 3.1 8B Instant</option>
+                    <option value="qwen/qwen3-32b">Qwen3 32B</option>
+                    <option value="meta-llama/llama-4-scout-17b-16e-instruct">Llama 4 Scout</option>
+                    <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+                    <option value="gemma2-9b-it">Gemma 2 9B</option>
+                    <option value="deepseek-r1-distill-llama-70b">DeepSeek R1 70B</option>
+                </optgroup>
+            </select>
+            <button id="clearChatBtn" style="background:rgba(255,255,255,0.1); padding:10px 18px; border-radius:50px;">🗑️</button>
         </div>
 
         <div class="chat-messages" id="chatMessages"></div>
 
         <div class="input-area">
             <div class="input-group">
-                <textarea id="chatInput" rows="1" placeholder="اكتب رسالتك... (ارسم: ... أو بحث: ...)"></textarea>
-                <button id="sendBtn">إرسال <i class="fas fa-paper-plane"></i></button>
+                <textarea id="chatInput" rows="1" placeholder="اكتب رسالتك... (ارسم: وصف / بحث: موضوع)"></textarea>
+                <button id="sendBtn">إرسال</button>
             </div>
         </div>
     </div>
 
-    <!-- باقي الألواح (يمكنك توسيعها) -->
-    <div id="searchPanel" style="display: none; padding:40px; overflow-y:auto; height:100%;">
-        <h2 style="color:#ffd700; margin-bottom:20px;">🔍 بحث عميق</h2>
-        <!-- يمكنك إضافة المحتوى هنا -->
+    <!-- باقي الألواح -->
+    <div id="imagePanel" style="display:none; padding:40px; overflow:auto; height:100%;">
+        <h2 style="color:#ffd700;">🎨 توليد صور فاخر (Pollinations AI)</h2>
+        <input id="imagePrompt" style="width:100%; padding:18px; border-radius:999px; margin:20px 0; background:rgba(255,255,255,0.1); color:white;" placeholder="وصف الصورة...">
+        <button id="genImageBtn" style="padding:16px 40px; font-size:1.1rem;">توليد الصورة</button>
+        <div id="generatedImage" style="margin-top:30px;"></div>
     </div>
 
-    <div id="imagePanel" style="display: none; padding:40px; overflow-y:auto; height:100%;">
-        <h2 style="color:#ffd700; margin-bottom:20px;">🎨 توليد صور فاخر</h2>
-        <!-- يمكنك إضافة المحتوى هنا -->
-    </div>
-
-    <div id="settingsPanel" style="display: none; padding:40px; overflow-y:auto; height:100%;">
-        <h2 style="color:#ffd700; margin-bottom:20px;">⚙️ الإعدادات</h2>
-        <!-- مفاتيح API -->
+    <div id="settingsPanel" style="display:none; padding:40px; overflow:auto; height:100%;">
+        <h2 style="color:#ffd700;">🔑 إعدادات API</h2>
+        <input type="password" id="groqKey" placeholder="Groq API Key (gsk_...)" style="width:100%; padding:16px; margin:15px 0; border-radius:999px;">
+        <button onclick="saveKeys()">حفظ المفاتيح</button>
     </div>
 
     <div class="developer-credit">
-        Developed with ❤️ by <strong>Mohamed Ragab Abdel Moneim</strong> • النسخة الفاخرة ٢٠٢٦
+        Developed with ❤️ by <strong>Mohamed Ragab Abdel Moneim</strong> — 2026
     </div>
 </div>
 
 <script>
-    // JavaScript الأساسي (محسن)
-    console.log("%cالمصري الذكي - النسر الرقمي الفاخر\nDeveloped by Mohamed Ragab Abdel Moneim", "color:#10a37f; font-size:14px; font-weight:bold;");
+    // نماذج Groq
+    let selectedModel = "llama-3.3-70b-versatile";
+    let groqKey = localStorage.getItem("groq_key") || "";
 
-    // هنا يمكنك لصق باقي الـ JavaScript من الكود الأصلي مع تحسينات إضافية
-    // (مثل إضافة تأثيرات صوتية، أو particles.js، أو تحسين توليد الصور)
+    document.getElementById("modelSelect").addEventListener("change", (e) => {
+        selectedModel = e.target.value;
+    });
+
+    function saveKeys() {
+        groqKey = document.getElementById("groqKey").value.trim();
+        if (groqKey) {
+            localStorage.setItem("groq_key", groqKey);
+            alert("✅ تم حفظ مفتاح Groq بنجاح");
+        }
+    }
+
+    // إرسال الرسالة (مبسط للعرض)
+    document.getElementById("sendBtn").addEventListener("click", async () => {
+        const input = document.getElementById("chatInput");
+        const text = input.value.trim();
+        if (!text) return;
+
+        addMessage("user", text);
+        input.value = "";
+
+        if (text.startsWith("ارسم:")) {
+            const prompt = text.replace("ارسم:", "").trim();
+            const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024`;
+            addMessage("bot", "🖼️ تم توليد الصورة:", true, url);
+            return;
+        }
+
+        // استدعاء Groq
+        if (!groqKey) {
+            addMessage("bot", "⚠️ أدخل مفتاح Groq في الإعدادات أولاً");
+            return;
+        }
+
+        try {
+            const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${groqKey}`
+                },
+                body: JSON.stringify({
+                    model: selectedModel,
+                    messages: [{role: "user", content: text}],
+                    temperature: 0.75
+                })
+            });
+
+            const data = await res.json();
+            const reply = data.choices[0].message.content;
+            addMessage("bot", reply);
+        } catch (e) {
+            addMessage("bot", "❌ خطأ في الاتصال: " + e.message);
+        }
+    });
+
+    function addMessage(role, content, isImage = false, imgUrl = "") {
+        const container = document.getElementById("chatMessages");
+        const div = document.createElement("div");
+        div.className = `message ${role}`;
+        div.innerHTML = `
+            <div class="message-avatar">${role === "user" ? "👤" : "🦅"}</div>
+            <div class="message-content">
+                ${isImage ? `<img src="${imgUrl}" style="max-width:100%; border-radius:16px;">` : content}
+            </div>
+        `;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    // تهيئة
+    setTimeout(() => {
+        addMessage("bot", "✨ مرحباً بك في أفخم نسخة من المصري الذكي!\n🦅 النسر الرقمي الفاخر ٢٠٢٦\n\nمطور المشروع: Mohamed Ragab Abdel Moneim");
+    }, 800);
 </script>
 </body>
 </html>
