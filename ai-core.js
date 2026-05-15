@@ -446,7 +446,9 @@ class EgyptianAI {
             weather = await this.fetchWeather(city);
         }
         if (weather) {
-            this.addChatMessage(`🌦️ طقس ${city} الآن: ${weather}\n\nنصيحة مصرية: خد معاك شمسية لو في شتاء، وإشرب مية لو في صيف!`, 'ai');
+            this.addChatMessage(`🌦️ طقس ${city} الآن: ${weather}
+
+نصيحة مصرية: خد معاك شمسية لو في شتاء، وإشرب مية لو في صيف!`, 'ai');
         } else {
             this.addChatMessage('❌ معرفتش أجيب الطقس، تأكد من اتصالك بالإنترنت أو حاول تاني.', 'ai');
         }
@@ -835,13 +837,18 @@ ${verse}
             let result = '';
             if (data.Abstract) result = data.Abstract;
             else if (data.RelatedTopics && data.RelatedTopics.length > 0) {
-                result = data.RelatedTopics.slice(0, 3).map(t => t.Text).join('\n\n');
+                result = data.RelatedTopics.slice(0, 3).map(t => t.Text).join('
+
+');
             }
             if (!result) result = 'مش لقيت معلومات كافية على الإنترنت. جرب سؤال تاني!';
 
             const msgDiv = document.createElement('div');
             msgDiv.className = 'chat-message ai searching';
-            msgDiv.innerHTML = `<span class="search-badge">🔍 بحث إنترنت</span>\n${result}\n\n(المعلومات دي من الإنترنت - مش من ذاكرتي)`;
+            msgDiv.innerHTML = `<span class="search-badge">🔍 بحث إنترنت</span>
+${result}
+
+(المعلومات دي من الإنترنت - مش من ذاكرتي)`;
             document.getElementById('chatHistory').appendChild(msgDiv);
             document.getElementById('chatHistory').scrollTop = document.getElementById('chatHistory').scrollHeight;
             this.learnFromConversation(query, result);
@@ -858,12 +865,66 @@ ${verse}
         if (output) output.classList.remove('hidden');
 
         const codes = {
-            javascript: `// JavaScript - لعبة صابويه بسيطة\nclass Sabuyah {\n  constructor() {\n    this.score = 0;\n    this.lives = 3;\n  }\n  jump() { console.log("قفز!"); }\n  collect() { this.score += 10; }\n}\nconst game = new Sabuyah();\ngame.collect();\nconsole.log("نقاط:", game.score);`,
-            python: `# Python - لعبة صابويه\ndef jump():\n    print("قفز!")\n    \ndef collect(score):\n    return score + 10\n\nscore = 0\nscore = collect(score)\nprint(f"نقاط: {score}")`,
-            cpp: `// C++ - لعبة بسيطة\n#include <iostream>\nusing namespace std;\nint main() {\n    int score = 0;\n    cout << "نقاط: " << score << endl;\n    return 0;\n}`,
-            java: `// Java - لعبة\npublic class Sabuyah {\n    public static void main(String[] args) {\n        int score = 0;\n        System.out.println("نقاط: " + score);\n    }\n}`,
-            html: `<!DOCTYPE html>\n<html dir="rtl" lang="ar">\n<head><meta charset="UTF-8"><title>صابويه أونلاين</title>\n<style>body{background:#1e3a2f;color:#ffd700;}</style>\n</head>\n<body><h1>صابويه المصري</h1>\n<button onclick="alert('قفز!')">اقفز</button>\n</body>\n</html>`,
-            react: `// React Component - صابويه\nimport React, { useState } from 'react';\n\nfunction Sabuyah() {\n  const [score, setScore] = useState(0);\n  return (\n    <div>\n      <h1>صابويه المصري</h1>\n      <p>نقاط: {score}</p>\n      <button onClick={() => setScore(score + 10)}>اجمع عملة</button>\n    </div>\n  );\n}\nexport default Sabuyah;`
+            javascript: `// JavaScript - لعبة صابويه بسيطة
+class Sabuyah {
+  constructor() {
+    this.score = 0;
+    this.lives = 3;
+  }
+  jump() { console.log("قفز!"); }
+  collect() { this.score += 10; }
+}
+const game = new Sabuyah();
+game.collect();
+console.log("نقاط:", game.score);`,
+            python: `# Python - لعبة صابويه
+def jump():
+    print("قفز!")
+    
+def collect(score):
+    return score + 10
+
+score = 0
+score = collect(score)
+print(f"نقاط: {score}")`,
+            cpp: `// C++ - لعبة بسيطة
+#include <iostream>
+using namespace std;
+int main() {
+    int score = 0;
+    cout << "نقاط: " << score << endl;
+    return 0;
+}`,
+            java: `// Java - لعبة
+public class Sabuyah {
+    public static void main(String[] args) {
+        int score = 0;
+        System.out.println("نقاط: " + score);
+    }
+}`,
+            html: `<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head><meta charset="UTF-8"><title>صابويه أونلاين</title>
+<style>body{background:#1e3a2f;color:#ffd700;}</style>
+</head>
+<body><h1>صابويه المصري</h1>
+<button onclick="alert('قفز!')">اقفز</button>
+</body>
+</html>`,
+            react: `// React Component - صابويه
+import React, { useState } from 'react';
+
+function Sabuyah() {
+  const [score, setScore] = useState(0);
+  return (
+    <div>
+      <h1>صابويه المصري</h1>
+      <p>نقاط: {score}</p>
+      <button onClick={() => setScore(score + 10)}>اجمع عملة</button>
+    </div>
+  );
+}
+export default Sabuyah;`
         };
         if (output) output.textContent = codes[lang] || codes.javascript;
         this.addChatMessage(`💻 كتبتلك كود ${lang} (لعبة صابويه نموذجية)! شوفه فوق 👆`, 'ai');
@@ -873,13 +934,33 @@ ${verse}
         const output = document.getElementById('codeOutput');
         if (output) output.classList.remove('hidden');
         const lang = document.getElementById('langSelect').value;
-        let code = `// طلبك: ${prompt}\n// لغة: ${lang}\n\n`;
+        let code = `// طلبك: ${prompt}
+// لغة: ${lang}
+
+`;
         if (prompt.includes('لعبة') || prompt.includes('game')) {
-            code += `class Game {\n    constructor() {\n        this.score = 0;\n    }\n    start() {\n        console.log("اللعبة بدأت!");\n    }\n}\nconst myGame = new Game();\nmyGame.start();`;
+            code += `class Game {
+    constructor() {
+        this.score = 0;
+    }
+    start() {
+        console.log("اللعبة بدأت!");
+    }
+}
+const myGame = new Game();
+myGame.start();`;
         } else if (prompt.includes('موقع') || prompt.includes('website')) {
-            code += `<!DOCTYPE html>\n<html><head><title>موقع مصري</title></head>\n<body style="background:#0a2f1f;color:#ffd700;">\n<h1>مرحباً بيك في موقعي المصري</h1>\n</body>\n</html>`;
+            code += `<!DOCTYPE html>
+<html><head><title>موقع مصري</title></head>
+<body style="background:#0a2f1f;color:#ffd700;">
+<h1>مرحباً بيك في موقعي المصري</h1>
+</body>
+</html>`;
         } else {
-            code += `function main() {\n    console.log("مرحباً من المصري الذكي!");\n}\nmain();`;
+            code += `function main() {
+    console.log("مرحباً من المصري الذكي!");
+}
+main();`;
         }
         if (output) output.textContent = code;
         this.addChatMessage(`💻 كود ${lang} جاهز بناءً على طلبك! شوفه فوق 👆`, 'ai');
@@ -913,12 +994,12 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // Dev modal
-function showDevInfo() { 
+function showDevInfo() {
     const modal = document.getElementById('devModal');
     if (modal) modal.classList.remove('hidden');
 }
 
-function hideDevInfo() { 
+function hideDevInfo() {
     const modal = document.getElementById('devModal');
     if (modal) modal.classList.add('hidden');
 }
