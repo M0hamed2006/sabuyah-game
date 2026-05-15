@@ -2,77 +2,649 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المصري الذكي | AI Chat + صور</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>المصري الذكي – النسر الرقمي</title>
+    <!-- أيقونات وخطوط -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', 'Segoe UI', sans-serif;
+            background-color: #f7f7f8;
+            color: #1f1f1f;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        /* الوضع الداكن */
+        body.dark {
+            background-color: #1e1e2e;
+            color: #e4e4e4;
+        }
+        body.dark .chat-input-area,
+        body.dark .model-bar,
+        body.dark .chat-message.user .message-content,
+        body.dark .chat-message.bot .message-content {
+            background-color: #2a2a3a;
+        }
+        body.dark .chat-message.user .message-content {
+            background-color: #3a4a5a;
+        }
+        body.dark .chat-message.bot .message-content {
+            background-color: #2a2a3a;
+        }
+        body.dark input, body.dark select, body.dark button {
+            background-color: #1e1e2e;
+            color: #e4e4e4;
+            border-color: #3a3a4a;
+        }
+
+        /* هيكل رئيسي */
+        .app {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+            background: inherit;
+        }
+
+        /* رأس الصفحة */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            background-color: inherit;
+        }
+        body.dark .header {
+            border-bottom-color: #2a2a3a;
+        }
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #10a37f, #0f5c3e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+        }
+        .icon-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #5f5f6b;
+            transition: 0.2s;
+        }
+        body.dark .icon-btn {
+            color: #b0b0c0;
+        }
+        .icon-btn:hover {
+            transform: scale(1.05);
+            color: #10a37f;
+        }
+
+        /* شريط النماذج */
+        .model-bar {
+            padding: 8px 20px;
+            background: #ffffff;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        body.dark .model-bar {
+            background: #1e1e2e;
+            border-bottom-color: #2a2a3a;
+        }
+        .model-select {
+            flex: 2;
+            padding: 8px 12px;
+            border-radius: 24px;
+            border: 1px solid #ccc;
+            background-color: white;
+            font-family: inherit;
+            font-weight: 500;
+        }
+        .action-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .mode-badge {
+            font-size: 0.7rem;
+            background: #e9ecef;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        body.dark .mode-badge {
+            background: #2a2a3a;
+        }
+
+        /* منطقة الشات */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .chat-message {
+            display: flex;
+            gap: 12px;
+            animation: fadeIn 0.3s ease;
+        }
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #10a37f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 1rem;
+        }
+        .message-content {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: 18px;
+            line-height: 1.5;
+            font-size: 0.95rem;
+            background-color: #f0f0f0;
+            word-break: break-word;
+        }
+        body.dark .message-content {
+            background-color: #2a2a3a;
+        }
+        .chat-message.user .message-content {
+            background-color: #e6f4ff;
+        }
+        body.dark .chat-message.user .message-content {
+            background-color: #3a4a5a;
+        }
+
+        .message-footer {
+            margin-top: 6px;
+            display: flex;
+            gap: 12px;
+            font-size: 0.7rem;
+            color: #888;
+        }
+        .copy-btn, .speak-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.7rem;
+            color: #777;
+        }
+        .copy-btn:hover, .speak-btn:hover {
+            color: #10a37f;
+        }
+
+        /* الصور المُولَّدة */
+        .generated-image {
+            max-width: 100%;
+            border-radius: 12px;
+            margin-top: 10px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* شريط الإدخال السفلي */
+        .chat-input-area {
+            background-color: #ffffff;
+            border-top: 1px solid #e0e0e0;
+            padding: 16px 20px;
+        }
+        body.dark .chat-input-area {
+            background-color: #1e1e2e;
+            border-top-color: #2a2a3a;
+        }
+        .input-group {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+        textarea {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 24px;
+            border: 1px solid #ccc;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: none;
+            background-color: #fff;
+        }
+        body.dark textarea {
+            background-color: #2a2a3a;
+            border-color: #3a3a4a;
+            color: #e4e4e4;
+        }
+        button.send-btn {
+            background: #10a37f;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .draw-btn {
+            background: #2c3e66;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .status-text {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 0.7rem;
+            color: #6c757d;
+        }
+
+        /* تذييل الرسائل */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+
+        /* مودال المفتاح */
+        .modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .modal.hidden {
+            display: none;
+        }
+        .modal-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        body.dark .modal-card {
+            background: #2a2a3a;
+            color: #e4e4e4;
+        }
+        .modal-card input {
+            width: 100%;
+            padding: 10px;
+            margin: 15px 0;
+            border-radius: 30px;
+            border: 1px solid #ccc;
+        }
+        .modal-card button {
+            margin: 5px;
+            padding: 8px 18px;
+            border-radius: 30px;
+            border: none;
+            cursor: pointer;
+        }
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 8px 0;
+        }
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: #aaa;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        @keyframes typing {
+            0%,60%,100% { opacity: 0.3; transform: translateY(0);}
+            30% { opacity: 1; transform: translateY(-4px);}
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 6px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+    </style>
 </head>
 <body>
-    <div class="app">
-        <!-- الشريط العلوي -->
-        <header class="header">
-            <div class="logo">
-                <span class="logo-icon">🧠</span>
-                <span>المصري الذكي</span>
-            </div>
-            <div class="header-actions">
-                <button id="themeToggle" class="icon-btn" title="الوضع الليلي/النهاري">🌙</button>
-                <button id="clearChat" class="icon-btn" title="مسح المحادثة">🗑️</button>
-            </div>
-        </header>
-
-        <!-- منطقة الشات -->
-        <main class="chat-container" id="chatContainer">
-            <div class="chat-messages" id="chatMessages">
-                <div class="message ai">
-                    <div class="message-avatar">🤖</div>
-                    <div class="message-content">
-                        <p>مرحباً! أنا المصري الذكي. اسألني أي شيء، أو اكتب "ارسم: وصف الصورة" لتوليد صورة.</p>
-                        <p>🔹 <strong>النماذج المتاحة:</strong> يمكنك اختيار النموذج من القائمة العلوية.</p>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <!-- شريط الأدوات السفلي -->
-        <footer class="input-area">
-            <div class="model-selector">
-                <select id="modelSelect" class="model-select">
-                    <option value="llama-3.3-70b-versatile">🦙 Llama 3.3 70B</option>
-                    <option value="mixtral-8x7b-32768">🌀 Mixtral 8x7B</option>
-                    <option value="gemma2-9b-it">🧠 Gemma 2 9B</option>
-                    <option value="llama-3.1-8b-instant">⚡ Llama 3.1 8B</option>
-                </select>
-                <button id="drawBtn" class="draw-btn" title="توليد صورة">🎨 ارسم</button>
-            </div>
-            <div class="input-wrapper">
-                <textarea
-                    id="chatInput"
-                    placeholder="اكتب رسالتك هنا..."
-                    rows="1"
-                ></textarea>
-                <button id="sendBtn" class="send-btn">إرسال</button>
-            </div>
-            <div class="api-status" id="apiStatus">
-                <span class="status-dot" id="statusDot"></span>
-                <span id="statusText">الرجاء إدخال مفتاح API</span>
-            </div>
-        </footer>
+<div class="app">
+    <div class="header">
+        <div class="logo">🧠 المصري الذكي</div>
+        <div class="controls">
+            <button class="icon-btn" id="themeToggle" aria-label="الوضع الليلي"><i class="fas fa-moon"></i></button>
+            <button class="icon-btn" id="clearChatBtn" aria-label="مسح"><i class="fas fa-trash-alt"></i></button>
+        </div>
     </div>
 
-    <!-- مودال إدخال المفتاح -->
-    <div id="apiModal" class="modal">
-        <div class="modal-content">
-            <h2>🔑 إعدادات API</h2>
-            <p>أدخل مفتاح Groq API الخاص بك (مجاني من <a href="https://console.groq.com" target="_blank">console.groq.com</a>)</p>
-            <input type="password" id="apiKeyInput" placeholder="gsk_..." class="api-input">
-            <div class="modal-buttons">
-                <button id="saveApiBtn" class="btn-primary">حفظ</button>
-                <button id="skipApiBtn" class="btn-secondary">تخطي (ردود محدودة)</button>
+    <div class="model-bar">
+        <select id="modelSelect" class="model-select">
+            <optgroup label="نماذج Groq (مجانية)">
+                <option value="llama-3.3-70b-versatile">🦙 Llama 3.3 70B – الأقوى</option>
+                <option value="mixtral-8x7b-32768">🌀 Mixtral 8x7B – ذكاء عالي</option>
+                <option value="gemma2-9b-it">🧠 Gemma 2 9B – من Google</option>
+                <option value="qwen-2.5-32b">🌟 Qwen 2.5 32B</option>
+                <option value="deepseek-r1-distill-llama-70b">🔍 DeepSeek R1 (عبر Groq)</option>
+            </optgroup>
+        </select>
+        <div class="action-group">
+            <button id="deepSearchBtn" class="draw-btn" style="background:#3a3a6e;"><i class="fas fa-globe"></i> بحث</button>
+            <button id="drawImageBtn" class="draw-btn"><i class="fas fa-palette"></i> ارسم</button>
+            <div class="mode-badge" id="speechStatus">🔊 نطق مفعّل</div>
+        </div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+        <div class="chat-message bot">
+            <div class="message-avatar">🤖</div>
+            <div class="message-content">
+                مرحباً بك في المصري الذكي!<br>
+                ✅ أسألني أي شيء باستخدام نماذج الذكاء الاصطناعي.<br>
+                🎨 استخدم زر "ارسم" لتوليد صورة مجانية.<br>
+                🌐 اضغط "بحث" للبحث العميق في ويكيبيديا.<br>
+                🔊 النطق يعمل تلقائياً (اضغط زر السماعة لإيقافه).
             </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <div class="chat-input-area">
+        <div class="input-group">
+            <textarea id="chatInput" rows="1" placeholder="اكتب رسالتك هنا... (مثال: ارسم: جمل في الصحراء)"></textarea>
+            <button class="send-btn" id="sendBtn">إرسال</button>
+        </div>
+        <div class="status-text" id="statusMsg"></div>
+    </div>
+</div>
+
+<!-- مودال مفتاح API (Groq مجاني لكن لضمان الحساب) -->
+<div id="apiModal" class="modal hidden">
+    <div class="modal-card">
+        <h3><i class="fas fa-key"></i> مفتاح Groq API</h3>
+        <p>احصل على مفتاح مجاني من <a href="https://console.groq.com" target="_blank">console.groq.com</a></p>
+        <input type="password" id="apiKeyInput" placeholder="gsk_..." autocomplete="off">
+        <div>
+            <button id="saveApiBtn" style="background:#10a37f; color:white;">حفظ</button>
+            <button id="skipApiBtn">تخطي (ردود بسيطة)</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        // ==================== متغيرات عامة ====================
+        let API_KEY = localStorage.getItem('groq_api_key') || '';
+        let selectedModel = 'llama-3.3-70b-versatile';
+        let chatHistory = [];
+        let speechEnabled = true;
+        let currentSpeech = null;
+
+        // عناصر DOM
+        const chatContainer = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const modelSelect = document.getElementById('modelSelect');
+        const deepSearchBtn = document.getElementById('deepSearchBtn');
+        const drawBtn = document.getElementById('drawImageBtn');
+        const clearBtn = document.getElementById('clearChatBtn');
+        const themeToggle = document.getElementById('themeToggle');
+        const speechStatusSpan = document.getElementById('speechStatus');
+        const apiModal = document.getElementById('apiModal');
+        const apiKeyInput = document.getElementById('apiKeyInput');
+        const saveApiBtn = document.getElementById('saveApiBtn');
+        const skipApiBtn = document.getElementById('skipApiBtn');
+
+        let isLoading = false;
+        let typingDiv = null;
+
+        // ==================== وظائف مساعدة ====================
+        function showTyping() {
+            if(typingDiv) removeTyping();
+            typingDiv = document.createElement('div');
+            typingDiv.classList.add('chat-message', 'bot');
+            typingDiv.innerHTML = `<div class="message-avatar">🤖</div><div class="message-content"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+            chatContainer.appendChild(typingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function removeTyping() {
+            if(typingDiv) { typingDiv.remove(); typingDiv = null; }
+        }
+
+        // تنسيق النص (دعم بسيط)
+        function formatContent(text) {
+            return text.replace(/\n/g, '<br>').replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        }
+
+        // إضافة رسالة مع أزرار النسخ والنطق
+        function addMessage(role, content, isImage = false, imageUrl = null) {
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('chat-message', role);
+            const avatar = role === 'user' ? '👤' : '🤖';
+            msgDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">
+                    ${isImage ? `<p>${escapeHtml(content)}</p><img src="${imageUrl}" class="generated-image" onclick="window.open('${imageUrl}','_blank')">` : formatContent(content)}
+                    <div class="message-footer">
+                        <button class="copy-btn" onclick="copyToClipboard(this)"><i class="far fa-copy"></i> نسخ</button>
+                        ${role !== 'user' ? `<button class="speak-btn" onclick="speakText(this)"><i class="fas fa-volume-up"></i> نطق</button>` : ''}
+                    </div>
+                </div>
+            `;
+            chatContainer.appendChild(msgDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            if(role === 'user') chatHistory.push({role: 'user', content});
+            else if(role === 'bot' && !isImage) chatHistory.push({role: 'assistant', content});
+            if(chatHistory.length > 30) chatHistory = chatHistory.slice(-30);
+        }
+
+        function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
+        window.copyToClipboard = function(btn) {
+            const contentDiv = btn.closest('.message-content');
+            const text = contentDiv.innerText.replace('نسخنطق', '').trim();
+            navigator.clipboard.writeText(text);
+            btn.innerHTML = '<i class="fas fa-check"></i> تم';
+            setTimeout(()=> btn.innerHTML = '<i class="far fa-copy"></i> نسخ', 1500);
+        };
+
+        window.speakText = function(btn) {
+            if(!speechEnabled) return;
+            const contentDiv = btn.closest('.message-content');
+            let text = contentDiv.innerText.replace('نسخنطق', '').trim();
+            if(window.speechSynthesis) {
+                if(currentSpeech) window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'ar-EG';
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+                currentSpeech = utterance;
+                utterance.onend = () => { currentSpeech = null; };
+            }
+        };
+
+        // ==================== الاتصال بـ Groq API ====================
+        async function callGroq(messages) {
+            const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
+                body: JSON.stringify({
+                    model: selectedModel,
+                    messages: messages,
+                    temperature: 0.7,
+                    max_tokens: 1000
+                })
+            });
+            if(!response.ok) { const err = await response.json(); throw new Error(err.error?.message || 'فشل الاتصال'); }
+            const data = await response.json();
+            return data.choices[0].message.content;
+        }
+
+        // ==================== بحث ويكيبيديا (بدون مفتاح) ====================
+        async function deepSearch(query) {
+            try {
+                const url = `https://ar.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*&srlimit=2`;
+                const res = await fetch(url);
+                const data = await res.json();
+                if(data.query && data.query.search.length) {
+                    let results = `🔍 **نتائج البحث عن "${query}":**\n\n`;
+                    data.query.search.forEach(item => {
+                        results += `▪️ ${item.title}\n   ${item.snippet.replace(/<[^>]*>/g, '')}\n\n`;
+                    });
+                    return results;
+                } else return `❌ لم أعثر على نتائج لـ "${query}".`;
+            } catch(e) { return `❌ خطأ في البحث: ${e.message}`; }
+        }
+
+        // ==================== توليد صورة مجانية ====================
+        async function generateImage(prompt) {
+            // استخدام Pollinations.ai مجاني جداً
+            const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&nologo=true`;
+            return imageUrl;
+        }
+
+        // ==================== إرسال الرسالة الرئيسي ====================
+        async function sendMessage(isDrawCommand = false, isSearchCommand = false) {
+            let userText = chatInput.value.trim();
+            if(!userText) return;
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+
+            if(isDrawCommand) {
+                addMessage('user', `🎨 طلب رسم: ${userText}`);
+                showTyping();
+                try {
+                    const imgUrl = await generateImage(userText);
+                    removeTyping();
+                    addMessage('bot', `🖼️ صورة حسب طلبك: "${userText}"`, true, imgUrl);
+                } catch(e) { removeTyping(); addMessage('bot', `❌ فشل توليد الصورة: ${e.message}`); }
+                return;
+            }
+
+            if(isSearchCommand) {
+                addMessage('user', `🌐 بحث عميق: ${userText}`);
+                showTyping();
+                try {
+                    const answer = await deepSearch(userText);
+                    removeTyping();
+                    addMessage('bot', answer);
+                } catch(e) { removeTyping(); addMessage('bot', `❌ فشل البحث: ${e.message}`); }
+                return;
+            }
+
+            // رسالة عادية عبر الذكاء الاصطناعي
+            addMessage('user', userText);
+            if(!API_KEY) { addMessage('bot', '⚠️ الرجاء إدخال مفتاح Groq API أولاً عبر النافذة المنبثقة.'); apiModal.classList.remove('hidden'); return; }
+            showTyping();
+            try {
+                const messages = [
+                    { role: 'system', content: 'أنت مساعد ذكي مصري، تجيب بالعربية بأسلوب طبيعي ومفيد.' },
+                    ...chatHistory.slice(-10)
+                ];
+                const reply = await callGroq(messages);
+                removeTyping();
+                addMessage('bot', reply);
+                if(speechEnabled && reply.length < 500) {
+                    const utterance = new SpeechSynthesisUtterance(reply);
+                    utterance.lang = 'ar-EG';
+                    utterance.rate = 0.9;
+                    window.speechSynthesis.speak(utterance);
+                }
+            } catch(err) {
+                removeTyping();
+                addMessage('bot', `❌ خطأ: ${err.message}`);
+            }
+        }
+
+        // ==================== تفعيل وإلغاء النطق ====================
+        function toggleSpeech() {
+            speechEnabled = !speechEnabled;
+            if(!speechEnabled && window.speechSynthesis) window.speechSynthesis.cancel();
+            speechStatusSpan.innerHTML = speechEnabled ? '🔊 نطق مفعّل' : '🔇 نطق معطّل';
+        }
+
+        // ==================== وضع الليل ====================
+        function toggleTheme() {
+            document.body.classList.toggle('dark');
+            const icon = themeToggle.querySelector('i');
+            if(document.body.classList.contains('dark')) icon.className = 'fas fa-sun';
+            else icon.className = 'fas fa-moon';
+        }
+
+        // ==================== مسح المحادثة ====================
+        function clearChat() {
+            chatContainer.innerHTML = '';
+            chatHistory = [];
+            addMessage('bot', '🧹 تم مسح المحادثة. يمكنك البدء من جديد.');
+        }
+
+        // ==================== التعامل مع مفتاح API ====================
+        function saveApiKey() {
+            const key = apiKeyInput.value.trim();
+            if(key && key.startsWith('gsk_')) {
+                API_KEY = key;
+                localStorage.setItem('groq_api_key', key);
+                apiModal.classList.add('hidden');
+                addMessage('bot', '✅ تم تفعيل مفتاح Groq API!');
+            } else {
+                alert('مفتاح غير صالح (يبدأ بـ gsk_)');
+            }
+        }
+
+        function skipApi() {
+            apiModal.classList.add('hidden');
+            addMessage('bot', '⚠️ ستعمل اللعبة بدون الذكاء الاصطناعي. يمكنك إدخال المفتاح لاحقاً.');
+        }
+
+        // ==================== الأحداث ====================
+        sendBtn.addEventListener('click', () => sendMessage(false, false));
+        chatInput.addEventListener('keydown', (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(false,false); } });
+        drawBtn.addEventListener('click', () => sendMessage(true, false));
+        deepSearchBtn.addEventListener('click', () => sendMessage(false, true));
+        clearBtn.addEventListener('click', clearChat);
+        themeToggle.addEventListener('click', toggleTheme);
+        speechStatusSpan.addEventListener('click', toggleSpeech);
+        modelSelect.addEventListener('change', (e) => { selectedModel = e.target.value; addMessage('bot', `🔄 تم تغيير النموذج إلى ${modelSelect.options[modelSelect.selectedIndex].text}`); });
+        saveApiBtn.addEventListener('click', saveApiKey);
+        skipApiBtn.addEventListener('click', skipApi);
+
+        if(!API_KEY) apiModal.classList.remove('hidden');
+        else apiModal.classList.add('hidden');
+
+        // توسيع تلقائي لـ textarea
+        chatInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+    })();
+</script>
 </body>
 </html>
