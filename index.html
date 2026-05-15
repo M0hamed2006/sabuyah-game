@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>المصري الذكي – النسر الرقمي الفاخر</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <style>
         :root {
@@ -12,7 +12,6 @@
             --gold: #ffd700;
             --dark: #0a1428;
         }
-        
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
@@ -23,93 +22,55 @@
             overflow: hidden;
             position: relative;
         }
-
         body::before {
             content: '';
             position: absolute;
             inset: 0;
             background: url('https://picsum.photos/id/1015/1920/1080') center/cover;
-            opacity: 0.12;
+            opacity: 0.1;
             z-index: -2;
-            filter: brightness(0.7) contrast(1.3);
-        }
-
-        /* تأثير Particles خفيف */
-        #particles {
-            position: absolute;
-            inset: 0;
-            z-index: -1;
-            pointer-events: none;
         }
 
         .sidebar {
-            width: 320px;
-            background: rgba(10, 20, 40, 0.96);
-            backdrop-filter: blur(24px);
-            border-left: 2px solid rgba(16, 163, 127, 0.3);
-            box-shadow: 0 0 60px rgba(16, 163, 127, 0.25);
+            width: 350px;
+            background: rgba(10, 20, 40, 0.98);
+            backdrop-filter: blur(25px);
+            border-left: 3px solid var(--primary);
             display: flex;
             flex-direction: column;
-        }
-
-        .logo-area {
-            padding: 40px 24px 30px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255,215,0,0.2);
+            box-shadow: 0 0 50px rgba(16,163,127,0.3);
         }
 
         .logo {
-            font-size: 2.4rem;
+            font-size: 2.7rem;
             font-weight: 900;
-            background: linear-gradient(90deg, #10a37f, #ffd700, #10a37f);
+            background: linear-gradient(90deg, #10a37f, #ffd700);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            text-shadow: 0 0 40px rgba(255,215,0,0.6);
-        }
-
-        .subtitle {
-            color: #ffd700;
-            font-size: 1rem;
-            margin-top: 8px;
-            letter-spacing: 2px;
-        }
-
-        .tabs {
-            flex: 1;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
         }
 
         .tab-btn {
-            padding: 18px 24px;
-            border-radius: 22px;
-            background: rgba(255,255,255,0.06);
+            padding: 16px 24px;
+            margin: 6px 12px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.05);
             border: none;
             color: #cbd5e1;
             font-size: 1.1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 16px;
+            text-align: right;
             cursor: pointer;
-            transition: all 0.4s ease;
+            transition: 0.3s;
         }
-
-        .tab-btn:hover, .tab-btn.active {
-            background: linear-gradient(90deg, rgba(16,163,127,0.25), rgba(255,215,0,0.1));
+        .tab-btn.active, .tab-btn:hover {
+            background: linear-gradient(90deg, rgba(16,163,127,0.3), rgba(255,215,0,0.15));
             color: white;
-            transform: translateX(-10px);
-            box-shadow: 0 10px 30px rgba(16,163,127,0.3);
         }
 
         .main-content {
             flex: 1;
             display: flex;
             flex-direction: column;
-            position: relative;
         }
 
         .chat-messages {
@@ -118,258 +79,246 @@
             padding: 30px;
             display: flex;
             flex-direction: column;
-            gap: 28px;
+            gap: 25px;
         }
 
         .message {
             display: flex;
-            gap: 16px;
-            animation: fadeInUp 0.6s ease;
+            gap: 15px;
+            animation: fadeIn 0.4s ease;
         }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from {opacity:0; transform:translateY(25px);} to {opacity:1; transform:none;} }
 
         .message-avatar {
-            width: 52px;
-            height: 52px;
+            width: 52px; height: 52px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #10a37f, #ffd700);
+            background: linear-gradient(135deg, var(--primary), var(--gold));
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.6rem;
-            box-shadow: 0 10px 30px rgba(16,163,127,0.5);
+            flex-shrink: 0;
         }
 
         .message-content {
             max-width: 78%;
             padding: 20px 26px;
-            border-radius: 28px 28px 8px 28px;
+            border-radius: 26px 26px 10px 26px;
             background: rgba(255,255,255,0.09);
             border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-            line-height: 1.8;
         }
 
         .message.user .message-content {
             background: linear-gradient(135deg, #10a37f, #0a8f6b);
-            border-radius: 8px 28px 28px 28px;
-            color: white;
+            border-radius: 10px 26px 26px 26px;
         }
 
         .input-area {
-            padding: 24px 32px;
+            padding: 25px 30px;
             background: rgba(10,20,40,0.95);
-        }
-
-        .input-group {
-            display: flex;
-            background: rgba(255,255,255,0.08);
-            border-radius: 9999px;
-            padding: 8px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
 
         textarea {
             flex: 1;
-            background: transparent;
+            background: rgba(255,255,255,0.08);
             border: none;
+            border-radius: 50px;
+            padding: 18px 25px;
             color: white;
-            padding: 18px 24px;
             font-size: 1.1rem;
             resize: none;
+            max-height: 160px;
         }
 
-        button#mainSend {
-            background: linear-gradient(135deg, #10a37f, #ffd700);
+        button {
+            background: linear-gradient(135deg, var(--primary), var(--gold));
             color: #0a1428;
-            font-weight: 900;
-            padding: 0 36px;
-            border-radius: 9999px;
-            font-size: 1.15rem;
-        }
-
-        .model-select {
-            background: rgba(15,23,42,0.9);
-            color: white;
-            border: 1px solid #10a37f;
-            padding: 12px 20px;
+            font-weight: 800;
+            border: none;
+            padding: 0 32px;
             border-radius: 50px;
-        }
-
-        .developer-credit {
-            position: absolute;
-            bottom: 18px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.82rem;
-            color: rgba(255,215,0,0.7);
-            text-align: center;
-        }
-
-        .status-bar {
-            position: absolute;
-            top: 12px;
-            right: 20px;
-            font-size: 0.8rem;
-            background: rgba(16,163,127,0.2);
-            padding: 6px 14px;
-            border-radius: 30px;
         }
     </style>
 </head>
-<body>
+<body class="d-flex">
 
+<!-- Sidebar -->
 <div class="sidebar">
-    <div class="logo-area">
-        <div class="logo">🦅 المصري الذكي</div>
-        <div class="subtitle">النسر الرقمي الفاخر</div>
+    <div class="p-4 text-center border-bottom border-light">
+        <div class="logo mb-1">🦅 المصري الذكي</div>
+        <small class="text-warning">النسر الرقمي الفاخر ٢٠٢٦</small>
     </div>
 
-    <div class="tabs">
-        <button class="tab-btn active" data-tab="chat"><i class="fas fa-comments"></i> دردشة</button>
-        <button class="tab-btn" data-tab="search"><i class="fas fa-search"></i> بحث عميق</button>
-        <button class="tab-btn" data-tab="image"><i class="fas fa-image"></i> توليد صور</button>
-        <button class="tab-btn" data-tab="settings"><i class="fas fa-cog"></i> الإعدادات</button>
+    <div class="p-3">
+        <div class="mb-3"><strong>🔑 مفتاح Groq</strong></div>
+        <input type="password" id="groqKeyInput" class="form-control mb-2" placeholder="gsk_...">
+        <button onclick="saveKey()" class="btn btn-success w-100">حفظ المفتاح</button>
     </div>
 
-    <div style="padding:20px; text-align:center; border-top:1px solid rgba(255,215,0,0.2);">
-        <strong style="color:#ffd700;">Mohamed Ragab Abdel Moneim</strong><br>
-        <small>مطور المشروع</small>
+    <div class="px-3">
+        <select id="modelSelect" class="form-select">
+            <option value="llama-3.3-70b-versatile">Llama 3.3 70B (الأقوى)</option>
+            <option value="llama-3.1-70b-versatile">Llama 3.1 70B</option>
+            <option value="deepseek-r1-distill-llama-70b">DeepSeek R1 70B</option>
+            <option value="qwen-qwq-32b">Qwen QwQ 32B</option>
+            <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+        </select>
+    </div>
+
+    <div class="mt-auto p-4 text-center small">
+        <strong>Mohamed Ragab Abdel Moneim</strong><br>
+        مطور المشروع
     </div>
 </div>
 
-<div class="main-content">
-    <div class="status-bar" id="status">✅ متصل • Groq + Pollinations</div>
+<!-- Main Area -->
+<div class="main-content d-flex flex-column">
+    <div class="p-3 d-flex justify-content-between align-items-center border-bottom">
+        <h4 id="panelTitle">🦅 دردشة</h4>
+    </div>
 
-    <!-- دردشة -->
-    <div id="chatPanel" style="display:flex; flex-direction:column; height:100%;">
-        <div style="padding:20px 32px; border-bottom:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; align-items:center;">
-            <select id="modelSelect" class="model-select">
-                <optgroup label="🔥 Groq - النماذج المجانية">
-                    <option value="llama-3.3-70b-versatile">Llama 3.3 70B</option>
-                    <option value="llama-3.1-8b-instant">Llama 3.1 8B Instant</option>
-                    <option value="qwen/qwen3-32b">Qwen3 32B</option>
-                    <option value="meta-llama/llama-4-scout-17b-16e-instruct">Llama 4 Scout</option>
-                    <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
-                    <option value="gemma2-9b-it">Gemma 2 9B</option>
-                    <option value="deepseek-r1-distill-llama-70b">DeepSeek R1 70B</option>
-                </optgroup>
-            </select>
-            <button id="clearChatBtn" style="background:rgba(255,255,255,0.1); padding:10px 18px; border-radius:50px;">🗑️</button>
-        </div>
-
-        <div class="chat-messages" id="chatMessages"></div>
-
+    <!-- Chat Panel -->
+    <div id="chatPanel" class="flex-grow-1 d-flex flex-column">
+        <div id="chatMessages" class="chat-messages"></div>
+        
         <div class="input-area">
-            <div class="input-group">
-                <textarea id="chatInput" rows="1" placeholder="اكتب رسالتك... (ارسم: وصف / بحث: موضوع)"></textarea>
-                <button id="sendBtn">إرسال</button>
+            <div class="d-flex gap-2">
+                <textarea id="chatInput" rows="2" placeholder="اكتب رسالتك... (ارسم: وصف)"></textarea>
+                <button id="sendBtn" style="width:110px">إرسال</button>
             </div>
         </div>
     </div>
 
-    <!-- باقي الألواح -->
-    <div id="imagePanel" style="display:none; padding:40px; overflow:auto; height:100%;">
-        <h2 style="color:#ffd700;">🎨 توليد صور فاخر (Pollinations AI)</h2>
-        <input id="imagePrompt" style="width:100%; padding:18px; border-radius:999px; margin:20px 0; background:rgba(255,255,255,0.1); color:white;" placeholder="وصف الصورة...">
-        <button id="genImageBtn" style="padding:16px 40px; font-size:1.1rem;">توليد الصورة</button>
-        <div id="generatedImage" style="margin-top:30px;"></div>
-    </div>
-
-    <div id="settingsPanel" style="display:none; padding:40px; overflow:auto; height:100%;">
-        <h2 style="color:#ffd700;">🔑 إعدادات API</h2>
-        <input type="password" id="groqKey" placeholder="Groq API Key (gsk_...)" style="width:100%; padding:16px; margin:15px 0; border-radius:999px;">
-        <button onclick="saveKeys()">حفظ المفاتيح</button>
-    </div>
-
-    <div class="developer-credit">
-        Developed with ❤️ by <strong>Mohamed Ragab Abdel Moneim</strong> — 2026
+    <!-- Image Panel -->
+    <div id="imagePanel" class="flex-grow-1 p-5 d-none">
+        <h3 class="text-warning mb-4">🎨 توليد صور فاخرة</h3>
+        <input id="imagePrompt" class="form-control form-control-lg mb-3" placeholder="وصف الصورة بالتفصيل...">
+        <button id="genImageBtn" class="btn btn-primary btn-lg">توليد الصورة</button>
+        <div id="generatedImageContainer" class="mt-4"></div>
     </div>
 </div>
 
 <script>
-    // نماذج Groq
-    let selectedModel = "llama-3.3-70b-versatile";
-    let groqKey = localStorage.getItem("groq_key") || "";
+// ====================== التطبيق القوي ======================
+let groqKey = localStorage.getItem('groq_key') || '';
+let currentModel = 'llama-3.3-70b-versatile';
 
-    document.getElementById("modelSelect").addEventListener("change", (e) => {
-        selectedModel = e.target.value;
-    });
+const elements = {
+    chatInput: document.getElementById('chatInput'),
+    sendBtn: document.getElementById('sendBtn'),
+    chatMessages: document.getElementById('chatMessages'),
+    modelSelect: document.getElementById('modelSelect'),
+    groqKeyInput: document.getElementById('groqKeyInput')
+};
 
-    function saveKeys() {
-        groqKey = document.getElementById("groqKey").value.trim();
-        if (groqKey) {
-            localStorage.setItem("groq_key", groqKey);
-            alert("✅ تم حفظ مفتاح Groq بنجاح");
-        }
+// تحميل البيانات
+elements.groqKeyInput.value = groqKey;
+elements.modelSelect.value = currentModel;
+
+elements.modelSelect.addEventListener('change', (e) => {
+    currentModel = e.target.value;
+});
+
+// حفظ المفتاح
+window.saveKey = function() {
+    const key = elements.groqKeyInput.value.trim();
+    if (key.startsWith('gsk_')) {
+        groqKey = key;
+        localStorage.setItem('groq_key', key);
+        alert('✅ تم حفظ مفتاح Groq بنجاح');
+    } else {
+        alert('❌ المفتاح غير صحيح! يجب أن يبدأ بـ gsk_');
     }
+};
 
-    // إرسال الرسالة (مبسط للعرض)
-    document.getElementById("sendBtn").addEventListener("click", async () => {
-        const input = document.getElementById("chatInput");
-        const text = input.value.trim();
-        if (!text) return;
-
-        addMessage("user", text);
-        input.value = "";
-
-        if (text.startsWith("ارسم:")) {
-            const prompt = text.replace("ارسم:", "").trim();
-            const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024`;
-            addMessage("bot", "🖼️ تم توليد الصورة:", true, url);
-            return;
-        }
-
-        // استدعاء Groq
-        if (!groqKey) {
-            addMessage("bot", "⚠️ أدخل مفتاح Groq في الإعدادات أولاً");
-            return;
-        }
-
-        try {
-            const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${groqKey}`
-                },
-                body: JSON.stringify({
-                    model: selectedModel,
-                    messages: [{role: "user", content: text}],
-                    temperature: 0.75
-                })
-            });
-
-            const data = await res.json();
-            const reply = data.choices[0].message.content;
-            addMessage("bot", reply);
-        } catch (e) {
-            addMessage("bot", "❌ خطأ في الاتصال: " + e.message);
-        }
-    });
-
-    function addMessage(role, content, isImage = false, imgUrl = "") {
-        const container = document.getElementById("chatMessages");
-        const div = document.createElement("div");
-        div.className = `message ${role}`;
+// إضافة رسالة
+function addMessage(role, content, isImage = false, imgUrl = '') {
+    const div = document.createElement('div');
+    div.className = `message ${role}`;
+    
+    if (isImage) {
         div.innerHTML = `
-            <div class="message-avatar">${role === "user" ? "👤" : "🦅"}</div>
+            <div class="message-avatar">🦅</div>
             <div class="message-content">
-                ${isImage ? `<img src="${imgUrl}" style="max-width:100%; border-radius:16px;">` : content}
-            </div>
-        `;
-        container.appendChild(div);
-        container.scrollTop = container.scrollHeight;
+                <img src="${imgUrl}" style="max-width:100%; border-radius:18px; cursor:pointer;" onclick="window.open('${imgUrl}')">
+            </div>`;
+    } else {
+        div.innerHTML = `
+            <div class="message-avatar">${role === 'user' ? '👤' : '🦅'}</div>
+            <div class="message-content">${content}</div>`;
+    }
+    
+    elements.chatMessages.appendChild(div);
+    elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+}
+
+// إرسال رسالة
+async function sendMessage() {
+    const text = elements.chatInput.value.trim();
+    if (!text) return;
+
+    addMessage('user', text);
+    elements.chatInput.value = '';
+
+    if (!groqKey) {
+        addMessage('bot', '⚠️ أدخل مفتاح Groq أولاً من الجانب الأيسر');
+        return;
     }
 
-    // تهيئة
-    setTimeout(() => {
-        addMessage("bot", "✨ مرحباً بك في أفخم نسخة من المصري الذكي!\n🦅 النسر الرقمي الفاخر ٢٠٢٦\n\nمطور المشروع: Mohamed Ragab Abdel Moneim");
-    }, 800);
+    // توليد صورة
+    if (text.startsWith('ارسم:') || text.startsWith('ارسم ')) {
+        const prompt = text.replace(/ارسم[:\s]*/i, '').trim();
+        const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&enhance=true`;
+        addMessage('bot', `🖼️ ${prompt}`, true, url);
+        return;
+    }
+
+    // دردشة عادية
+    addMessage('bot', '🧠 جاري التفكير...', false);
+
+    try {
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${groqKey}`
+            },
+            body: JSON.stringify({
+                model: currentModel,
+                messages: [{ role: 'user', content: text }],
+                temperature: 0.85,
+                max_tokens: 2048
+            })
+        });
+
+        if (!response.ok) throw new Error('فشل الاتصال بالخادم');
+
+        const data = await response.json();
+        const reply = data.choices[0].message.content;
+        
+        // استبدال آخر رسالة "جاري التفكير"
+        elements.chatMessages.lastChild.remove();
+        addMessage('bot', reply);
+
+    } catch (error) {
+        elements.chatMessages.lastChild.remove();
+        addMessage('bot', `❌ خطأ: ${error.message}`);
+    }
+}
+
+// الأحداث
+elements.sendBtn.addEventListener('click', sendMessage);
+elements.chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+});
+
+// رسالة ترحيب
+setTimeout(() => {
+    addMessage('bot', `✨ مرحباً يا محمد!<br>أقوى وأفخم نسخة من <strong>المصري الذكي</strong> جاهزة الآن.<br><br>ضع مفتاح Groq وابدأ المتعة 🔥`);
+}, 800);
 </script>
 </body>
 </html>
