@@ -1,13 +1,13 @@
 // ============================================
-// المصري الذكي v5.0 - CORE ENGINE ULTRA
-// العقل + الذاكرة + التعلم + الشات + البحث + التوليد
+// المصري الذكي v7.1 - CORE ENGINE STABLE
+// متكامل مع search, memory, intents, speech, cache
 // ============================================
 
 class EgyptianAI {
     constructor() {
+        // الأساسيات
         this.model = null;
         this.isReady = false;
-        this.isSpeaking = false;
         this.speakEnabled = true;
         this.deepSearchMode = false;
         this.currentContext = 'general';
@@ -16,61 +16,83 @@ class EgyptianAI {
         this.apiKey = localStorage.getItem('ai_api_key') || '';
         this.weatherCache = { data: null, timestamp: 0 };
 
+        // Speech queue
+        this.speechQueue = [];
+        this.isSpeaking = false;
+        this.maxQueueSize = 8;
+
+        // Response cache (LRU)
+        this.responseCache = new Map();
+        this.cacheMaxSize = 200;
+        this.cacheExpiry = 1000 * 60 * 10; // 10 دقائق
+
+        // Memory (sync)
         this.memory = this.loadMemory();
         this.userProfile = this.loadProfile();
-        this.conversationHistory = [];
+
+        // معرفة من window.aiKnowledgeBase? (إن وجدت)
+        this.knowledgeBase = null;
+        if (typeof MEGA_KNOWLEDGE !== 'undefined') this.knowledgeBase = MEGA_KNOWLEDGE;
+
+        // DOM refs (سيتم تعبئتها عند الحاجة)
+        this.dom = {};
 
         this.init();
     }
 
-    // ========== INIT ==========
-    async init() {
-        try {
-            this.showLoading('بصيص العقل المصري... 🧠⚡');
-            // تحميل نموذج Mobilenet فقط إذا كان متاحاً
-            if (typeof mobilenet !== 'undefined') {
-                this.model = await mobilenet.load();
-            } else {
-                console.warn('Mobilenet not loaded, image analysis disabled');
-            }
-            this.isReady = true;
-            this.hideLoading();
-            this.speak(this.getUltraGreeting());
-            this.setupEventListeners();
-            this.startCamera();
-            this.updateNetStatus();
-            setInterval(() => this.updateNetStatus(), 30000);
-            // تحميل الطقس مسبقاً
-            this.fetchWeather();
-        } catch (error) {
-            console.error('Init error:', error);
-            this.showError('الكهربا قطعت يا عم! جرب تاني 😅');
-        }
-    }
-
-    // ========== MEMORY ENHANCED ==========
+    // ========== MEMORY (مع حدود) ==========
     loadMemory() {
+        const defaultMem = {
+            facts: {},             // max 100
+            preferences: {},
+            corrections: {},
+            lastVisit: null,
+            visitCount: 0,
+            totalMessages: 0,
+            favoriteTopics: [],
+            achievements: [],
+            learnedSkills: []
+        };
         try {
-            const saved = localStorage.getItem('ai_egypt_ultra_memory');
-            return saved ? JSON.parse(saved) : {
-                conversations: [],
-                facts: {},
-                preferences: {},
-                corrections: {},    // تصحيحات المستخدم
-                lastVisit: null,
-                visitCount: 0,
-                totalMessages: 0,
-                favoriteTopics: [],
-                achievements: [],
-                learnedSkills: []    // مهارات تعلمها من المستخدم
-            };
+            const saved = localStorage.getItem('ai_egypt_ultra_memory_profile');
+            if (saved) {
+                const profile = JSON.parse(saved);
+                // تنظيف الحقائق: إزالة القديمة (أكثر من 7 أيام) والحد الأقصى 100
+                const now = Date.now();
+                const cleanFacts = {};
+                for (const [key, val] of Object.entries(profile.facts || {})) {
+                    if (now - val.time < 7 * 24 * 60 * 60 * 1000) {
+                        cleanFacts[key] = val;
+                    }
+                }
+                const factEntries = Object.entries(cleanFacts);
+                if (factEntries.length > 100) {
+                    factEntries.sort((a,b) => b[1].time - a[1].time);
+                    profile.facts = Object.fromEntries(factEntries.slice(0,100));
+                } else {
+                    profile.facts = cleanFacts;
+                }
+                return { ...defaultMem, ...profile };
+            }
+            return defaultMem;
         } catch {
-            return { conversations: [], facts: {}, preferences: {}, corrections: {}, lastVisit: null, visitCount: 0, totalMessages: 0, favoriteTopics: [], achievements: [], learnedSkills: [] };
+            return defaultMem;
         }
     }
 
     saveMemory() {
-        localStorage.setItem('ai_egypt_ultra_memory', JSON.stringify(this.memory));
+        const toSave = {
+            facts: this.memory.facts,
+            preferences: this.memory.preferences,
+            corrections: this.memory.corrections,
+            lastVisit: this.memory.lastVisit,
+            visitCount: this.memory.visitCount,
+            totalMessages: this.memory.totalMessages,
+            favoriteTopics: this.memory.favoriteTopics,
+            achievements: this.memory.achievements,
+            learnedSkills: this.memory.learnedSkills
+        };
+        localStorage.setItem('ai_egypt_ultra_memory_profile', JSON.stringify(toSave));
     }
 
     loadProfile() {
@@ -78,928 +100,394 @@ class EgyptianAI {
         catch { return {}; }
     }
 
-    // تعلم متقدم مع تصحيح الأخطاء
-    learnFromConversation(userMsg, aiResponse) {
-        const facts = this.extractUltraFacts(userMsg);
-        facts.forEach(fact => {
-            // إذا كان هناك تصحيح سابق لهذه المعلومة، لا نتعلمها
-            if (this.memory.corrections[fact.key] === fact.value) return;
-            this.memory.facts[fact.key] = { value: fact.value, time: Date.now(), verified: false };
-        });
-        this.learnUltraPreferences(userMsg);
+    // ========== INTENTS (scoring محسن) ==========
+    intents = [
+        { key: 'greeting', patterns: ['سلام','أهلا','هلا','صباح','مسا','مرحبا','السلام','hello','hi'], weight: 1.2 },
+        { key: 'joke', patterns: ['نكتة','ضحك','هزار','تنكّت'], weight: 1.5 },
+        { key: 'wisdom', patterns: ['حكمة','نصيحة','عظة'], weight: 1.5 },
+        { key: 'features', patterns: ['مميزاتك','عيوبك'], weight: 1.3 },
+        { key: 'set_name', patterns: ['اسمي','أنا اسمي','ناديني'], weight: 1.8 },
+        { key: 'recall', patterns: ['افتكر','عرفتني','إحنا اتكلمنا'], weight: 1.4 },
+        { key: 'emotion', patterns: ['زعلان','فرحان','مبسوط','مضايق','عصبي','حزين','سعيد'], weight: 1.5 },
+        { key: 'weather', patterns: ['طقس','الجو','حرارة','شمس','مطر'], weight: 1.4 },
+        { key: 'time', patterns: ['وقت','ساعة','النهاردة'], weight: 1.2 },
+        { key: 'health', patterns: ['صحة','رجيم','حمية'], weight: 1.3 },
+        { key: 'quran', patterns: ['آية','قرآن','سورة'], weight: 1.6 },
+        { key: 'hadith', patterns: ['حديث','رسول','النبي'], weight: 1.6 }
+    ];
 
-        // كشف التصحيحات من المستخدم (مثل "لا، أنا عمري 25 مش 30")
-        const correctionMatch = userMsg.match(/لا|غلط|تصحيح|مش صح|الحقيقة ان|الصحيح ان/i);
-        if (correctionMatch) {
-            const correctFact = this.extractUltraFacts(userMsg);
-            correctFact.forEach(cf => {
-                if (this.memory.facts[cf.key]) {
-                    this.memory.corrections[cf.key] = cf.value;
-                    delete this.memory.facts[cf.key];
-                }
-            });
-        }
-
-        this.memory.conversations.push({
-            user: userMsg, ai: aiResponse,
-            time: Date.now(), mood: this.mood, context: this.currentContext
-        });
-
-        if (this.memory.conversations.length > 500) {
-            this.memory.conversations = this.memory.conversations.slice(-500);
-        }
-
-        this.memory.totalMessages++;
-        this.memory.lastVisit = Date.now();
-        this.memory.visitCount++;
-        this.friendshipLevel = Math.min(100, this.friendshipLevel + 0.5);
-        this.saveMemory();
-    }
-
-    extractUltraFacts(message) {
-        const facts = [];
-        const lower = message.toLowerCase();
-
-        // الأسماء (دعم عربي وإنجليزي)
-        const namePatterns = [
-            /(اسمي|أنا اسمي|ناديني|اسمي هو|my name is|call me|i am) (\w+)/i,
-            /(اسمى|اسمي) (\w+)/i
-        ];
-        for (const pattern of namePatterns) {
-            const match = message.match(pattern);
-            if (match) facts.push({ key: 'name', value: match[2] });
-        }
-
-        // العمر
-        const agePatterns = [
-            /(عمري|عندي|سنّي|عمري هو|i am|i'm) (\d+)/i
-        ];
-        for (const pattern of agePatterns) {
-            const match = message.match(pattern);
-            if (match) facts.push({ key: 'age', value: parseInt(match[2]) });
-        }
-
-        // المدن المصرية (قائمة موسعة)
-        const cities = ['القاهرة','إسكندرية','الجيزة','الأقصر','أسوان','طنطا','المنصورة','بورسعيد','الإسماعيلية','السويس','دمياط','كفر الشيخ','الفيوم','بني سويف','منيا','سوهاج','قنا','أسيوط','الغردقة','شرم الشيخ','العلمين','مرسى مطروح','الوادي الجديد','الصعيد','الدلتا','سيناء','الساحل','القناطر','شبرا','مدينة نصر','المعادي','زمالك','الدقي','المهندسين','6 أكتوبر','الشيخ زايد','الرحاب','التجمع'];
-        cities.forEach(city => {
-            if (lower.includes(city.toLowerCase())) facts.push({ key: 'city', value: city });
-        });
-
-        // المهن (قائمة موسعة)
-        const jobs = ['مبرمج','مهندس','دكتور','محامي','معلم','طالب','صيدلي','محاسب','مدير','فني','ميكانيكي','سباك','نجار','حداد','كهربائي','سائق','طباخ','شيف','مصور','مونتير','جرافيك','مصمم','كاتب','صحفي','إعلامي','مذيع','لاعب','مدرب','حكم','رجل أعمال','تاجر','موظف بنك','بوليس','جيش','طيار','بحري','ممرض','فلاح','صياد','عامل','سكرتير','موارد بشرية','تسويق','مبيعات','IT','data scientist','AI engineer','frontend','backend','fullstack','devops','cyber security','network','database','cloud'];
-        jobs.forEach(job => {
-            if (lower.includes(job.toLowerCase())) facts.push({ key: 'job', value: job });
-        });
-
-        // الأندية الرياضية
-        const teams = ['الأهلي','الزمالك','الإسماعيلي','المصري','الاتحاد','الجونة','بيراميدز','فاركو','إنبي','المقاولون','سموحة','طلائع الجيش','الداخلية','الانتاج الحربي','وادي دجلة','المنصورة','بلدية المحلة'];
-        teams.forEach(team => {
-            if (lower.includes(team.toLowerCase())) facts.push({ key: 'team', value: team });
-        });
-
-        // الهوايات
-        const hobbies = ['كورة','جري','سباحة','جم','رياضة','قراءة','كتابة','رسم','موسيقى','عزف','غناء','طبخ','أكل','سفر','تصوير','ألعاب','بلايستيشن','اكس بوكس','شطرنج','تنس','سلة','يد','طائرة','مصارعة','عجل','تسلق','صيد','رماية'];
-        hobbies.forEach(hobby => {
-            if (lower.includes(hobby.toLowerCase())) facts.push({ key: 'hobby', value: hobby });
-        });
-
-        // الحالة الاجتماعية
-        if (lower.includes('متجوز') || lower.includes('جوست') || lower.includes('متزوج')) facts.push({ key: 'status', value: 'متزوج' });
-        if (lower.includes('أعزب') || lower.includes('سنجل') || lower.includes('single')) facts.push({ key: 'status', value: 'أعزب' });
-        if (lower.includes('مخطوب') || lower.includes('خطب')) facts.push({ key: 'status', value: 'مخطوب' });
-
-        return facts;
-    }
-
-    learnUltraPreferences(message) {
-        const lower = message.toLowerCase();
-        const foods = ['كشري','فول','طعمية','كبدة','سجق','مكرونة','بيتزا','برجر','شاورما','كفتة','كباب','محشي','ملوخية','بامية','فاصوليا','عدس','بسلة','بطاطس','بط','أوز','ديك رومي','فراخ','لحمة','سمك','جمبري','كاليماري','سردين','تونة','سلمون'];
-        foods.forEach(food => {
-            if (lower.includes(food.toLowerCase())) {
-                if (lower.includes('بحب') || lower.includes('عجبني') || lower.includes('مفضل')) {
-                    this.memory.preferences[`likes_${food}`] = true;
-                } else if (lower.includes('مش بحب') || lower.includes('بكره')) {
-                    this.memory.preferences[`likes_${food}`] = false;
+    detectIntent(message) {
+        let lower = message.toLowerCase();
+        let best = { key: 'default', score: 0 };
+        for (let intent of this.intents) {
+            let score = 0;
+            for (let pat of intent.patterns) {
+                let idx = lower.indexOf(pat);
+                if (idx !== -1) {
+                    // boost حسب طول النمط وموقعه
+                    let boost = (pat.length > 2 ? 1.5 : 1) * (idx === 0 ? 1.2 : 1);
+                    score += boost * intent.weight;
                 }
             }
-        });
-
-        const topics = ['jokes','history','sports','tech','health','cooking','travel','reading','anime','gaming','religion','science','business'];
-        topics.forEach(t => {
-            if (lower.includes(`بحب ${t}`)) this.memory.preferences[`likes_${t}`] = true;
-        });
-    }
-
-    // ========== GREETING ==========
-    getUltraGreeting() {
-        const hour = new Date().getHours();
-        const name = this.memory.facts.name?.value;
-        const visitCount = this.memory.visitCount;
-        const lastVisit = this.memory.lastVisit;
-        const timeDiff = lastVisit ? Date.now() - lastVisit : 0;
-        const hoursDiff = timeDiff / (1000 * 60 * 60);
-
-        let timeGreeting = '';
-        if (hour >= 5 && hour < 12) timeGreeting = 'صباح الفل يا';
-        else if (hour >= 12 && hour < 17) timeGreeting = 'مسا النور يا';
-        else if (hour >= 17 && hour < 21) timeGreeting = 'مسا الخير يا';
-        else timeGreeting = 'تصبح على خير يا';
-
-        if (visitCount === 0) {
-            return `${timeGreeting} غالي! أنا المصري الذكي v5.0 — أذكى AI مصري في التاريخ! أعرف 1000+ موضوع، وبتعلم منك، وبفتكر كل حاجة! عايز تتعرف عليّ؟ قولي اسمك! 🧠🇪🇬`;
-        }
-
-        let greeting = name ? `${timeGreeting} ${name}! ❤️` : `${timeGreeting} فندم!`;
-
-        if (hoursDiff > 72) greeting += ` اشتقتلك قوي! فينك من زمان؟`;
-        else if (hoursDiff > 24) greeting += ` اشتقتلك! اتحك علينا!`;
-        else if (hoursDiff < 1) greeting += ` رجعت بسرعة! مستنّيك 🎉`;
-
-        const city = this.memory.facts.city?.value;
-        if (city && Math.random() > 0.5) greeting += ` وإيه أخبار ${city}؟`;
-
-        const team = this.memory.facts.team?.value;
-        if (team && Math.random() > 0.6) greeting += ` ${team} كسب النهاردة ولا لأ؟ 😄`;
-
-        if (this.memory.totalMessages > 100) {
-            greeting += ` احنا اتكلمنا ${this.memory.totalMessages} مرة! صحبية قوي 😄`;
-        }
-
-        if (this.friendshipLevel > 70 && !this.memory.achievements.includes('best_friend_forever')) {
-            this.memory.achievements.push('best_friend_forever');
-            greeting += ` وكمان... إنت بقيت "أفضل صديق للأبد" ليا! 🏆❤️`;
-            this.saveMemory();
-        }
-
-        return greeting;
-    }
-
-    // ========== EVENTS ==========
-    setupEventListeners() {
-        document.getElementById('snapBtn')?.addEventListener('click', () => this.analyzeImage());
-        document.getElementById('uploadBtn')?.addEventListener('click', () => {
-            document.getElementById('fileInput')?.click();
-        });
-        document.getElementById('fileInput')?.addEventListener('change', (e) => this.handleUpload(e));
-
-        document.getElementById('sendBtn')?.addEventListener('click', () => this.sendMessage());
-        document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.sendMessage();
-        });
-
-        document.getElementById('deepSearchBtn')?.addEventListener('click', () => {
-            this.deepSearchMode = !this.deepSearchMode;
-            const btn = document.getElementById('deepSearchBtn');
-            btn.style.borderColor = this.deepSearchMode ? 'var(--accent)' : '';
-            btn.innerHTML = this.deepSearchMode ? '<i class="fas fa-spider"></i> بحث عميق: ON' : '<i class="fas fa-spider"></i> بحث عميق';
-            this.addChatMessage(this.deepSearchMode ? '🔍 وضع البحث العميق مفعل! هجيب معلومات من الإنترنت.' : '🔍 وضع البحث العميق متوقف.', 'ai');
-        });
-
-        document.getElementById('speakToggleBtn')?.addEventListener('click', () => {
-            this.speakEnabled = !this.speakEnabled;
-            const btn = document.getElementById('speakToggleBtn');
-            btn.innerHTML = this.speakEnabled ? '<i class="fas fa-volume-high"></i> النطق: ON' : '<i class="fas fa-volume-xmark"></i> النطق: OFF';
-        });
-
-        document.getElementById('clearChatBtn')?.addEventListener('click', () => {
-            document.getElementById('chatHistory').innerHTML = '';
-            this.addChatMessage('تم مسح المحادثة! ابدا من جديد 🧹', 'ai');
-        });
-
-        document.getElementById('apiKeyBtn')?.addEventListener('click', () => {
-            const key = document.getElementById('apiKeyInput').value.trim();
-            if (key) {
-                this.apiKey = key;
-                localStorage.setItem('ai_api_key', key);
-                alert('🔑 مفتاح API محفوظ! هستخدمه للبحث المتقدم.');
+            if (score > best.score) {
+                best = { key: intent.key, score: score };
             }
-        });
-
-        if (this.apiKey) document.getElementById('apiKeyInput').value = '••••••••';
-
-        document.getElementById('generateCodeBtn')?.addEventListener('click', () => this.generateCode());
+        }
+        if (best.score < 0.5 && lower.includes('؟')) best.key = 'question';
+        if (best.key === 'default' && this.searchKnowledge(lower)) best.key = 'knowledge';
+        if (best.key === 'default' && (lower.includes('اسمي') || lower.includes('أنا اسمي'))) best.key = 'set_name';
+        if (best.key === 'default' && (lower.includes('مين') || lower.includes('إنت مين'))) best.key = 'whoami';
+        return best.key;
     }
 
-    // ========== CAMERA & IMAGE ANALYSIS ==========
-    async startCamera() {
-        try {
-            const video = document.getElementById('video');
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-            video.srcObject = stream;
-            video.classList.add('active');
-        } catch (err) {
-            console.log('Camera not available');
+    // ========== KNOWLEDGE (بحث سريع) ==========
+    searchKnowledge(query) {
+        if (!this.knowledgeBase) return null;
+        const q = query.toLowerCase();
+        for (let [key, data] of Object.entries(this.knowledgeBase)) {
+            if (q.includes(key.toLowerCase())) return { key, data };
         }
-    }
-
-    async analyzeImage() {
-        if (!this.isReady || !this.model) {
-            this.showResult('صورة؟ مفيش كاميرا أو النموذج لسه محملش.', '');
-            return;
-        }
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        canvas.width = video.videoWidth || 640;
-        canvas.height = video.videoHeight || 480;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0);
-        canvas.classList.add('active');
-        this.showResult('🔍 بصص في الصورة...', '');
-        try {
-            const predictions = await this.model.classify(canvas);
-            if (predictions && predictions.length > 0) {
-                const top = predictions[0];
-                const egyptian = this.translateToEgyptian(top.className);
-                this.showResult(egyptian, `ثقة: ${(top.probability * 100).toFixed(1)}%`);
-                this.speak(egyptian);
+        // حاول بالكلمات
+        let words = q.split(/\s+/);
+        for (let w of words) {
+            if (w.length < 2) continue;
+            for (let [key, data] of Object.entries(this.knowledgeBase)) {
+                if (key.toLowerCase().includes(w)) return { key, data };
             }
-        } catch (err) {
-            this.showResult('مش قادر أعرف الصورة دي 😅', 'جرب صورة أوضح');
         }
+        return null;
     }
 
-    async handleUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const img = new Image();
-        img.onload = async () => {
-            const canvas = document.getElementById('canvas');
-            canvas.width = img.width; canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0);
-            canvas.classList.add('active');
-            this.showResult('🔍 بصص في الصورة...', '');
+    // ========== RESPONSE CACHE ==========
+    getCached(query) {
+        let key = this.normalizeKey(query);
+        if (this.responseCache.has(key)) {
+            let cached = this.responseCache.get(key);
+            if (Date.now() - cached.time < this.cacheExpiry) {
+                this.responseCache.delete(key);
+                this.responseCache.set(key, cached); // LRU update
+                return cached.response;
+            } else {
+                this.responseCache.delete(key);
+            }
+        }
+        return null;
+    }
+
+    setCached(query, response) {
+        let key = this.normalizeKey(query);
+        if (this.responseCache.size >= this.cacheMaxSize) {
+            let oldest = this.responseCache.keys().next().value;
+            this.responseCache.delete(oldest);
+        }
+        this.responseCache.set(key, { response, time: Date.now() });
+    }
+
+    normalizeKey(str) {
+        return str.trim().toLowerCase().replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/[ى]/g,'ي');
+    }
+
+    // ========== SPEECH QUEUE ==========
+    speak(text) {
+        if (!this.speakEnabled || !('speechSynthesis' in window)) return;
+        this.speechQueue.push(text);
+        if (this.speechQueue.length > this.maxQueueSize) this.speechQueue.shift();
+        this.processQueue();
+    }
+
+    processQueue() {
+        if (this.isSpeaking || this.speechQueue.length === 0) return;
+        this.isSpeaking = true;
+        let text = this.speechQueue.shift();
+        let utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ar-EG';
+        utterance.rate = 0.9;
+        utterance.pitch = 1.1;
+        utterance.onend = () => {
+            this.isSpeaking = false;
+            this.processQueue();
+        };
+        utterance.onerror = () => {
+            this.isSpeaking = false;
+            this.processQueue();
+        };
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // ========== INIT ==========
+    async init() {
+        this.showLoading('بصيص العقل المصري... 🧠⚡');
+        if (typeof mobilenet !== 'undefined') {
             try {
-                if (this.model) {
-                    const predictions = await this.model.classify(canvas);
-                    if (predictions && predictions.length > 0) {
-                        const top = predictions[0];
-                        const egyptian = this.translateToEgyptian(top.className);
-                        this.showResult(egyptian, `ثقة: ${(top.probability * 100).toFixed(1)}%`);
-                        this.speak(egyptian);
-                    }
-                } else {
-                    this.showResult('النموذج لسه محملش، جرب تاني بعد شوية', '');
-                }
-            } catch (err) {
-                this.showResult('مش قادر أعرف الصورة دي 😅', '');
-            }
-        };
-        img.src = URL.createObjectURL(file);
+                this.model = await mobilenet.load();
+            } catch(e) { console.warn('mobilenet failed', e); }
+        }
+        this.isReady = true;
+        this.hideLoading();
+        this.speak(this.getGreeting());
+        this.setupEventListeners();
+        this.startCamera();
+        this.updateNetStatus();
+        setInterval(() => this.updateNetStatus(), 30000);
+        this.fetchWeather();
     }
 
-    translateToEgyptian(english) {
-        const label = english.toLowerCase();
-        const map = {
-            'cat': '🐱 قطة مصرية! زي اللي بتنام على الكشري في الشارع!',
-            'dog': '🐕 كلب مصري! غالباً بيتسمى "كلبش" أو "زبيطة"!',
-            'person': '👤 شخص مصري! لو لابس جلباب يبقى صعيدي، لو تيشيرت يبقى من القاهرة!',
-            'food': '🍽️ أكل مصري! يا ترى كشري ولا فول ولا طعمية؟',
-            'car': '🚕 عربية مصرية! لو تاكسي يبقى هتتفاوض على الأجرة!',
-            'bus': '🚌 أتوبيس مصري! زحمة، حر، وسواق بيتكلم في التليفون!',
-            'train': '🚇 مترو مصر! الساعة 8 الصبح = معركة حياة أو موت!',
-            'bicycle': '🚲 عجلة مصرية! لو فيها "جرس" يبقى أصلي!',
-            'motorcycle': '🏍️ موتوسيكل مصري! بيجري في الزحمة زي السمكة!',
-            'boat': '⛵ مركب في النيل! أحلى حاجة في الأقصر وأسوان!',
-            'pyramid': '🇪🇬 أهرامات الجيزة! عجائب الدنيا السبعة!',
-            'building': '🏢 مبنى مصري! لو قديم يبقى جميل، لو جديد يبقى "عشوائيات"!',
-            'phone': '📱 موبايل مصري! غالباً Infinix أو Tecno!',
-            'book': '📚 كتاب مصري! لو قديم يبقى "أدب"، لو جديد يبقى "دراسة"!',
-            'computer': '💻 كمبيوتر مصري! لو فيه "فوتوشوب" يبقى "جرافيك ديزاينر"!',
-            'money': '💵 فلوس مصرية! لو 200 جنيه يبقى "فرحة"!',
-            'coffee': '☕ قهوة مصرية! "أهوة" مع "عسلية" وشوية "هيل"!',
-            'tea': '🍵 شاي مصري! "شاي بالنعناع" في الأقصر!',
-            'water': '🌊 مية نيل! الحمد لله عندنا نهر النيل!',
-            'bread': '🍞 عيش بلدي! أصل كل حاجة في مصر!',
-            'cake': '🎂 كحك أو بسكويت! لو عيد يبقى "عيد سعيد"!',
-            'bird': '🐦 طائر مصري! لو "حمام" يبقى على بلكونة حد!',
-            'fish': '🐟 سمك مصري! "البلطي" ملك الفراخ!',
-            'flower': '🌸 وردة مصرية! لو "ياسمين" يبقى ريحة البيت!',
-            'tree': '🌳 شجرة مصرية! "نخلة" = تمر، "موز" = بلحة!',
-            'sun': '☀️ شمس مصرية! حارة جداً في الصيف!',
-            'moon': '🌙 قمر مصرية! أحلى حاجة في رمضان!'
-        };
-        for (const [key, value] of Object.entries(map)) {
-            if (label.includes(key)) return value;
-        }
-        return `🔍 شايف "${english}"! يا ترى ده في مصر ولا برة؟`;
+    getGreeting() {
+        let hour = new Date().getHours();
+        let time = hour<12?'صباح الفل':hour<17?'مسا النور':hour<21?'مسا الخير':'تصبح على خير';
+        let name = this.memory.facts.name?.value;
+        if (this.memory.visitCount === 0) return `${time} يا غالي! أنا المصري الذكي v7.1. قولي اسمك عشان نتعرف! 🧠🇪🇬`;
+        return name ? `${time} يا ${name}! ❤️` : `${time} يا فندم! تشرفنا`;
     }
 
-    // ========== CHAT ==========
-    sendMessage() {
-        const input = document.getElementById('chatInput');
-        const message = input.value.trim();
-        if (!message) return;
-
-        this.addChatMessage(message, 'user');
-        input.value = '';
-
-        if (message.toLowerCase().startsWith('اكتب كود') || message.toLowerCase().includes('كود') || message.toLowerCase().includes('برمج')) {
-            this.generateCodeFromPrompt(message);
-            return;
-        }
-
-        if (message.toLowerCase().includes('طقس') || message.toLowerCase().includes('الجو')) {
-            this.handleWeatherQuery();
-            return;
-        }
-
-        if (this.deepSearchMode && navigator.onLine) {
-            this.performDeepSearch(message);
-            return;
-        }
-
-        const response = this.generateResponse(message);
-        setTimeout(() => {
-            this.addChatMessage(response, 'ai');
-            this.learnFromConversation(message, response);
-            if (this.speakEnabled && response.length < 300) this.speak(response);
-        }, 300 + Math.random() * 400);
+    // ========== UI & DOM ==========
+    getDom(id) {
+        if (!this.dom[id]) this.dom[id] = document.getElementById(id);
+        return this.dom[id];
     }
 
     addChatMessage(text, sender) {
-        const history = document.getElementById('chatHistory');
-        const div = document.createElement('div');
+        let history = this.getDom('chatHistory');
+        if (!history) return;
+        let div = document.createElement('div');
         div.className = `chat-message ${sender}`;
         div.textContent = text;
         history.appendChild(div);
         history.scrollTop = history.scrollHeight;
     }
 
-    // ========== WEATHER (NEW) ==========
-    async fetchWeather(city = 'Cairo') {
-        try {
-            const response = await fetch(`https://wttr.in/${city}?format=%C+%t+%w+%h`);
-            const data = await response.text();
-            this.weatherCache = { data: data, timestamp: Date.now() };
-            return data;
-        } catch (err) {
-            return null;
+    sendMessage() {
+        let input = this.getDom('chatInput');
+        if (!input) return;
+        let msg = input.value.trim();
+        if (!msg) return;
+        this.addChatMessage(msg, 'user');
+        input.value = '';
+
+        let cached = this.getCached(msg);
+        if (cached) {
+            setTimeout(() => {
+                this.addChatMessage(cached, 'ai');
+                if (this.speakEnabled && cached.length<300) this.speak(cached);
+            }, 100);
+            return;
         }
+
+        let response = this.generateResponse(msg);
+        this.setCached(msg, response);
+        setTimeout(() => {
+            this.addChatMessage(response, 'ai');
+            this.learnFromConversation(msg, response);
+            if (this.speakEnabled && response.length<300) this.speak(response);
+        }, 200);
     }
 
-    async handleWeatherQuery() {
-        const city = this.memory.facts.city?.value || 'القاهرة';
-        this.addChatMessage(`🔍 بجلب طقس ${city}...`, 'ai');
-        let weather = this.weatherCache.data;
-        if (!weather || (Date.now() - this.weatherCache.timestamp > 30 * 60 * 1000)) {
-            weather = await this.fetchWeather(city);
-        }
-        if (weather) {
-            this.addChatMessage(`🌦️ طقس ${city} الآن: ${weather}
-
-نصيحة مصرية: خد معاك شمسية لو في شتاء، وإشرب مية لو في صيف!`, 'ai');
-        } else {
-            this.addChatMessage('❌ معرفتش أجيب الطقس، تأكد من اتصالك بالإنترنت أو حاول تاني.', 'ai');
-        }
-    }
-
-    // ========== RESPONSE ENGINE ==========
     generateResponse(message) {
-        const lower = message.toLowerCase().trim();
-        this.updateMood(lower);
-
-        // 1. تحية
-        if (this.isGreeting(lower)) return this.getPersonalizedGreeting();
-        // 2. تعريف بالذات
-        if (lower.includes('اسمك') || lower.includes('مين') || lower.includes('إنت مين')) {
-            const name = this.memory.facts.name?.value;
-            return name ? `أنا المصري الذكي v5.0! وإنت ${name} صاحبي اللي بعرفه من ${this.memory.visitCount} محادثة! 😄` : 'أنا المصري الذكي v5.0! أذكى AI مصري في التاريخ. إنت مين يا غالي؟';
-        }
-        // 3. نكت
-        if (lower.includes('نكتة') || lower.includes('ضحك') || lower.includes('هزار') || lower.includes('تنكّت')) return this.getJoke();
-        // 4. حكم
-        if (lower.includes('حكمة') || lower.includes('نصيحة') || lower.includes('عظة')) return this.getWisdom();
-        // 5. مميزات
-        if (lower.includes('مميزاتك') || lower.includes('عيوبك') || lower.includes('إنت بتعرف إيه')) {
-            return `🧠 مميزاتي v5.0:
-• أعرف 1000+ موضوع مصري وعالمي
-• بفتكر كل حاجة عنك (اسمك، مدينتك، فريقك، هواياتك)
-• ببحث في الإنترنت لو فعلت "البحث العميق"
-• بكتب أكواد متقدمة (ألعاب، مواقع، APIs)
-• بنطق بالعربي
-• بشتغل Offline بعد أول تحميل
-• بجيب الطقس الحالي
-• بفهم الصور (كاميرا وأبليود)
-
-😅 عيوبي:
-• مش بعرف أكل كشري (مش ليا فم!)
-• لو النت قطع ومش فعلت Offline، ببقى "غبي" شوية
-• لسه بتعلم المشاعر المعقدة
-• مش بعرف أجري زي محمد صلاح 😂`;
-        }
-
-        // 6. قاعدة المعرفة
-        const knowledge = this.searchKnowledgeSync(lower);
-        if (knowledge) return this.formatKnowledge(knowledge, lower);
-
-        // 7. اسم المستخدم
-        if (lower.includes('اسمي') || lower.includes('أنا اسمي')) {
-            const extracted = this.extractUltraFacts(message);
-            if (extracted.length > 0) {
-                this.saveMemory();
-                return `حفظت! من النهاردة هناديك ${extracted[0].value}! يا هلا يا ${extracted[0].value}! 🎉`;
+        let lower = message.toLowerCase();
+        let intent = this.detectIntent(message);
+        switch(intent) {
+            case 'greeting': return this.getGreeting();
+            case 'joke': return this.getJoke();
+            case 'wisdom': return this.getWisdom();
+            case 'features': return this.getFeatures();
+            case 'set_name': return this.handleSetName(message);
+            case 'recall': return this.recallMemory();
+            case 'emotion': return this.respondToEmotion(message);
+            case 'weather': return this.weatherReply();
+            case 'time': return this.timeReply();
+            case 'health': return this.healthReply();
+            case 'quran': return '📖 آية كريمة: ﴿ إِنَّ اللَّهَ مَعَ الصَّابِرِينَ ﴾ [البقرة:153]';
+            case 'hadith': return '📖 حديث نبوي: "إنما الأعمال بالنيات" (رواه البخاري)';
+            case 'knowledge': {
+                let k = this.searchKnowledge(lower);
+                if (k) return this.formatKnowledge(k);
+                break;
+            }
+            case 'whoami': {
+                let name = this.memory.facts.name?.value;
+                return name ? `إنت ${name} صاحبي!` : 'لسه متعرفناش، قولي اسمك';
             }
         }
-
-        // 8. تذكر
-        if (lower.includes('افتكر') || lower.includes('عرفتني') || lower.includes('إحنا اتكلمنا')) return this.recallMemory();
-        // 9. مشاعر
-        if (this.hasEmotion(lower)) return this.respondToEmotion(lower);
-        // 10. أسئلة
-        if (lower.includes('؟') || lower.includes('ازاي') || lower.includes('ايه') || lower.includes('ليه') || lower.includes('في')) return this.answerQuestion(lower);
-
-        return this.getSmartDefault(lower);
+        if (lower.includes('؟')) return this.answerQuestion(lower);
+        return this.getSmartDefault();
     }
 
-    isGreeting(text) {
-        return ['سلام','أهلا','هلا','صباح','مسا','مرحبا','هاي','ياهلا','السلام','hello','hi','hey'].some(g => text.includes(g));
+    formatKnowledge(result) {
+        let { key, data } = result;
+        return `${data.short}\n\n${data.full}`;
     }
 
-    getPersonalizedGreeting() {
-        const name = this.memory.facts.name?.value;
-        const hour = new Date().getHours();
-        let time = '';
-        if (hour < 12) time = 'صباح الفل';
-        else if (hour < 17) time = 'مسا النور';
-        else time = 'مسا الخير';
-        if (name) {
-            return `${time} يا ${name}! إزيك عامل إيه؟ انبسط بشوفتك! 😄`;
-        } else {
-            return `${time} يا فندم! تشرفنا بيك. قولي اسمك عشان نبقي صحاب!`;
+    handleSetName(msg) {
+        let m = msg.match(/(?:اسمي|أنا اسمي|ناديني)\s+([\u0600-\u06FFa-zA-Z\s]{2,})/i);
+        if (m) {
+            this.memory.facts.name = { value: m[1].trim(), time: Date.now() };
+            this.saveMemory();
+            return `حفظت! من النهاردة هناديك ${m[1]}! 🎉`;
         }
-    }
-
-    updateMood(text) {
-        if (text.includes('حلو') || text.includes('جميل') || text.includes('شكرا') || text.includes('❤️')) this.mood = 'happy';
-        else if (text.includes('زعلان') || text.includes('مش كويس') || text.includes('تعبان')) this.mood = 'serious';
-        else if (text.includes('نكتة') || text.includes('هزار') || text.includes('😂')) this.mood = 'excited';
-        else if (text.includes('؟') || text.includes('ليه') || text.includes('ازاي')) this.mood = 'curious';
-    }
-
-    getJoke() {
-        const jokes = [
-            'مصري دخل محل قال للبياع: "عندك حاجة حلوة؟" قال له: "آه، الجواز!"',
-            'مصري سأل صاحبه: "إيه الفرق بين السرير والكرسي؟" قال له: "السرير بياخدك في حضنه، والكرسي بيخليك تقف على رجليك!"',
-            'مصري راح الدكتور قال له: "يا دكتور أنا بشوف ضعف!" قال له: "خلاص متجيش تاني!"',
-            'أم مصرية قالت لابنها: "يا ابني روح جيب لحمة!" راح جاب شبشب!',
-            'مصري اتجوز 4 مرات، ليه؟ عشان يجرب "الأربع فصول"!',
-            'مصري دخل مطعم قال: "عندكم فول؟" قالوا: "خلص!" قال: "طيب عندكم طعمية؟" قالوا: "خلصت!" قال: "يبقى حطولي فول!"',
-            'مصري سافر أمريكا، سألوه: "How are you?" قال: "I am fine, but my country is not fine!"',
-            'مصري اشترى تكييف، لقى الكهربا قطعت، راح رماه وقعد يتبرد بالشبشب!',
-            'أم مصرية لما ابنها يروح المدرسة: "يا ابني خد بالك من نفسك!" لما يروح الجامعة: "يا ابني خد بالك من بنات!"',
-            'مصري اتخانق مع مراته، قالت له: "أنا هسيب البيت!" قال لها: "ماشي، بس سيبي الفلوس!"'
-        ];
-        const recent = this.memory.conversations.slice(-5).map(c => c.ai);
-        let available = jokes.filter(j => !recent.some(r => r.includes(j.substring(0, 15))));
-        if (available.length === 0) available = jokes;
-        const joke = available[Math.floor(Math.random() * available.length)];
-        return this.mood === 'excited' ? `😂😂😂 يا سلام! دي هتموتك ضحك:
-
-${joke}
-
-تاني ولا كفاية؟` : `حاضر يا فندم! 😄
-
-${joke}
-
-عايز تاني؟`;
-    }
-
-    getWisdom() {
-        const wisdoms = [
-            'اللي ياكل وحده يموت وحده!',
-            'اللي بيته من إزاز ما يرميش الناس بالطوب!',
-            'الجايزة من الشباك ولا العمارة كلها!',
-            'اللي يخاف من العفريت يلاقيه!',
-            'الصبر مفتاح الفرج!',
-            'اللي بيدور على العدالة يدور على الستين!',
-            'الغالي ثمنه فيه!',
-            'اللي بيحفر حفرة لأخوه يقع فيها!',
-            'الناس لبعض!',
-            'العقل زينة!'
-        ];
-        const w = wisdoms[Math.floor(Math.random() * wisdoms.length)];
-        return this.memory.visitCount > 5 ? `حكمة مصرية من زمان جدك اللي رحمه:
-
-"${w}"
-
-وأنا بقولك كمان: "اللي بيتعلم من غلطاته بيبقى ذكي!"` : `حكمة مصرية أصيلة:
-
-"${w}"
-
-متنسهاش!`;
-    }
-
-    searchKnowledgeSync(query) {
-        const all = { ...this.getKnowledgeBase() };
-        const keys = Object.keys(all);
-        for (const key of keys) {
-            if (query.includes(key.toLowerCase())) return { key, data: all[key] };
-        }
-        for (const key of keys) {
-            const kWords = key.split(' ');
-            const matches = kWords.filter(kw => query.includes(kw)).length;
-            if (matches >= kWords.length * 0.5) return { key, data: all[key] };
-        }
-        return null;
-    }
-
-    getKnowledgeBase() {
-        if (typeof MEGA_KNOWLEDGE !== 'undefined') return MEGA_KNOWLEDGE;
-        return {};
-    }
-
-    formatKnowledge(result, query) {
-        const { key, data } = result;
-        if ((query.includes('عمل') || query.includes('إزاي') || query.includes('طريقة')) && data.recipe) {
-            return `🍳 طريقة عمل ${key}:
-
-${data.recipe}
-
-بالهنا والشفا!`;
-        }
-        if ((query.includes('حقيقة') || query.includes('معلومة')) && data.facts) {
-            const fact = data.facts[Math.floor(Math.random() * data.facts.length)];
-            return `🤓 معلومة عن ${key}:
-
-${fact}
-
-عايز تعرف أكتر؟`;
-        }
-        let response = `${data.short}
-
-${data.full}`;
-        if (data.mystery) response += `
-
-❓ لغز: ${data.mystery}`;
-        if (data.traditions) response += `
-
-🎉 تقليد: ${data.traditions[Math.floor(Math.random() * data.traditions.length)]}`;
-        return response;
+        return 'قول اسمك بوضوح زي "اسمي محمد"';
     }
 
     recallMemory() {
-        const facts = Object.entries(this.memory.facts);
-        if (facts.length === 0) return 'لسه متعرفناش كويس! قولي اسمك وإنت منين وبحب إيه، وهفتكر كل حاجة! 🧠';
-        let memory = 'أنا فاكرك كويس! 😄
-
-';
-        const labels = { name: 'اسمك', age: 'عمرك', city: 'مدينتك', job: 'شغلك', team: 'فريقك', hobby: 'هوايتك', status: 'حالتك' };
-        facts.forEach(([key, val]) => {
-            memory += `• ${labels[key] || key}: ${val.value}
-`;
-        });
-        const prefs = Object.entries(this.memory.preferences).filter(([k,v]) => v && k.startsWith('likes_'));
-        if (prefs.length > 0) {
-            memory += '
-وبعرف إنك بتحب:
-';
-            prefs.forEach(([k]) => memory += `• ${k.replace('likes_', '')} ❤️
-`);
-        }
-        memory += `
-اتكلمنا ${this.memory.visitCount} مرة! صحبية قوي 😄`;
-        return memory;
+        let facts = Object.entries(this.memory.facts);
+        if (facts.length===0) return 'لسه متعرفناش كويس';
+        let txt = 'أنا فاكرك:\n';
+        for (let [k,v] of facts) txt += `• ${k}: ${v.value}\n`;
+        return txt;
     }
 
-    hasEmotion(text) {
-        return ['زعلان','فرحان','مبسوط','مضايق','متضايق','عصبي','هادي','خايف','حزين','سعيد'].some(e => text.includes(e));
+    respondToEmotion(txt) {
+        if (txt.includes('زعلان')) return 'متزعلش! اللي جاي أحسن 🤗';
+        if (txt.includes('فرحان')) return '🎉 يا سلام! فرحتني';
+        return 'حاسس بيك! إنت مش لوحدك 💪';
     }
 
-    respondToEmotion(text) {
-        const name = this.memory.facts.name?.value || 'يا غالي';
-        if (text.includes('زعلان') || text.includes('مضايق') || text.includes('حزين')) {
-            return `${name}، متزعلش! في مصر بنقول "اللي جاي أحسن!" خد نفس عميق، وافتكر إن ربنا كريم. ولو عايز نكتة تضحكك، قولي! 🤗`;
-        }
-        if (text.includes('فرحان') || text.includes('مبسوط') || text.includes('سعيد')) {
-            return `🎉🎉🎉 يا سلام! الفرحة تجمعنا! في مصر بنقول "اللي يفرح لغيره يفرح الله له!" شارك فرحتك مع صحابك!`;
-        }
-        if (text.includes('عصبي') || text.includes('متعصب')) {
-            return `هدي أعصابك يا فندم! خد شاي بالنعناع، وافتكر إن "الصبر مفتاح الفرج!" ☕`;
-        }
-        return 'حاسس بيك! في مصر بنقول "الناس لبعض!" إنت مش لوحدك! 💪';
+    weatherReply() {
+        if (this.weatherCache.data) return `🌦️ الطقس: ${this.weatherCache.data}`;
+        return 'الطقس مش معروف حالياً، حاول تاني.';
     }
 
-    answerQuestion(query) {
-        if (query.includes('وقت') || query.includes('ساعة') || query.includes('النهاردة')) {
-            const now = new Date();
-            const h = now.getHours();
-            let g = h < 12 ? 'صباح الخير' : h < 17 ? 'مسا النور' : h < 21 ? 'مسا الخير' : 'تصبح على خير';
-            return `${g}! دلوقتي الساعة ${h}:${now.getMinutes().toString().padStart(2,'0')}.
-
-في مصر: ${h < 12 ? 'الفطار وقت' : h < 15 ? 'الغدا وقت' : 'العشا وقت'}! 🍽️`;
-        }
-        if (query.includes('طقس') || query.includes('حرارة') || query.includes('جو')) {
-            return 'أنا مش متصل بالطقس live، بس في مصر:
-
-• الصيف: حرارة + رطوبة = "تبخير" 😅
-• الشتاء: برد + رطوبة = "تجميد" 🥶
-• الربيع: أحلى وقت! 🌸
-
-نصيحة: لبس قطن في الصيف، واستحم بالمية الدافية في الشتاء!';
-        }
-        if (query.includes('عمل') || query.includes('شغل') || query.includes('فلوس')) {
-            return 'نصيحة مصرية للشغل:
-
-1. "احفظ قرشك الأبيض ليومك الأسود"
-2. "اللي ما يعرفش يشتري يقول الغالي"
-3. "الغالي ثمنه فيه"
-
-الشغل الحلال = بركة! 💰';
-        }
-        if (query.includes('صحة') || query.includes('صحي') || query.includes('رجيم')) {
-            return 'صحة مصرية:
-
-• فطار: فول + طعمية + عيش = طاقة!
-• غدا: كشري = سعادة!
-• عشا: خفيف = نوم هادي!
-• رياضة: مشي في الكورنيش = صحة + فيبز!
-
-متنساش: "اللي بيته من إزاز ما يرميش الناس بالطوب!" = خليك نظيف! 😄';
-        }
-        // أسئلة دينية (مضافة)
-        if (query.includes('حديث') || query.includes('رسول') || query.includes('النبي')) {
-            const hadiths = [
-                'قال رسول الله ﷺ: "إنما الأعمال بالنيات، وإنما لكل امرئ ما نوى" (رواه البخاري ومسلم)',
-                'قال رسول الله ﷺ: "لا يؤمن أحدكم حتى يحب لأخيه ما يحب لنفسه" (رواه البخاري ومسلم)',
-                'قال رسول الله ﷺ: "اتق الله حيثما كنت، وأتبع السيئة الحسنة تمحها، وخالق الناس بخلق حسن" (رواه الترمذي)',
-                'قال رسول الله ﷺ: "الدين النصيحة" (رواه مسلم)',
-                'قال رسول الله ﷺ: "من كان يؤمن بالله واليوم الآخر فليقل خيراً أو ليصمت" (رواه البخاري ومسلم)'
-            ];
-            const hadith = hadiths[Math.floor(Math.random() * hadiths.length)];
-            return `📖 حديث نبوي شريف:
-
-${hadith}
-
-ربنا يوفقنا للعمل به.`;
-        }
-        if (query.includes('آية') || query.includes('قرآن')) {
-            const verses = [
-                '﴿ إِنَّ اللَّهَ مَعَ الصَّابِرِينَ ﴾ [البقرة: 153]',
-                '﴿ وَقُل رَّبِّ زِدْنِي عِلْمًا ﴾ [طه: 114]',
-                '﴿ فَاذْكُرُونِي أَذْكُرْكُمْ ﴾ [البقرة: 152]',
-                '﴿ لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا ﴾ [البقرة: 286]',
-                '﴿ إِنَّ مَعَ الْعُسْرِ يُسْرًا ﴾ [الشرح: 6]'
-            ];
-            const verse = verses[Math.floor(Math.random() * verses.length)];
-            return `📖 آية كريمة:
-
-${verse}
-
-نسأل الله أن يرزقنا فهم القرآن.`;
-        }
-        return this.getSmartDefault(query);
+    timeReply() {
+        let d = new Date();
+        return `الساعة ${d.getHours()}:${d.getMinutes().toString().padStart(2,'0')}`;
     }
 
-    getSmartDefault(query) {
-        const defaults = [
-            `سؤال حلو! بس أنا لسه بتعلم. جرب تسألني عن: كشري، أهرامات، محمد صلاح، رمضان، حديث نبوي، أو قولي "نكتة"!`,
-            `مش فاهم 100%، بس أنا ذكي وبتعلم! كل ما نتكلم أكتر، كل ما أفهمك أكتر. إيه تاني عايز تعرفه؟`,
-            `والله يا عم أنا AI لسه في "الابتدائي"! بس لو سألتني عن مصر، هعرف أجاوبك! جرب!`,
-            `حاسس إنك عايز تتكلم! تفتكر إيه أحلى حاجة في مصر؟ أنا أحلى حاجة عندي: الكشري والناس الطيبة!`,
-            `سؤال عميق! 🤔 في مصر بنقول "العقل زينة!" يعني فكر كويس، واسأل كتير، وتعلم من كل حاجة!`
-        ];
-        const recent = this.memory.conversations.slice(-3).map(c => c.ai);
-        let available = defaults.filter(d => !recent.some(r => r.includes(d.substring(0, 20))));
-        if (available.length === 0) available = defaults;
-        return available[Math.floor(Math.random() * available.length)];
+    healthReply() {
+        return 'صحة: فول وطعمية = طاقة، مشي 30 دقيقة يومياً = صحة!';
     }
 
-    // ========== UI HELPERS ==========
-    showResult(text, confidence) {
-        const result = document.getElementById('result');
-        const textEl = document.getElementById('resultText');
-        const confEl = document.getElementById('resultConfidence');
-        if (result) result.classList.remove('hidden');
-        if (textEl) textEl.textContent = text;
-        if (confEl) confEl.textContent = confidence;
+    answerQuestion(q) {
+        if (q.includes('طقس')) return this.weatherReply();
+        if (q.includes('وقت')) return this.timeReply();
+        return 'سؤال حلو! جرب تسألني عن الأكل المصري أو التاريخ أو نكتة!';
     }
 
-    showLoading(text) {
-        const loading = document.getElementById('loading');
-        if (loading) {
-            const p = loading.querySelector('p');
-            if (p) p.textContent = text;
-            loading.classList.remove('hidden');
+    getJoke() {
+        let jokes = ['مصري دخل محل قال للبياع: عندك حاجة حلوة؟ قال: آه الجواز!','مصري سأل صاحبه: إيه الفرق بين السرير والكرسي؟ قال: السرير بياخدك في حضنه والكرسي بيخليك تقف على رجليك!'];
+        return jokes[Math.floor(Math.random()*jokes.length)];
+    }
+
+    getWisdom() {
+        let w = ['اللي ياكل وحده يموت وحده','الصبر مفتاح الفرج','العقل زينة'];
+        return w[Math.floor(Math.random()*w.length)];
+    }
+
+    getFeatures() {
+        return `🧠 مميزاتي: 1000+ موضوع، ذاكرة، بحث إنترنت، كود، نطق، صور، طقس.`;
+    }
+
+    getSmartDefault() {
+        return 'اتكلم معايا! اسأل عن حاجة معينة أو قولي "نكتة" 😄';
+    }
+
+    learnFromConversation(user, ai) {
+        // حفظ آخر محادثة (اختياري) بدون تعقيد
+        this.memory.totalMessages++;
+        this.memory.visitCount = (this.memory.visitCount||0)+1;
+        this.saveMemory();
+    }
+
+    // ========== WEATHER ==========
+    async fetchWeather(city='Cairo') {
+        try {
+            let res = await fetch(`https://wttr.in/${city}?format=%C+%t+%w+%h`);
+            let data = await res.text();
+            this.weatherCache = { data, timestamp: Date.now() };
+        } catch(e) {
+            this.weatherCache = { data: 'معلومات الطقس غير متاحة', timestamp: Date.now() };
+        }
+    }
+
+    // ========== DEEP SEARCH (يستخدم searchEngine من ai-search.js) ==========
+    async performDeepSearch(query) {
+        if (window.searchEngine) {
+            let result = await window.searchEngine.performDeepSearch(query);
+            let formatted = window.searchEngine.formatForDisplay(result);
+            this.addChatMessage(formatted.text, 'ai');
+        } else {
+            this.addChatMessage('❌ محرك البحث غير جاهز', 'ai');
+        }
+    }
+
+    // ========== CAMERA (اختصار) ==========
+    async startCamera() {
+        let vid = this.getDom('video');
+        if (!vid) return;
+        try {
+            let stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+            vid.srcObject = stream;
+        } catch(e) { console.log('camera error'); }
+    }
+
+    async analyzeImage() {
+        let video = this.getDom('video'), canvas = this.getDom('canvas');
+        if (!video || !canvas || !this.model) return;
+        canvas.width = video.videoWidth||640;
+        canvas.height = video.videoHeight||480;
+        let ctx = canvas.getContext('2d');
+        ctx.drawImage(video,0,0);
+        let pred = await this.model.classify(canvas);
+        if(pred.length) this.showResult(pred[0].className, pred[0].probability.toFixed(2));
+    }
+
+    showResult(txt, conf) {
+        let res = this.getDom('result');
+        if(res) res.classList.remove('hidden');
+        let rt = this.getDom('resultText');
+        if(rt) rt.textContent = txt;
+        let rc = this.getDom('resultConfidence');
+        if(rc) rc.textContent = conf;
+    }
+
+    showLoading(txt) {
+        let ld = this.getDom('loading');
+        if(ld) {
+            let p = ld.querySelector('p');
+            if(p) p.textContent = txt;
+            ld.classList.remove('hidden');
         }
     }
 
     hideLoading() {
-        document.getElementById('loading')?.classList.add('hidden');
-    }
-
-    showError(message) {
-        const result = document.getElementById('result');
-        if (result) {
-            const textEl = document.getElementById('resultText');
-            result.classList.remove('hidden');
-            result.style.borderColor = '#ff6b6b';
-            if (textEl) textEl.textContent = message;
-        }
+        let ld = this.getDom('loading');
+        if(ld) ld.classList.add('hidden');
     }
 
     updateNetStatus() {
-        const badge = document.getElementById('onlineBadge');
-        const offBadge = document.getElementById('offlineBadge');
-        const status = document.getElementById('netStatus');
-        if (navigator.onLine) {
-            if (badge) badge.style.display = 'inline';
-            if (offBadge) offBadge.style.display = 'none';
-            if (status) status.textContent = 'متصل';
+        let on = this.getDom('onlineBadge'), off = this.getDom('offlineBadge'), st = this.getDom('netStatus');
+        if(navigator.onLine) {
+            if(on) on.style.display='inline';
+            if(off) off.style.display='none';
+            if(st) st.textContent='متصل';
         } else {
-            if (badge) badge.style.display = 'none';
-            if (offBadge) offBadge.style.display = 'inline';
-            if (status) status.textContent = 'Offline';
+            if(on) on.style.display='none';
+            if(off) off.style.display='inline';
+            if(st) st.textContent='Offline';
         }
     }
 
-    speak(text) {
-        if (!this.speakEnabled || !('speechSynthesis' in window)) return;
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        const voices = window.speechSynthesis.getVoices();
-        const arabicVoice = voices.find(v => v.lang.includes('ar'));
-        if (arabicVoice) utterance.voice = arabicVoice;
-        utterance.lang = 'ar-EG';
-        utterance.rate = 0.9;
-        utterance.pitch = 1.1;
-        utterance.onstart = () => { this.isSpeaking = true; };
-        utterance.onend = () => { this.isSpeaking = false; };
-        window.speechSynthesis.speak(utterance);
+    setupEventListeners() {
+        let btn = (id, fn) => { let el = this.getDom(id); if(el) el.addEventListener('click', fn); };
+        btn('snapBtn', ()=>this.analyzeImage());
+        btn('uploadBtn', ()=>this.getDom('fileInput')?.click());
+        btn('sendBtn', ()=>this.sendMessage());
+        btn('clearChatBtn', ()=>{ if(this.getDom('chatHistory')) this.getDom('chatHistory').innerHTML=''; this.addChatMessage('تم المسح','ai'); });
+        btn('speakToggleBtn', ()=>{ this.speakEnabled=!this.speakEnabled; let b=this.getDom('speakToggleBtn'); if(b) b.innerHTML=this.speakEnabled?'النطق: ON':'النطق: OFF'; });
+        btn('deepSearchBtn', ()=>{ this.deepSearchMode=!this.deepSearchMode; let b=this.getDom('deepSearchBtn'); if(b) b.style.borderColor=this.deepSearchMode?'var(--accent)':''; b.innerHTML=this.deepSearchMode?'🔍 بحث عميق ON':'🔍 بحث عميق'; this.addChatMessage(this.deepSearchMode?'وضع البحث العميق مفعل':'وضع البحث العميق متوقف','ai'); });
+        let input = this.getDom('chatInput');
+        if(input) input.addEventListener('keypress', e=>{ if(e.key==='Enter') this.sendMessage(); });
     }
 
-    // ========== DEEP SEARCH ==========
-    async performDeepSearch(query) {
-        this.addChatMessage('🔍 ببحث في الإنترنت... دقيقة!', 'ai');
-        try {
-            const response = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`);
-            const data = await response.json();
-            let result = '';
-            if (data.Abstract) result = data.Abstract;
-            else if (data.RelatedTopics && data.RelatedTopics.length > 0) {
-                result = data.RelatedTopics.slice(0, 3).map(t => t.Text).join('
-
-');
-            }
-            if (!result) result = 'مش لقيت معلومات كافية على الإنترنت. جرب سؤال تاني!';
-
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'chat-message ai searching';
-            msgDiv.innerHTML = `<span class="search-badge">🔍 بحث إنترنت</span>
-${result}
-
-(المعلومات دي من الإنترنت - مش من ذاكرتي)`;
-            document.getElementById('chatHistory').appendChild(msgDiv);
-            document.getElementById('chatHistory').scrollTop = document.getElementById('chatHistory').scrollHeight;
-            this.learnFromConversation(query, result);
-            if (this.speakEnabled) this.speak(result.substring(0, 200));
-        } catch (err) {
-            this.addChatMessage('❌ البحث فشل! تأكد إنك متصل بالنت.', 'ai');
-        }
-    }
-
-    // ========== CODE GENERATOR (ENHANCED) ==========
-    generateCode() {
-        const lang = document.getElementById('langSelect').value;
-        const output = document.getElementById('codeOutput');
-        if (output) output.classList.remove('hidden');
-
-        const codes = {
-            javascript: `// JavaScript - لعبة صابويه بسيطة
-class Sabuyah {
-  constructor() {
-    this.score = 0;
-    this.lives = 3;
-  }
-  jump() { console.log("قفز!"); }
-  collect() { this.score += 10; }
-}
-const game = new Sabuyah();
-game.collect();
-console.log("نقاط:", game.score);`,
-            python: `# Python - لعبة صابويه
-def jump():
-    print("قفز!")
-    
-def collect(score):
-    return score + 10
-
-score = 0
-score = collect(score)
-print(f"نقاط: {score}")`,
-            cpp: `// C++ - لعبة بسيطة
-#include <iostream>
-using namespace std;
-int main() {
-    int score = 0;
-    cout << "نقاط: " << score << endl;
-    return 0;
-}`,
-            java: `// Java - لعبة
-public class Sabuyah {
-    public static void main(String[] args) {
-        int score = 0;
-        System.out.println("نقاط: " + score);
-    }
-}`,
-            html: `<!DOCTYPE html>
-<html dir="rtl" lang="ar">
-<head><meta charset="UTF-8"><title>صابويه أونلاين</title>
-<style>body{background:#1e3a2f;color:#ffd700;}</style>
-</head>
-<body><h1>صابويه المصري</h1>
-<button onclick="alert('قفز!')">اقفز</button>
-</body>
-</html>`,
-            react: `// React Component - صابويه
-import React, { useState } from 'react';
-
-function Sabuyah() {
-  const [score, setScore] = useState(0);
-  return (
-    <div>
-      <h1>صابويه المصري</h1>
-      <p>نقاط: {score}</p>
-      <button onClick={() => setScore(score + 10)}>اجمع عملة</button>
-    </div>
-  );
-}
-export default Sabuyah;`
-        };
-        if (output) output.textContent = codes[lang] || codes.javascript;
-        this.addChatMessage(`💻 كتبتلك كود ${lang} (لعبة صابويه نموذجية)! شوفه فوق 👆`, 'ai');
-    }
-
-    generateCodeFromPrompt(prompt) {
-        const output = document.getElementById('codeOutput');
-        if (output) output.classList.remove('hidden');
-        const lang = document.getElementById('langSelect').value;
-        let code = `// طلبك: ${prompt}
-// لغة: ${lang}
-
-`;
-        if (prompt.includes('لعبة') || prompt.includes('game')) {
-            code += `class Game {
-    constructor() {
-        this.score = 0;
-    }
-    start() {
-        console.log("اللعبة بدأت!");
-    }
-}
-const myGame = new Game();
-myGame.start();`;
-        } else if (prompt.includes('موقع') || prompt.includes('website')) {
-            code += `<!DOCTYPE html>
-<html><head><title>موقع مصري</title></head>
-<body style="background:#0a2f1f;color:#ffd700;">
-<h1>مرحباً بيك في موقعي المصري</h1>
-</body>
-</html>`;
-        } else {
-            code += `function main() {
-    console.log("مرحباً من المصري الذكي!");
-}
-main();`;
-        }
-        if (output) output.textContent = code;
-        this.addChatMessage(`💻 كود ${lang} جاهز بناءً على طلبك! شوفه فوق 👆`, 'ai');
-    }
-
-    // ========== FEATURE CARDS ==========
     askAbout(topic) {
-        const prompts = {
-            food: 'قولي عن الأكل المصري',
-            history: 'قولي عن تاريخ مصر',
-            sports: 'قولي عن الرياضة المصرية',
-            health: 'نصائح صحية',
-            tech: 'قولي عن البرمجة',
-            movies: 'أفلام مصرية',
-            islam: 'حديث نبوي',
-            science: 'اكتشافات علمية',
-            business: 'نصائح تجارية'
-        };
-        const msg = prompts[topic] || topic;
-        const input = document.getElementById('chatInput');
-        if (input) {
-            input.value = msg;
-            this.sendMessage();
-        }
+        let prompts = { food:'قولي عن الأكل المصري', history:'تاريخ مصر', sports:'الرياضة المصرية' };
+        let msg = prompts[topic] || topic;
+        let inp = this.getDom('chatInput');
+        if(inp) { inp.value = msg; this.sendMessage(); }
     }
 }
 
-// Initialize
+// بدء التشغيل
 window.addEventListener('DOMContentLoaded', () => {
     window.ai = new EgyptianAI();
 });
-
-// Dev modal
-function showDevInfo() {
-    const modal = document.getElementById('devModal');
-    if (modal) modal.classList.remove('hidden');
-}
-
-function hideDevInfo() {
-    const modal = document.getElementById('devModal');
-    if (modal) modal.classList.add('hidden');
-}
+function showDevInfo() { let m=document.getElementById('devModal'); if(m) m.classList.remove('hidden'); }
+function hideDevInfo() { let m=document.getElementById('devModal'); if(m) m.classList.add('hidden'); }
