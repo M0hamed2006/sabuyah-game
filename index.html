@@ -2,169 +2,1191 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>المصري الذكي | Groq AI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <meta name="description" content="المصري الذكي v11.0 - أفخم AI في التاريخ يعمل بـ Groq + Hugging Face + رؤية بصرية + توليد صور">
+    <meta name="keywords" content="AI, مصري, ذكي, Groq, Hugging Face, صور, بحث, محادثة">
+    <meta property="og:title" content="المصري الذكي v11.0 ELITE">
+    <meta property="og:description" content="أذكى AI عربي يفهمك ويرد عليك بذكاء خيالي!">
+    <meta property="og:type" content="website">
+    
+    <title>المصري الذكي v11.0 ELITE | أفخم AI في التاريخ 🔥🧠</title>
+    
+    <!-- ========== Preconnect للأداء العالي ========== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://api.groq.com">
+    
+    <!-- ========== الخطوط المحترفة ========== -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600;700&family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- ========== الأيقونات ========== -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- ========== CSS مخصص ========== -->
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none;
+        }
+
+        :root {
+            --primary: #ff6b6b;
+            --secondary: #4ecdc4;
+            --accent: #feca57;
+            --dark: #1a1a2e;
+            --darker: #0f0f1e;
+            --light: #f8f9fa;
+            --success: #26de81;
+            --warning: #fed330;
+            --danger: #fc5c65;
+            
+            --grad-main: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 25%, #c44569 50%, #5f0a87 100%);
+            --grad-accent: linear-gradient(135deg, #feca57 0%, #ff9ff3 50%, #54a0ff 100%);
+            --grad-cool: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            --grad-dark: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+            
+            --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 5px 15px rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --shadow-glow: 0 0 20px rgba(255, 107, 107, 0.5);
+            
+            --trans-fast: 0.15s ease-in-out;
+            --trans-normal: 0.3s ease-in-out;
+            --trans-slow: 0.5s ease-in-out;
+            
+            --fs-xs: 0.75rem;
+            --fs-sm: 0.875rem;
+            --fs-base: 1rem;
+            --fs-lg: 1.125rem;
+            --fs-xl: 1.5rem;
+            --fs-2xl: 2rem;
+            --fs-3xl: 3rem;
+            --fs-4xl: 4rem;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-smooth: always;
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
-            min-height: 100vh;
-            background: linear-gradient(145deg, #0a2f1f, #061a10);
+            font-family: 'Cairo', sans-serif;
+            background: var(--darker);
+            color: var(--light);
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 50%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(78, 205, 196, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: all var(--trans-normal);
+        }
+
+        .glass:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .glass-header {
+            text-align: center;
+            padding: 40px 30px;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(78, 205, 196, 0.1) 100%);
+            border-radius: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(254, 202, 87, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .glass-header h1 {
+            font-size: var(--fs-4xl);
+            font-weight: 900;
+            margin-bottom: 15px;
+            background: var(--grad-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 3px;
+            position: relative;
+            z-index: 1;
+            animation: slideInDown 0.8s ease-out;
+        }
+
+        .glass-header .subtitle {
+            font-size: var(--fs-lg);
+            color: var(--secondary);
+            margin-bottom: 25px;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .badge {
+            background: rgba(255, 107, 107, 0.2);
+            border: 1px solid var(--primary);
+            color: var(--accent);
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: var(--fs-sm);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all var(--trans-fast);
+            cursor: default;
+        }
+
+        .badge:hover {
+            background: rgba(255, 107, 107, 0.3);
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .audio-control {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 12px 20px;
+            border-radius: 30px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .audio-control button {
+            background: var(--primary);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--trans-fast);
+            font-size: var(--fs-lg);
+        }
+
+        .audio-control button:hover {
+            background: var(--secondary);
+            box-shadow: var(--shadow-glow);
+            transform: scale(1.1);
+        }
+
+        #volumeSlider {
+            width: 100px;
+            cursor: pointer;
+        }
+
+        .dev-credit {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: var(--grad-main);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            z-index: 999;
+            transition: all var(--trans-normal);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .dev-credit:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(255, 107, 107, 0.6);
+        }
+
+        .api-section {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .api-section input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--light);
+            padding: 10px 15px;
+            border-radius: 25px;
+            width: 250px;
+            backdrop-filter: blur(10px);
+            font-size: var(--fs-sm);
+        }
+
+        .api-section input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .api-section button {
+            background: var(--secondary);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--trans-fast);
+        }
+
+        .api-section button:hover {
+            background: var(--accent);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .glass-section {
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .glass-section h2 {
+            font-size: var(--fs-2xl);
+            margin-bottom: 20px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .glass-section h2 i {
+            color: var(--primary);
+            font-size: var(--fs-3xl);
+        }
+
+        .camera-section {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(78, 205, 196, 0.05) 100%);
+        }
+
+        .camera-wrapper {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            height: 400px;
+            background: var(--dark);
+        }
+
+        #video, #canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        #canvas {
+            display: none;
+        }
+
+        .camera-overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
             display: flex;
             justify-content: center;
+            gap: 15px;
+            z-index: 10;
+        }
+
+        .btn-glow, .btn-glass {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: var(--fs-base);
+            display: flex;
             align-items: center;
+            gap: 8px;
+            transition: all var(--trans-normal);
             font-family: 'Cairo', sans-serif;
-            padding: 20px;
         }
 
-        .container {
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(12px);
-            border-radius: 32px;
-            padding: 20px;
-            width: 100%;
-            max-width: 900px;
-            border: 1px solid #ffd70066;
+        .btn-glow {
+            background: var(--grad-main);
+            color: white;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.4);
         }
 
-        .header {
+        .btn-glow:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 30px rgba(255, 107, 107, 0.6);
+        }
+
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-glass:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-glass.small {
+            padding: 8px 16px;
+            font-size: var(--fs-sm);
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, rgba(254, 202, 87, 0.1) 0%, rgba(78, 205, 196, 0.1) 100%);
+            border: 2px solid var(--accent);
+            padding: 20px;
+            border-radius: 20px;
             text-align: center;
-            margin-bottom: 20px;
+            transition: all var(--trans-normal);
         }
 
-        h1 {
-            font-size: 36px;
-            color: #ffd700;
-            text-shadow: 0 0 10px #ffaa44;
+        .result-box.hidden {
+            display: none;
         }
 
-        .subtitle {
-            color: #ffdd99;
-            font-size: 14px;
+        .result-icon {
+            font-size: var(--fs-4xl);
+            margin-bottom: 10px;
         }
 
-        .chat-area {
-            background: #1e3a2faa;
-            border-radius: 24px;
-            padding: 15px;
+        #resultText {
+            font-size: var(--fs-lg);
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        #resultConfidence {
+            font-size: var(--fs-base);
+            color: var(--secondary);
+        }
+
+        .chat-section {
+            background: linear-gradient(135deg, rgba(78, 205, 196, 0.1) 0%, rgba(255, 107, 107, 0.05) 100%);
+            display: flex;
+            flex-direction: column;
+            height: 700px;
+        }
+
+        .chat-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
             margin-bottom: 20px;
         }
 
         .chat-history {
-            height: 350px;
+            flex: 1;
             overflow-y: auto;
-            padding: 10px;
-            margin-bottom: 15px;
-            background: #0a2f1faa;
-            border-radius: 16px;
+            margin-bottom: 20px;
+            padding-right: 10px;
+            scroll-behavior: smooth;
+        }
+
+        .chat-history::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-history::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .chat-history::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
         }
 
         .chat-message {
-            padding: 10px 15px;
-            margin-bottom: 12px;
-            border-radius: 20px;
-            max-width: 85%;
+            margin-bottom: 15px;
+            padding: 15px 20px;
+            border-radius: 15px;
             word-wrap: break-word;
-            animation: fadeIn 0.3s ease;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .chat-message.user {
-            background: #ffd700;
-            color: #1e3a2f;
-            margin-right: auto;
+            background: var(--grad-main);
+            color: white;
             text-align: right;
+            border-bottom-right-radius: 5px;
+            margin-right: auto;
+            width: fit-content;
+            max-width: 80%;
         }
 
         .chat-message.ai {
-            background: #2c3e50;
+            background: var(--grad-cool);
             color: white;
-            margin-left: auto;
             text-align: left;
+            border-bottom-left-radius: 5px;
+            margin-left: auto;
+            width: fit-content;
+            max-width: 80%;
         }
 
-        .input-wrapper {
+        .chat-input-wrapper {
             display: flex;
             gap: 10px;
         }
 
         #chatInput {
             flex: 1;
-            padding: 12px;
-            border-radius: 60px;
-            border: none;
-            background: #0a2f1f;
-            color: white;
-            font-size: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--light);
+            padding: 15px 20px;
+            border-radius: 25px;
+            font-size: var(--fs-base);
             font-family: 'Cairo', sans-serif;
+            transition: all var(--trans-normal);
         }
 
-        #sendBtn {
-            background: #ffd700;
-            border: none;
-            width: 48px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 20px;
-            transition: 0.2s;
+        #chatInput:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+            background: rgba(255, 255, 255, 0.15);
         }
 
-        #sendBtn:hover {
-            transform: scale(1.05);
-            background: #ffaa00;
+        #chatInput::placeholder {
+            color: rgba(255, 255, 255, 0.5);
         }
 
-        .status {
+        .code-section {
+            background: linear-gradient(135deg, rgba(45, 52, 54, 0.3) 0%, rgba(99, 110, 114, 0.2) 100%);
+        }
+
+        .code-controls {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 15px;
-            font-size: 12px;
-            color: #ccc;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
-        button {
-            background: #2c3e50;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 20px;
-            color: white;
+        #langSelect {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--light);
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-family: 'Cairo', sans-serif;
             cursor: pointer;
+            transition: all var(--trans-normal);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        #langSelect:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
         }
+
+        .code-output {
+            background: var(--dark);
+            border: 1px solid var(--primary);
+            padding: 20px;
+            border-radius: 15px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: var(--fs-sm);
+            overflow-x: auto;
+            max-height: 400px;
+            color: var(--accent);
+            line-height: 1.6;
+        }
+
+        .code-output.hidden {
+            display: none;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .feature-card {
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all var(--trans-normal);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(78, 205, 196, 0.1) 100%);
+            opacity: 0;
+            transition: opacity var(--trans-normal);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card i {
+            font-size: var(--fs-3xl);
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: block;
+            transition: transform var(--trans-normal);
+        }
+
+        .feature-card:hover i {
+            transform: scale(1.2) rotateY(180deg);
+        }
+
+        .feature-card h3 {
+            font-size: var(--fs-xl);
+            margin-bottom: 10px;
+            color: var(--accent);
+            transition: color var(--trans-normal);
+        }
+
+        .feature-card:hover h3 {
+            color: var(--secondary);
+        }
+
+        .feature-card p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: var(--fs-sm);
+        }
+
+        .glass-footer {
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 60px;
+        }
+
+        .glass-footer p {
+            margin-bottom: 10px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: var(--fs-sm);
+        }
+
+        .glass-footer strong {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--darker);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            gap: 30px;
+        }
+
+        .loading-overlay.hidden {
+            display: none;
+        }
+
+        .space-loader {
+            width: 150px;
+            height: 150px;
+            position: relative;
+        }
+
+        .planet {
+            width: 50px;
+            height: 50px;
+            background: var(--grad-main);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 30px rgba(255, 107, 107, 0.6);
+            animation: orbit 3s linear infinite;
+        }
+
+        .orbit {
+            width: 100%;
+            height: 100%;
+            border: 2px dashed var(--primary);
+            border-radius: 50%;
+        }
+
+        @keyframes orbit {
+            0% { transform: translate(-50%, -50%) rotate(0deg) translateX(50px) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg) translateX(50px) rotate(-360deg); }
+        }
+
+        .loading-overlay p {
+            font-size: var(--fs-lg);
+            color: var(--accent);
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .loading-sub {
+            font-size: var(--fs-sm) !important;
+            color: rgba(255, 255, 255, 0.6) !important;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2001;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.hidden {
+            display: none;
+        }
+
+        .modal-content {
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: var(--fs-2xl);
+            cursor: pointer;
+            color: var(--primary);
+            transition: all var(--trans-fast);
+        }
+
+        .close-btn:hover {
+            transform: scale(1.2);
+            color: var(--secondary);
+        }
+
+        .modal-content h2 {
+            color: var(--accent);
+            margin-bottom: 20px;
+            font-size: var(--fs-2xl);
+        }
+
+        .dev-profile {
+            text-align: center;
+        }
+
+        .dev-avatar {
+            width: 100px;
+            height: 100px;
+            background: var(--grad-main);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--fs-2xl);
+            font-weight: 900;
+            color: white;
+            margin: 0 auto 20px;
+            box-shadow: 0 0 30px rgba(255, 107, 107, 0.4);
+        }
+
+        .dev-title {
+            color: var(--secondary);
+            font-size: var(--fs-lg);
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .dev-social {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--grad-main);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all var(--trans-normal);
+            font-size: var(--fs-lg);
+        }
+
+        .social-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+        }
+
+        @media (max-width: 768px) {
+            .glass-header h1 {
+                font-size: var(--fs-2xl);
+                letter-spacing: 1px;
+            }
+            .badges {
+                gap: 8px;
+            }
+            .badge {
+                padding: 6px 12px;
+                font-size: var(--fs-xs);
+            }
+            .main-container {
+                padding: 10px;
+            }
+            .glass-section {
+                padding: 20px;
+            }
+            .camera-wrapper {
+                height: 300px;
+            }
+            .chat-section {
+                height: auto;
+                min-height: 500px;
+            }
+            .features-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+            }
+            .api-section input {
+                width: 150px;
+            }
+            .chat-message.user,
+            .chat-message.ai {
+                max-width: 90%;
+            }
+            .modal-content {
+                padding: 20px;
+            }
+            .dev-avatar {
+                width: 80px;
+                height: 80px;
+                font-size: var(--fs-xl);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .audio-control, .api-section, .dev-credit {
+                position: relative;
+                margin-bottom: 15px;
+            }
+            .glass-header {
+                padding: 20px 15px;
+                margin-bottom: 20px;
+            }
+            .glass-header h1 {
+                font-size: var(--fs-2xl);
+            }
+            .badges {
+                gap: 5px;
+                flex-direction: column;
+            }
+            .badge {
+                width: 100%;
+                justify-content: center;
+            }
+            .main-container {
+                padding: 5px;
+            }
+            .glass-section {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+            .camera-wrapper {
+                height: 200px;
+            }
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .pulse { animation: pulse 2s ease-in-out infinite; }
+        
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 107, 107, 0.4); }
+            50% { box-shadow: 0 0 40px rgba(255, 107, 107, 0.6); }
+        }
+        .glow { animation: glow 2s ease-in-out infinite; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🇪🇬 المصري الذكي</h1>
-            <p class="subtitle">🧠 يعمل بالذكاء الاصطناعي Groq - Llama 3.3 (مجاني وسريع)</p>
-        </div>
+    <div class="audio-control">
+        <button id="musicToggle" aria-label="تشغيل/إيقاف الموسيقى"><i class="fas fa-play"></i></button>
+        <input type="range" id="volumeSlider" min="0" max="100" value="25">
+        <span id="volumeLabel">25%</span>
+    </div>
 
-        <div class="chat-area">
-            <div id="chatHistory" class="chat-history"></div>
-            <div class="input-wrapper">
-                <input type="text" id="chatInput" placeholder="اسألني أي حاجة... (مثال: قارن بين ميسي ورونالدو)">
-                <button id="sendBtn">➤</button>
+    <div class="dev-credit" id="devCreditBtn">
+        <i class="fas fa-code"></i>
+        <span>Mohamed Ragab Abdelmonem</span>
+    </div>
+
+    <div class="api-section">
+        <input type="password" id="apiKeyInput" placeholder="🔑 مفتاح Groq API (اختياري)">
+        <button id="apiKeyBtn" title="حفظ المفتاح"><i class="fas fa-check"></i></button>
+    </div>
+
+    <div class="main-container">
+        <header class="glass glass-header">
+            <h1 class="glitch" data-text="المصري الذكي">المصري الذكي</h1>
+            <p class="subtitle">🧠 v11.0 ELITE | يعمل بـ Groq AI (Llama 3.3) + صور + بحث عميق</p>
+            <div class="badges">
+                <span class="badge"><i class="fas fa-brain"></i> يتعلم منك</span>
+                <span class="badge"><i class="fas fa-globe-americas"></i> بحث إنترنت</span>
+                <span class="badge"><i class="fas fa-microphone-lines"></i> نطق عربي</span>
+                <span class="badge"><i class="fas fa-eye"></i> رؤية بصرية</span>
+                <span class="badge"><i class="fas fa-code"></i> مولد أكواد</span>
+                <span class="badge"><i class="fas fa-music"></i> موسيقى هادية</span>
+                <span class="badge"><i class="fas fa-palette"></i> توليد صور</span>
+                <span class="badge"><i class="fas fa-wifi"></i> <span id="netStatus">متصل</span></span>
             </div>
+        </header>
+
+        <section class="glass glass-section camera-section">
+            <h2><i class="fas fa-eye"></i> الرؤية الذكية بـ AI</h2>
+            <div class="camera-wrapper">
+                <video id="video" autoplay playsinline muted></video>
+                <canvas id="canvas"></canvas>
+                <div class="camera-overlay">
+                    <button id="snapBtn" class="btn-glow"><i class="fas fa-camera"></i> صور واعرف</button>
+                    <button id="uploadBtn" class="btn-glass"><i class="fas fa-image"></i> ارفع صورة</button>
+                    <input type="file" id="fileInput" accept="image/*" hidden>
+                </div>
+            </div>
+            <div id="result" class="result-box hidden">
+                <div class="result-icon">🧿</div>
+                <div id="resultText">جاري التحليل العميق...</div>
+                <div id="resultConfidence"></div>
+            </div>
+        </section>
+
+        <section class="glass glass-section chat-section">
+            <h2><i class="fas fa-comment-dots"></i> المحادثة الذكية</h2>
+            <div class="chat-controls">
+                <button id="deepSearchBtn" class="btn-glass small"><i class="fas fa-spider"></i> بحث عميق</button>
+                <button id="voiceInputBtn" class="btn-glass small"><i class="fas fa-microphone-lines"></i> تحدث</button>
+                <button id="speakToggleBtn" class="btn-glass small"><i class="fas fa-volume-high"></i> النطق: ON</button>
+                <button id="clearChatBtn" class="btn-glass small"><i class="fas fa-eraser"></i> مسح</button>
+            </div>
+            <div id="chatHistory" class="chat-history"></div>
+            <div class="chat-input-wrapper">
+                <input type="text" id="chatInput" placeholder="اسألني أي حاجة... (جرب: 'قارن بين ميسي ورونالدو' أو 'ارسم لي هرم خوفو')">
+                <button id="drawBtn" class="btn-glow" aria-label="توليد صورة" title="حول وصفك لصورة"><i class="fas fa-palette"></i> ارسم</button>
+                <button id="sendBtn" class="btn-glow"><i class="fas fa-rocket"></i></button>
+            </div>
+        </section>
+
+        <section class="glass glass-section code-section">
+            <h2><i class="fas fa-terminal"></i> معالج الأكواد الذكي</h2>
+            <div class="code-controls">
+                <select id="langSelect">
+                    <option value="javascript">JavaScript</option>
+                    <option value="python">Python</option>
+                    <option value="cpp">C++</option>
+                    <option value="java">Java</option>
+                    <option value="csharp">C#</option>
+                    <option value="php">PHP</option>
+                    <option value="html">HTML/CSS</option>
+                    <option value="sql">SQL</option>
+                    <option value="react">React.js</option>
+                    <option value="flutter">Flutter</option>
+                    <option value="nodejs">Node.js</option>
+                    <option value="typescript">TypeScript</option>
+                    <option value="golang">Go</option>
+                    <option value="rust">Rust</option>
+                    <option value="kotlin">Kotlin</option>
+                </select>
+                <button id="generateCodeBtn" class="btn-glow"><i class="fas fa-wand-magic-sparkles"></i> اكتب كود</button>
+            </div>
+            <div id="codeOutput" class="code-output hidden"></div>
+        </section>
+
+        <div class="features-grid">
+            <div class="feature-card glass" data-topic="food"><i class="fas fa-utensils"></i><h3>🍽️ الأكل المصري</h3><p>500+ وصفة تقليدية</p></div>
+            <div class="feature-card glass" data-topic="history"><i class="fas fa-landmark"></i><h3>🏛️ الحضارة المصرية</h3><p>7000 سنة من العظمة</p></div>
+            <div class="feature-card glass" data-topic="sports"><i class="fas fa-futbol"></i><h3>⚽ الرياضة المصرية</h3><p>كل الفرق والأساطير</p></div>
+            <div class="feature-card glass" data-topic="health"><i class="fas fa-heart-pulse"></i><h3>❤️ الصحة والتغذية</h3><p>نصائح طبية ووصفات</p></div>
+            <div class="feature-card glass" data-topic="tech"><i class="fas fa-laptop-code"></i><h3>💻 البرمجة والتقنية</h3><p>15 لغة برمجة</p></div>
+            <div class="feature-card glass" data-topic="movies"><i class="fas fa-film"></i><h3>🎬 السينما المصرية</h3><p>أفلام ومسلسلات ونجوم</p></div>
+            <div class="feature-card glass" data-topic="islam"><i class="fas fa-mosque"></i><h3>🕌 الإسلام والروحانيات</h3><p>أحاديث وآيات وأدعية</p></div>
+            <div class="feature-card glass" data-topic="science"><i class="fas fa-atom"></i><h3>🔬 العلوم والفضاء</h3><p>فيزياء، كيمياء، فلك</p></div>
+            <div class="feature-card glass" data-topic="business"><i class="fas fa-chart-line"></i><h3>📈 البيزنس والتجارة</h3><p>استثمار، تسويق، ريادة</p></div>
+            <div class="feature-card glass" data-topic="culture"><i class="fas fa-book-open"></i><h3>📚 الثقافة والأدب</h3><p>شعر، روايات، فكر، وتراث</p></div>
+            <div class="feature-card glass" data-topic="travel"><i class="fas fa-plane"></i><h3>✈️ السفر والسياحة</h3><p>وجهات سياحية وخطط رحلات</p></div>
+            <div class="feature-card glass" data-topic="music"><i class="fas fa-music"></i><h3>🎵 الموسيقى والفنون</h3><p>أغاني وفنانون وفنون تقليدية</p></div>
         </div>
 
-        <div class="status">
-            <span>🟢 <span id="statusText">متصل</span></span>
-            <button id="clearBtn">🧹 مسح المحادثة</button>
-            <span>🤖 Groq AI</span>
+        <footer class="glass glass-footer">
+            <p>© 2026 <strong>المصري الذكي</strong> | AI Egypt v11.0 ELITE 🔥</p>
+            <p>يعمل بـ <strong>Groq AI (Llama 3.3)</strong> + <strong>Hugging Face</strong> + <strong>TensorFlow.js</strong></p>
+            <p>مطور بواسطة <strong style="color:#feca57">Mohamed Ragab Abdelmonem</strong> — The Small Programmer 🇪🇬</p>
+            <p style="font-size:0.8rem; color:#888; margin-top:10px">"اللي ياكل وحده يموت وحده" — حكمة مصرية قديمة ✨</p>
+            <p style="font-size:0.75rem; color:#666; margin-top:15px">تم بناؤه بـ ❤️ من مصر | Made with passion in Egypt</p>
+        </footer>
+    </div>
+
+    <div id="loading" class="loading-overlay">
+        <div class="space-loader"><div class="planet"></div><div class="orbit"></div></div>
+        <p>⚡ تحميل أفخم AI في التاريخ...</p>
+        <p class="loading-sub">Groq AI + Hugging Face + TensorFlow.js + Three.js</p>
+    </div>
+
+    <div id="devModal" class="modal hidden">
+        <div class="modal-content glass">
+            <span class="close-btn" id="closeDevModalBtn">&times;</span>
+            <h2><i class="fas fa-user-astronaut"></i> مطور الموقع</h2>
+            <div class="dev-profile">
+                <div class="dev-avatar">MR</div>
+                <h3>Mohamed Ragab Abdelmonem</h3>
+                <p class="dev-title">The Small Programmer</p>
+                
+                <div style="margin:20px 0; line-height:2.2; color:#ffd700; font-size:var(--fs-base); background: rgba(0,0,0,0.3); padding: 20px; border-radius: 20px; border-right: 4px solid #ff6b6b; text-align: right;">
+                    <p>🏛️ <strong style="color:#feca57;">محافظة الفيوم</strong> — منبع الحضارة والإبداع، ومنها أنطلق العقل المدمر</p>
+                    <p>🛡️ <strong style="color:#4ecdc4;">مهندس أمن سيبراني</strong> | Ethical Hacker | Penetration Tester | Bug Hunter</p>
+                    <p>🎮 <strong style="color:#ff6b6b;">مطور ألعاب ومحركات</strong> | Unity | Unreal Engine | Godot | Pygame</p>
+                    <p>🧠 <strong style="color:#feca57;">باني "المصري الذكي"</strong> — أقوى AI عربي في التاريخ</p>
+                    <p>⚡ <strong style="color:#4ecdc4;">مطور واجهات وذكاء اصطناعي</strong> | JavaScript | Python | C++ | Rust | Go</p>
+                    <p>🔥 <strong style="color:#ff6b6b;">صانع محتوى تقني</strong> | ألعاب | برمجة | أمن سيبراني | AI</p>
+                    <p>🇪🇬 <strong style="color:#feca57;">من قلب مصر — للعالم</strong> | أعمل في صمت وأظهر بقوة 💥</p>
+                    <p>💀 <strong style="color:#4ecdc4;">"السر في العزيمة، والوصول في الاستمرار"</strong></p>
+                </div>
+
+                <div class="dev-social">
+                    <a href="#" class="social-btn"><i class="fab fa-github"></i></a>
+                    <a href="#" class="social-btn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="social-btn"><i class="fab fa-youtube"></i></a>
+                    <a href="#" class="social-btn"><i class="fab fa-x-twitter"></i></a>
+                </div>
+
+                <div style="margin-top:30px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.1)">
+                    <p style="color:var(--accent); font-weight:600; margin-bottom:10px">📊 إحصائيات المشروع:</p>
+                    <p style="color:rgba(255,255,255,0.7); font-size:var(--fs-sm)">
+                        ✅ 1000+ ميزة | 500+ معلومة | 15 لغة برمجة<br>
+                        ✅ يعمل بدون نت | بحث عميق | توليد صور<br>
+                        ✅ رؤية بصرية | نطق عربي | ذاكرة ذكية
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script src="ai-core.js"></script>
+    <div id="canvas-container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.0/dist/mobilenet.min.js"></script>
+
+    <script defer src="space.js"></script>
+    <script defer src="ai-audio.js"></script>
+    <script defer src="ai-search.js"></script>
+    <script defer src="ai-knowledge.js"></script>
+    <script defer src="ai-core.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const devCreditBtn = document.getElementById('devCreditBtn');
+            if (devCreditBtn) {
+                devCreditBtn.addEventListener('click', () => {
+                    const modal = document.getElementById('devModal');
+                    if (modal) modal.classList.remove('hidden');
+                });
+            }
+            const closeBtn = document.getElementById('closeDevModalBtn');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    const modal = document.getElementById('devModal');
+                    if (modal) modal.classList.add('hidden');
+                });
+            }
+            const featureCards = document.querySelectorAll('.feature-card');
+            featureCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const topic = card.getAttribute('data-topic');
+                    const input = document.getElementById('chatInput');
+                    if (input) {
+                        const topics = {
+                            food: 'قولي عن الأكل المصري التقليدي',
+                            history: 'تاريخ مصر الفرعونية العظيمة',
+                            sports: 'الرياضة المصرية والفرق الشهيرة',
+                            health: 'نصائح صحية وفوائد غذائية',
+                            tech: 'البرمجة والتكنولوجيا الحديثة',
+                            movies: 'السينما المصرية والأفلام الشهيرة',
+                            islam: 'الإسلام والأحاديث النبوية الشريفة',
+                            science: 'العلوم والفيزياء والفضاء',
+                            business: 'البيزنس والاستثمار والتسويق',
+                            culture: 'الثقافة والأدب والشعر العربي',
+                            travel: 'السياحة والسفر والوجهات',
+                            music: 'الموسيقى والفنون الجميلة'
+                        };
+                        input.value = topics[topic] || `قولي عن ${topic}`;
+                        input.focus();
+                    }
+                });
+            });
+            const volumeSlider = document.getElementById('volumeSlider');
+            const volumeLabel = document.getElementById('volumeLabel');
+            if (volumeSlider && volumeLabel) {
+                volumeSlider.addEventListener('input', (e) => {
+                    volumeLabel.textContent = e.target.value + '%';
+                });
+            }
+            const apiKeyBtn = document.getElementById('apiKeyBtn');
+            if (apiKeyBtn) {
+                apiKeyBtn.addEventListener('click', () => {
+                    const input = document.getElementById('apiKeyInput');
+                    if (input && input.value) {
+                        localStorage.setItem('ai_api_key', input.value);
+                        apiKeyBtn.style.background = 'var(--success)';
+                        apiKeyBtn.innerHTML = '<i class="fas fa-check-double"></i>';
+                        setTimeout(() => {
+                            apiKeyBtn.style.background = '';
+                            apiKeyBtn.innerHTML = '<i class="fas fa-check"></i>';
+                        }, 2000);
+                    }
+                });
+            }
+            console.log('✅ المصري الذكي v11.0 ELITE جاهز!');
+        });
+        window.addEventListener('click', (e) => {
+            const modal = document.getElementById('devModal');
+            if (e.target === modal) modal.classList.add('hidden');
+        });
+    </script>
 </body>
 </html>
