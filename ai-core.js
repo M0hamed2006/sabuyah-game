@@ -470,7 +470,21 @@ class EgyptianAI {
         if (lower.includes('حكمة') || lower.includes('نصيحة') || lower.includes('عظة')) return this.getWisdom();
         // 5. مميزات
         if (lower.includes('مميزاتك') || lower.includes('عيوبك') || lower.includes('إنت بتعرف إيه')) {
-            return `🧠 مميزاتي v5.0:\n• أعرف 1000+ موضوع مصري وعالمي\n• بفتكر كل حاجة عنك (اسمك، مدينتك، فريقك، هواياتك)\n• ببحث في الإنترنت لو فعلت "البحث العميق"\n• بكتب أكواد متقدمة (ألعاب، مواقع، APIs)\n• بنطق بالعربي\n• بشتغل Offline بعد أول تحميل\n• بجيب الطقس الحالي\n• بفهم الصور (كاميرا وأبليود)\n\n😅 عيوبي:\n• مش بعرف أكل كشري (مش ليا فم!)\n• لو النت قطع ومش فعلت Offline، ببقى "غبي" شوية\n• لسه بتعلم المشاعر المعقدة\n• مش بعرف أجري زي محمد صلاح 😂`;
+            return `🧠 مميزاتي v5.0:
+• أعرف 1000+ موضوع مصري وعالمي
+• بفتكر كل حاجة عنك (اسمك، مدينتك، فريقك، هواياتك)
+• ببحث في الإنترنت لو فعلت "البحث العميق"
+• بكتب أكواد متقدمة (ألعاب، مواقع، APIs)
+• بنطق بالعربي
+• بشتغل Offline بعد أول تحميل
+• بجيب الطقس الحالي
+• بفهم الصور (كاميرا وأبليود)
+
+😅 عيوبي:
+• مش بعرف أكل كشري (مش ليا فم!)
+• لو النت قطع ومش فعلت Offline، ببقى "غبي" شوية
+• لسه بتعلم المشاعر المعقدة
+• مش بعرف أجري زي محمد صلاح 😂`;
         }
 
         // 6. قاعدة المعرفة
@@ -538,7 +552,15 @@ class EgyptianAI {
         let available = jokes.filter(j => !recent.some(r => r.includes(j.substring(0, 15))));
         if (available.length === 0) available = jokes;
         const joke = available[Math.floor(Math.random() * available.length)];
-        return this.mood === 'excited' ? `😂😂😂 يا سلام! دي هتموتك ضحك:\n\n${joke}\n\nتاني ولا كفاية؟` : `حاضر يا فندم! 😄\n\n${joke}\n\nعايز تاني؟`;
+        return this.mood === 'excited' ? `😂😂😂 يا سلام! دي هتموتك ضحك:
+
+${joke}
+
+تاني ولا كفاية؟` : `حاضر يا فندم! 😄
+
+${joke}
+
+عايز تاني؟`;
     }
 
     getWisdom() {
@@ -555,36 +577,18 @@ class EgyptianAI {
             'العقل زينة!'
         ];
         const w = wisdoms[Math.floor(Math.random() * wisdoms.length)];
-        return this.memory.visitCount > 5 ? `حكمة مصرية من زمان جدك اللي رحمه:\n\n"${w}"\n\nوأنا بقولك كمان: "اللي بيتعلم من غلطاته بيبقى ذكي!"` : `حكمة مصرية أصيلة:\n\n"${w}"\n\nمتنسهاش!`;
-    }
+        return this.memory.visitCount > 5 ? `حكمة مصرية من زمان جدك اللي رحمه:
 
-        searchKnowledge(query) {
-        const all = { ...this.getKnowledgeBase() };
-        const keys = Object.keys(all);
-        for (const key of keys) {
-            if (query.includes(key.toLowerCase())) return { key, data: all[key] };
-        }
-        for (const key of keys) {
-            const kWords = key.split(' ');
-            const matches = kWords.filter(kw => query.includes(kw)).length;
-            if (matches >= kWords.length * 0.5) return { key, data: all[key] };
-        }
-        return null;
+"${w}"
+
+وأنا بقولك كمان: "اللي بيتعلم من غلطاته بيبقى ذكي!"` : `حكمة مصرية أصيلة:
+
+"${w}"
+
+متنسهاش!`;
     }
 
     searchKnowledgeSync(query) {
-        if (!this.knowledgeIndex) return null;
-        const normalized = this.normalizeKey(query);
-        const direct = this.knowledgeIndex.get(normalized);
-        if (direct) return direct;
-        const words = normalized.split(/\s+/);
-        for (const w of words) {
-            const m = this.knowledgeIndex.get(w);
-            if (m) return m;
-        }
-        return null;
-    }
-}
         const all = { ...this.getKnowledgeBase() };
         const keys = Object.keys(all);
         for (const key of keys) {
@@ -606,32 +610,53 @@ class EgyptianAI {
     formatKnowledge(result, query) {
         const { key, data } = result;
         if ((query.includes('عمل') || query.includes('إزاي') || query.includes('طريقة')) && data.recipe) {
-            return `🍳 طريقة عمل ${key}:\n\n${data.recipe}\n\nبالهنا والشفا!`;
+            return `🍳 طريقة عمل ${key}:
+
+${data.recipe}
+
+بالهنا والشفا!`;
         }
         if ((query.includes('حقيقة') || query.includes('معلومة')) && data.facts) {
             const fact = data.facts[Math.floor(Math.random() * data.facts.length)];
-            return `🤓 معلومة عن ${key}:\n\n${fact}\n\nعايز تعرف أكتر؟`;
+            return `🤓 معلومة عن ${key}:
+
+${fact}
+
+عايز تعرف أكتر؟`;
         }
-        let response = `${data.short}\n\n${data.full}`;
-        if (data.mystery) response += `\n\n❓ لغز: ${data.mystery}`;
-        if (data.traditions) response += `\n\n🎉 تقليد: ${data.traditions[Math.floor(Math.random() * data.traditions.length)]}`;
+        let response = `${data.short}
+
+${data.full}`;
+        if (data.mystery) response += `
+
+❓ لغز: ${data.mystery}`;
+        if (data.traditions) response += `
+
+🎉 تقليد: ${data.traditions[Math.floor(Math.random() * data.traditions.length)]}`;
         return response;
     }
 
     recallMemory() {
         const facts = Object.entries(this.memory.facts);
         if (facts.length === 0) return 'لسه متعرفناش كويس! قولي اسمك وإنت منين وبحب إيه، وهفتكر كل حاجة! 🧠';
-        let memory = 'أنا فاكرك كويس! 😄\n\n';
+        let memory = 'أنا فاكرك كويس! 😄
+
+';
         const labels = { name: 'اسمك', age: 'عمرك', city: 'مدينتك', job: 'شغلك', team: 'فريقك', hobby: 'هوايتك', status: 'حالتك' };
         facts.forEach(([key, val]) => {
-            memory += `• ${labels[key] || key}: ${val.value}\n`;
+            memory += `• ${labels[key] || key}: ${val.value}
+`;
         });
         const prefs = Object.entries(this.memory.preferences).filter(([k,v]) => v && k.startsWith('likes_'));
         if (prefs.length > 0) {
-            memory += '\nوبعرف إنك بتحب:\n';
-            prefs.forEach(([k]) => memory += `• ${k.replace('likes_', '')} ❤️\n`);
+            memory += '
+وبعرف إنك بتحب:
+';
+            prefs.forEach(([k]) => memory += `• ${k.replace('likes_', '')} ❤️
+`);
         }
-        memory += `\nاتكلمنا ${this.memory.visitCount} مرة! صحبية قوي 😄`;
+        memory += `
+اتكلمنا ${this.memory.visitCount} مرة! صحبية قوي 😄`;
         return memory;
     }
 
@@ -658,16 +683,37 @@ class EgyptianAI {
             const now = new Date();
             const h = now.getHours();
             let g = h < 12 ? 'صباح الخير' : h < 17 ? 'مسا النور' : h < 21 ? 'مسا الخير' : 'تصبح على خير';
-            return `${g}! دلوقتي الساعة ${h}:${now.getMinutes().toString().padStart(2,'0')}.\n\nفي مصر: ${h < 12 ? 'الفطار وقت' : h < 15 ? 'الغدا وقت' : 'العشا وقت'}! 🍽️`;
+            return `${g}! دلوقتي الساعة ${h}:${now.getMinutes().toString().padStart(2,'0')}.
+
+في مصر: ${h < 12 ? 'الفطار وقت' : h < 15 ? 'الغدا وقت' : 'العشا وقت'}! 🍽️`;
         }
         if (query.includes('طقس') || query.includes('حرارة') || query.includes('جو')) {
-            return 'أنا مش متصل بالطقس live، بس في مصر:\n\n• الصيف: حرارة + رطوبة = "تبخير" 😅\n• الشتاء: برد + رطوبة = "تجميد" 🥶\n• الربيع: أحلى وقت! 🌸\n\nنصيحة: لبس قطن في الصيف، واستحم بالمية الدافية في الشتاء!';
+            return 'أنا مش متصل بالطقس live، بس في مصر:
+
+• الصيف: حرارة + رطوبة = "تبخير" 😅
+• الشتاء: برد + رطوبة = "تجميد" 🥶
+• الربيع: أحلى وقت! 🌸
+
+نصيحة: لبس قطن في الصيف، واستحم بالمية الدافية في الشتاء!';
         }
         if (query.includes('عمل') || query.includes('شغل') || query.includes('فلوس')) {
-            return 'نصيحة مصرية للشغل:\n\n1. "احفظ قرشك الأبيض ليومك الأسود"\n2. "اللي ما يعرفش يشتري يقول الغالي"\n3. "الغالي ثمنه فيه"\n\nالشغل الحلال = بركة! 💰';
+            return 'نصيحة مصرية للشغل:
+
+1. "احفظ قرشك الأبيض ليومك الأسود"
+2. "اللي ما يعرفش يشتري يقول الغالي"
+3. "الغالي ثمنه فيه"
+
+الشغل الحلال = بركة! 💰';
         }
         if (query.includes('صحة') || query.includes('صحي') || query.includes('رجيم')) {
-            return 'صحة مصرية:\n\n• فطار: فول + طعمية + عيش = طاقة!\n• غدا: كشري = سعادة!\n• عشا: خفيف = نوم هادي!\n• رياضة: مشي في الكورنيش = صحة + فيبز!\n\nمتنساش: "اللي بيته من إزاز ما يرميش الناس بالطوب!" = خليك نظيف! 😄';
+            return 'صحة مصرية:
+
+• فطار: فول + طعمية + عيش = طاقة!
+• غدا: كشري = سعادة!
+• عشا: خفيف = نوم هادي!
+• رياضة: مشي في الكورنيش = صحة + فيبز!
+
+متنساش: "اللي بيته من إزاز ما يرميش الناس بالطوب!" = خليك نظيف! 😄';
         }
         // أسئلة دينية (مضافة)
         if (query.includes('حديث') || query.includes('رسول') || query.includes('النبي')) {
@@ -679,7 +725,11 @@ class EgyptianAI {
                 'قال رسول الله ﷺ: "من كان يؤمن بالله واليوم الآخر فليقل خيراً أو ليصمت" (رواه البخاري ومسلم)'
             ];
             const hadith = hadiths[Math.floor(Math.random() * hadiths.length)];
-            return `📖 حديث نبوي شريف:\n\n${hadith}\n\nربنا يوفقنا للعمل به.`;
+            return `📖 حديث نبوي شريف:
+
+${hadith}
+
+ربنا يوفقنا للعمل به.`;
         }
         if (query.includes('آية') || query.includes('قرآن')) {
             const verses = [
@@ -690,7 +740,11 @@ class EgyptianAI {
                 '﴿ إِنَّ مَعَ الْعُسْرِ يُسْرًا ﴾ [الشرح: 6]'
             ];
             const verse = verses[Math.floor(Math.random() * verses.length)];
-            return `📖 آية كريمة:\n\n${verse}\n\nنسأل الله أن يرزقنا فهم القرآن.`;
+            return `📖 آية كريمة:
+
+${verse}
+
+نسأل الله أن يرزقنا فهم القرآن.`;
         }
         return this.getSmartDefault(query);
     }
