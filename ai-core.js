@@ -558,22 +558,32 @@ class EgyptianAI {
         return this.memory.visitCount > 5 ? `حكمة مصرية من زمان جدك اللي رحمه:\n\n"${w}"\n\nوأنا بقولك كمان: "اللي بيتعلم من غلطاته بيبقى ذكي!"` : `حكمة مصرية أصيلة:\n\n"${w}"\n\nمتنسهاش!`;
     }
 
-    searchKnowledge(query) {
-searchKnowledgeSync(query) {
-    if (!this.knowledgeIndex) return null;
-
-    const normalized = this.normalizeKey(query);
-
-    const direct = this.knowledgeIndex.get(normalized);
-    if (direct) return direct;
-
-    const words = normalized.split(/\s+/);
-    for (const w of words) {
-        const m = this.knowledgeIndex.get(w);
-        if (m) return m;
+        searchKnowledge(query) {
+        const all = { ...this.getKnowledgeBase() };
+        const keys = Object.keys(all);
+        for (const key of keys) {
+            if (query.includes(key.toLowerCase())) return { key, data: all[key] };
+        }
+        for (const key of keys) {
+            const kWords = key.split(' ');
+            const matches = kWords.filter(kw => query.includes(kw)).length;
+            if (matches >= kWords.length * 0.5) return { key, data: all[key] };
+        }
+        return null;
     }
 
-    return null;
+    searchKnowledgeSync(query) {
+        if (!this.knowledgeIndex) return null;
+        const normalized = this.normalizeKey(query);
+        const direct = this.knowledgeIndex.get(normalized);
+        if (direct) return direct;
+        const words = normalized.split(/\s+/);
+        for (const w of words) {
+            const m = this.knowledgeIndex.get(w);
+            if (m) return m;
+        }
+        return null;
+    }
 }
         const all = { ...this.getKnowledgeBase() };
         const keys = Object.keys(all);
