@@ -12,8 +12,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     
-    <!-- Fixed versions instead of @latest -->
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Three.js first - needed for space background (without defer) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- TensorFlow and Mobilenet with defer -->
     <script defer src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.0/dist/mobilenet.min.js"></script>
     
@@ -212,14 +213,17 @@
         </div>
     </div>
 
-    <!-- Scripts loading with defer and correct order -->
+    <!-- canvas-container for space background -->
+    <div id="canvas-container"></div>
+
+    <!-- Scripts loading with defer for non-blocking -->
     <script defer src="space.js"></script>
     <script defer src="ai-audio.js"></script>
     <script defer src="ai-search.js"></script>
     <script defer src="ai-knowledge.js"></script>
     <script defer src="ai-core.js"></script>
     
-    <!-- No inline onclick anymore: this script attaches all event listeners safely -->
+    <!-- No inline onclick: event binding -->
     <script>
         (function() {
             function waitForElement(selector, callback) {
@@ -238,7 +242,7 @@
                 }
             }
             
-            // استبدال onclick الخاص بـ dev-credit
+            // dev-credit click
             waitForElement('.dev-credit', (btn) => {
                 btn.removeAttribute('onclick');
                 btn.addEventListener('click', () => {
@@ -247,7 +251,7 @@
                 });
             });
             
-            // ربط feature cards بـ askAbout
+            // feature cards
             const featureCards = document.querySelectorAll('.feature-card');
             featureCards.forEach(card => {
                 card.removeAttribute('onclick');
@@ -269,7 +273,7 @@
                 }
             });
             
-            // إغلاق المودال عبر الـ id (بدلاً من onclick)
+            // close modal
             const closeModalBtn = document.getElementById('closeDevModalBtn');
             if (closeModalBtn) {
                 closeModalBtn.addEventListener('click', () => {
@@ -277,17 +281,8 @@
                 });
             }
             
-            // منع أي أخطاء بسبب العناصر غير الموجودة (مثال)
-            function safeAddEventListener(elementId, event, handler) {
-                const el = document.getElementById(elementId);
-                if (el) el.addEventListener(event, handler);
-                else console.warn(`Element ${elementId} not found`);
-            }
-            
-            // إعادة تعريف بعض الأحداث إن لزم (لكن الأصلية في ai-core.js كافية)
-            console.log('Index enhanced: no inline onclick, CDN versions fixed, accessibility improved');
+            console.log('✅ Index enhanced: canvas-container added, scripts optimized');
         })();
     </script>
 </body>
 </html>
-<script defer src="ai-core.js"></script>
