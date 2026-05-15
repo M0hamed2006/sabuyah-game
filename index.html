@@ -3,129 +3,455 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>المصري الذكي | الكون الفاخر</title>
+    <title>المصري الذكي ✦ الكون الرقمي</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
-    <!-- ستار فيلد ثلاثي الأبعاد -->
+
+    <!-- خلفية الكون ثلاثية الأبعاد -->
     <canvas id="universe-canvas"></canvas>
 
-    <!-- نيبولاس خلفية -->
-    <div class="nebula-bg">
+    <!-- طبقات الضباب الكوني -->
+    <div class="nebula-bg" aria-hidden="true">
         <div class="nb nb1"></div>
         <div class="nb nb2"></div>
         <div class="nb nb3"></div>
         <div class="nb nb4"></div>
+        <div class="nb nb5"></div>
     </div>
 
-    <!-- لمبة الماوس -->
-    <div class="cursor-glow" id="cursorGlow"></div>
+    <!-- تأثير المؤشر -->
+    <div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
+    <div class="cursor-trail" id="cursorTrail" aria-hidden="true"></div>
 
-    <!-- تايتل الكواكب -->
-    <div class="planet-info" id="planetInfo"></div>
+    <!-- معلومات الكواكب -->
+    <div class="planet-info" id="planetInfo" role="tooltip" aria-hidden="true"></div>
 
     <!-- شاشة التحميل -->
-    <div id="loader">
+    <div id="loader" role="progressbar" aria-label="جاري التحميل">
         <div class="l-scene">
-            <div class="l-ring l-r1"></div>
-            <div class="l-ring l-r2"></div>
-            <div class="l-ring l-r3"></div>
-            <div class="l-core"></div>
+            <div class="l-orbit l-o1"><div class="l-dot"></div></div>
+            <div class="l-orbit l-o2"><div class="l-dot"></div></div>
+            <div class="l-orbit l-o3"><div class="l-dot"></div></div>
+            <div class="l-core">
+                <div class="l-inner-glow"></div>
+            </div>
         </div>
-        <p class="l-title">✦ SABUYAH ✦</p>
-        <p class="l-sub">جاري فتح بوابة الكون...</p>
+        <p class="l-logo">✦ المصري الذكي ✦</p>
+        <p class="l-tagline">فتح بوابة الكون الرقمي</p>
+        <div class="l-progress">
+            <div class="l-progress-fill"></div>
+        </div>
+        <div class="l-particles" id="lParticles"></div>
     </div>
 
     <!-- الشريط العلوي -->
-    <div class="top-bar">
-        <div class="audio-pill">
-            <button class="icon-btn" id="muteBtn">🔊</button>
-            <input type="range" class="vol-slider" id="volRange" min="0" max="100" value="25">
-            <span class="vol-label" id="volLabel">25%</span>
-            <div class="vis-wrap" id="visWrap">
-                <div class="vis-bar"></div><div class="vis-bar"></div><div class="vis-bar"></div>
-                <div class="vis-bar"></div><div class="vis-bar"></div><div class="vis-bar"></div>
+    <header class="top-bar" role="banner">
+        <div class="top-bar-left">
+            <div class="logo-chip">
+                <span class="logo-icon">✦</span>
+                <span class="logo-text">M·AI</span>
             </div>
         </div>
-        <div class="dev-pill" id="devBtn">✦ صانع العوالم</div>
-    </div>
 
-    <div class="wrap">
+        <nav class="top-bar-center" role="navigation">
+            <button class="nav-btn active" data-section="chat" aria-label="المحادثة">💬 <span>المحادثة</span></button>
+            <button class="nav-btn" data-section="vision" aria-label="الرؤية">👁 <span>الرؤية</span></button>
+            <button class="nav-btn" data-section="code" aria-label="الأكواد">💻 <span>الأكواد</span></button>
+            <button class="nav-btn" data-section="universe" aria-label="الكون">🌌 <span>الكون</span></button>
+        </nav>
+
+        <div class="top-bar-right">
+            <!-- مشغل الصوت -->
+            <div class="audio-pill" role="group" aria-label="التحكم في الصوت">
+                <button class="icon-btn" id="muteBtn" aria-label="كتم الصوت">🔊</button>
+                <div class="vol-track">
+                    <input type="range" class="vol-slider" id="volRange" min="0" max="100" value="30" aria-label="مستوى الصوت">
+                    <div class="vol-fill" id="volFill"></div>
+                </div>
+                <div class="vis-wrap" id="visWrap" aria-hidden="true">
+                    <div class="vis-bar"></div>
+                    <div class="vis-bar"></div>
+                    <div class="vis-bar"></div>
+                    <div class="vis-bar"></div>
+                    <div class="vis-bar"></div>
+                </div>
+            </div>
+
+            <button class="dev-btn" id="devBtn" aria-label="صانع العوالم">
+                <span class="dev-avatar-sm">MR</span>
+                <span>صانع العوالم</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="wrap" role="main">
 
         <!-- شريط API -->
-        <div class="api-bar">
-            <input type="password" id="apiKey" placeholder="🔑 مفتاح Anthropic API (لتشغيل الذكاء)">
-            <button class="api-save-btn" id="saveApi">💾</button>
+        <div class="api-bar" role="form" aria-label="إعدادات API">
+            <div class="api-icon">🔑</div>
+            <input
+                type="password"
+                id="apiKey"
+                placeholder="أدخل مفتاح Anthropic API لتفعيل الذكاء الكامل"
+                aria-label="مفتاح API"
+                autocomplete="off"
+            >
+            <div class="api-status" id="apiStatus" aria-live="polite"></div>
+            <button class="api-save-btn" id="saveApi" aria-label="حفظ المفتاح">حفظ</button>
         </div>
 
-        <!-- منطقة البطل -->
-        <div class="hero">
-            <h1 class="hero-title">✦ المصري الذكي ✦</h1>
-            <p class="hero-sub"><span class="sdot"></span> ذكاء كوني من المستقبل</p>
-            <div class="badges">
-                <span class="badge">🌌 كون ثلاثي الأبعاد</span>
-                <span class="badge">🪐 كواكب تدور</span>
-                <span class="badge">🤖 Claude AI</span>
-                <span class="badge">🎵 موسيقى الفضاء</span>
-                <span class="badge">📷 رؤية ذكية</span>
-                <span class="badge">💻 مولد أكواد</span>
+        <!-- قسم البطل -->
+        <section class="hero" aria-label="رأس الصفحة">
+            <div class="hero-bg-grid" aria-hidden="true"></div>
+            <div class="hero-content">
+                <div class="hero-badge-top">
+                    <span class="pulse-dot"></span>
+                    <span>نظام ذكاء اصطناعي متقدم · مدعوم بـ Claude</span>
+                </div>
+                <h1 class="hero-title">
+                    <span class="ht-line">المصري</span>
+                    <span class="ht-line ht-accent">الذكي</span>
+                </h1>
+                <p class="hero-desc">كون رقمي من المستقبل · يرى · يفكر · يبدع · يتعلم</p>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-num" data-target="∞">∞</span>
+                        <span class="stat-label">إمكانيات</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-num">AI</span>
+                        <span class="stat-label">Claude Sonnet</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-num">3D</span>
+                        <span class="stat-label">كون حي</span>
+                    </div>
+                </div>
+                <div class="capabilities-grid">
+                    <div class="cap-card">
+                        <div class="cap-icon">🌌</div>
+                        <div class="cap-info">
+                            <span class="cap-name">كون ثلاثي الأبعاد</span>
+                            <span class="cap-desc">نجوم وكواكب حية</span>
+                        </div>
+                    </div>
+                    <div class="cap-card">
+                        <div class="cap-icon">🤖</div>
+                        <div class="cap-info">
+                            <span class="cap-name">Claude AI</span>
+                            <span class="cap-desc">ذكاء متقدم</span>
+                        </div>
+                    </div>
+                    <div class="cap-card">
+                        <div class="cap-icon">👁</div>
+                        <div class="cap-info">
+                            <span class="cap-name">رؤية ذكية</span>
+                            <span class="cap-desc">تحليل الصور</span>
+                        </div>
+                    </div>
+                    <div class="cap-card">
+                        <div class="cap-icon">💻</div>
+                        <div class="cap-info">
+                            <span class="cap-name">مولد أكواد</span>
+                            <span class="cap-desc">برمجة متقدمة</span>
+                        </div>
+                    </div>
+                    <div class="cap-card">
+                        <div class="cap-icon">🌐</div>
+                        <div class="cap-info">
+                            <span class="cap-name">بحث الويب</span>
+                            <span class="cap-desc">معلومات لحظية</span>
+                        </div>
+                    </div>
+                    <div class="cap-card">
+                        <div class="cap-icon">🎵</div>
+                        <div class="cap-info">
+                            <span class="cap-name">موسيقى الفضاء</span>
+                            <span class="cap-desc">تجربة صوتية</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======== قسم المحادثة ======== -->
+        <section class="panel" id="section-chat" aria-label="المحادثة">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span class="panel-icon">💬</span>
+                    <span>محادثة الذكاء الاصطناعي</span>
+                </div>
+                <div class="panel-actions">
+                    <button class="action-btn" id="webSearchToggle" aria-pressed="false">
+                        <span class="ws-icon">🌐</span>
+                        <span class="ws-label">بحث الويب</span>
+                        <span class="toggle-pill off" id="wsToggle" aria-hidden="true">إيقاف</span>
+                    </button>
+                    <button class="action-btn danger-btn" id="clearChat" aria-label="مسح المحادثة">
+                        <span>🗑</span>
+                        <span>مسح</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="chat-container">
+                <div class="chat-history" id="chatHistory" role="log" aria-live="polite" aria-label="سجل المحادثة">
+                    <div class="msg ai intro-msg">
+                        <div class="msg-avatar">✦</div>
+                        <div class="msg-content">
+                            <span class="msg-tag">المصري الذكي</span>
+                            <p>مرحباً بك في كوني الرقمي 🌌<br>أنا هنا لأساعدك في أي شيء — اسأل، اكتشف، أبدع.</p>
+                            <div class="quick-prompts">
+                                <button class="qp-btn" data-prompt="ما هو الذكاء الاصطناعي؟">🤖 ما هو الذكاء الاصطناعي؟</button>
+                                <button class="qp-btn" data-prompt="اكتب لي قصيدة عن مصر">🇪🇬 قصيدة عن مصر</button>
+                                <button class="qp-btn" data-prompt="ما أحدث أخبار التكنولوجيا؟">🌐 أحدث أخبار التقنية</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-footer">
+                    <div class="chat-input-wrap">
+                        <textarea
+                            class="chat-input"
+                            id="chatInput"
+                            placeholder="اسأل الكون أي شيء..."
+                            rows="1"
+                            aria-label="رسالتك"
+                        ></textarea>
+                        <div class="chat-input-actions">
+                            <span class="char-count" id="charCount">0</span>
+                        </div>
+                    </div>
+                    <button class="send-btn" id="sendBtn" aria-label="إرسال">
+                        <span class="send-icon">✦</span>
+                        <span>إرسال</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======== قسم الرؤية ======== -->
+        <section class="panel" id="section-vision" aria-label="الرؤية الذكية">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span class="panel-icon">👁</span>
+                    <span>الرؤية الذكية</span>
+                </div>
+                <div class="panel-badge">تحليل بصري بالذكاء الاصطناعي</div>
+            </div>
+
+            <div class="vision-layout">
+                <div class="cam-side">
+                    <div class="cam-frame" id="camFrame">
+                        <div class="cam-placeholder" id="camPlaceholder">
+                            <div class="cam-icon-wrap">
+                                <span class="cam-icon">📷</span>
+                                <div class="cam-rings" aria-hidden="true">
+                                    <div class="cr cr1"></div>
+                                    <div class="cr cr2"></div>
+                                    <div class="cr cr3"></div>
+                                </div>
+                            </div>
+                            <p class="cam-placeholder-text">ابدأ الكاميرا لتحليل الصور بالذكاء</p>
+                        </div>
+                        <video id="video" autoplay playsinline aria-label="الكاميرا المباشرة"></video>
+                        <canvas id="snapCanvas" aria-label="الصورة الملتقطة"></canvas>
+                        <div class="cam-overlay" id="camOverlay" aria-hidden="true">
+                            <div class="scan-line"></div>
+                            <div class="corner-marker cm1"></div>
+                            <div class="corner-marker cm2"></div>
+                            <div class="corner-marker cm3"></div>
+                            <div class="corner-marker cm4"></div>
+                        </div>
+                    </div>
+
+                    <div class="cam-controls">
+                        <button class="btn-primary" id="startCam">
+                            <span>📸</span> تشغيل الكاميرا
+                        </button>
+                        <button class="btn-secondary hidden" id="snapBtn">
+                            <span>⚡</span> التقاط وتحليل
+                        </button>
+                        <button class="btn-ghost hidden" id="retakeBtn">
+                            <span>🔄</span> إعادة الالتقاط
+                        </button>
+                        <button class="btn-ghost hidden" id="stopCam">
+                            <span>⏹</span> إيقاف
+                        </button>
+                    </div>
+                </div>
+
+                <div class="analysis-side">
+                    <div class="analysis-placeholder" id="analysisPlaceholder">
+                        <span class="analysis-placeholder-icon">🔬</span>
+                        <p>التقط صورة وسيظهر التحليل هنا</p>
+                    </div>
+                    <div class="analysis-result hidden" id="analysisResult">
+                        <div class="analysis-header">
+                            <span class="analysis-icon">🔬</span>
+                            <span class="analysis-title">نتيجة التحليل</span>
+                            <span class="analysis-badge">Claude Vision</span>
+                        </div>
+                        <div class="analysis-text-wrap">
+                            <p class="analysis-text" id="resultText"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======== قسم الأكواد ======== -->
+        <section class="panel" id="section-code" aria-label="مولد الأكواد">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span class="panel-icon">💻</span>
+                    <span>مولد الأكواد الكوني</span>
+                </div>
+                <div class="panel-badge">بالذكاء الاصطناعي</div>
+            </div>
+
+            <div class="code-layout">
+                <div class="code-input-side">
+                    <div class="lang-tabs" role="tablist" aria-label="لغة البرمجة">
+                        <button class="lang-tab active" data-lang="python" role="tab" aria-selected="true">🐍 Python</button>
+                        <button class="lang-tab" data-lang="javascript" role="tab" aria-selected="false">⚡ JavaScript</button>
+                        <button class="lang-tab" data-lang="html" role="tab" aria-selected="false">🌐 HTML/CSS</button>
+                        <button class="lang-tab" data-lang="cpp" role="tab" aria-selected="false">⚙️ C++</button>
+                        <button class="lang-tab" data-lang="sql" role="tab" aria-selected="false">🗃 SQL</button>
+                    </div>
+
+                    <div class="code-prompt-wrap">
+                        <textarea
+                            class="code-prompt"
+                            id="codePrompt"
+                            placeholder="صف الكود الذي تريده بالتفصيل..."
+                            rows="4"
+                            aria-label="وصف الكود"
+                        ></textarea>
+                        <div class="code-options">
+                            <label class="option-toggle">
+                                <input type="checkbox" id="addComments" checked aria-label="إضافة تعليقات">
+                                <span>إضافة تعليقات</span>
+                            </label>
+                            <label class="option-toggle">
+                                <input type="checkbox" id="addExamples" aria-label="مثال للاستخدام">
+                                <span>مثال للاستخدام</span>
+                            </label>
+                        </div>
+                        <button class="btn-primary full-width" id="genCode">
+                            <span>⚡</span> توليد الكود
+                        </button>
+                    </div>
+                </div>
+
+                <div class="code-output-side">
+                    <div class="code-output-header hidden" id="codeHeader">
+                        <span class="code-lang-badge" id="codeLangBadge">Python</span>
+                        <button class="copy-btn" id="copyCode" aria-label="نسخ الكود">📋 نسخ</button>
+                    </div>
+                    <div class="code-output-placeholder" id="codePlaceholder">
+                        <span class="code-placeholder-icon">{ }</span>
+                        <p>الكود سيظهر هنا</p>
+                    </div>
+                    <pre class="code-out hidden" id="codeOut" aria-label="الكود المُولَّد"><code id="codeContent"></code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======== قسم الكون ======== -->
+        <section class="panel" id="section-universe" aria-label="الكون">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span class="panel-icon">🌌</span>
+                    <span>الكون الرقمي</span>
+                </div>
+            </div>
+            <div class="universe-info-grid">
+                <div class="universe-card">
+                    <div class="uc-icon">⭐</div>
+                    <div class="uc-data">
+                        <span class="uc-num">6,000</span>
+                        <span class="uc-label">نجمة في الكون</span>
+                    </div>
+                </div>
+                <div class="universe-card">
+                    <div class="uc-icon">🪐</div>
+                    <div class="uc-data">
+                        <span class="uc-num">9</span>
+                        <span class="uc-label">كوكب يدور</span>
+                    </div>
+                </div>
+                <div class="universe-card">
+                    <div class="uc-icon">💫</div>
+                    <div class="uc-data">
+                        <span class="uc-num">∞</span>
+                        <span class="uc-label">شهب تمر</span>
+                    </div>
+                </div>
+                <div class="universe-card">
+                    <div class="uc-icon">🌊</div>
+                    <div class="uc-data">
+                        <span class="uc-num">3</span>
+                        <span class="uc-label">سُدُم ضبابية</span>
+                    </div>
+                </div>
+            </div>
+            <p class="universe-tip">💡 مرر الماوس على الكواكب لمعرفة أسمائها · انظر للخلف وستجد الكون يتحرك</p>
+        </section>
+
+        <footer class="footer" role="contentinfo">
+            <div class="footer-logo">✦ المصري الذكي ✦</div>
+            <p class="footer-sub">مدعوم بـ Claude Sonnet · كون ثلاثي الأبعاد · موسيقى الفضاء</p>
+            <div class="footer-links">
+                <span class="footer-tag">🇪🇬 صُنع بمصر</span>
+                <span class="footer-tag">🤖 Anthropic</span>
+                <span class="footer-tag">🌌 Three.js</span>
+            </div>
+        </footer>
+    </main>
+
+    <!-- ======== مودال المطور ======== -->
+    <div class="modal-overlay hidden" id="devModal" role="dialog" aria-modal="true" aria-label="معلومات المطور">
+        <div class="modal-box">
+            <button class="modal-close" id="closeModal" aria-label="إغلاق">✕</button>
+            <div class="dev-avatar-wrap">
+                <div class="dev-avatar">MR</div>
+                <div class="dev-avatar-glow" aria-hidden="true"></div>
+            </div>
+            <h2 class="dev-name">صانع العوالم</h2>
+            <p class="dev-role">مهندس ذكاء اصطناعي · مطور واجهات مستقبلية</p>
+            <div class="dev-tags">
+                <span class="dev-tag">🇪🇬 مصر</span>
+                <span class="dev-tag">🤖 AI Engineer</span>
+                <span class="dev-tag">✨ UI/UX</span>
+            </div>
+            <div class="dev-stats-row">
+                <div class="ds-item">
+                    <span class="ds-num">∞</span>
+                    <span class="ds-label">أفكار</span>
+                </div>
+                <div class="ds-item">
+                    <span class="ds-num">AI</span>
+                    <span class="ds-label">تخصص</span>
+                </div>
+                <div class="ds-item">
+                    <span class="ds-num">🌌</span>
+                    <span class="ds-label">إبداع</span>
+                </div>
             </div>
         </div>
-
-        <!-- الكاميرا -->
-        <div class="section">
-            <div class="section-title"><span class="section-icon">📷</span> الرؤية الذكية</div>
-            <div class="cam-wrap">
-                <div class="cam-placeholder" id="camPlaceholder"><span class="bi">🎥</span><p>ابدأ الكاميرا لتحليل الصور</p></div>
-                <video id="video" autoplay playsinline></video>
-                <canvas id="snapCanvas"></canvas>
-            </div>
-            <div class="cam-controls">
-                <button class="btn-p" id="startCam">📸 تشغيل الكاميرا</button>
-                <button class="btn-s hidden" id="snapBtn">⚡ التقاط وتحليل</button>
-                <button class="btn-s btn-sm hidden" id="stopCam">⏹ إيقاف</button>
-                <button class="btn-s btn-sm hidden" id="retakeBtn">🔄 إعادة</button>
-            </div>
-            <div id="analysisResult" class="hidden"><div class="result-box"><div class="result-icon">🔬</div><p class="result-text" id="resultText"></p><p class="result-conf" id="resultConf"></p></div></div>
-        </div>
-
-        <!-- المحادثة -->
-        <div class="section">
-            <div class="section-title"><span class="section-icon">💬</span> محادثة الذكاء الاصطناعي</div>
-            <div class="chat-controls">
-                <button class="btn-s btn-sm" id="webSearchToggle">🌐 بحث الويب: <span id="wsStatus">متوقف</span></button>
-                <button class="btn-s btn-sm" id="clearChat">🗑 مسح</button>
-            </div>
-            <div class="chat-history" id="chatHistory">
-                <div class="msg ai"><span class="stag">✦ المصري الذكي ✦</span><br>مرحباً في كوني الرقمي، اسألني أي شيء أو فعّل البحث المباشر.</div>
-            </div>
-            <div class="chat-footer">
-                <input type="text" class="chat-input" id="chatInput" placeholder="اسأل الكون...">
-                <button class="btn-p" id="sendBtn">إرسال ✦</button>
-            </div>
-        </div>
-
-        <!-- مولد الأكواد -->
-        <div class="section">
-            <div class="section-title"><span class="section-icon">💻</span> مولد الأكواد الكوني</div>
-            <div class="code-controls">
-                <select class="lang-select" id="langSelect">
-                    <option value="python">Python</option><option value="javascript">JavaScript</option>
-                    <option value="html">HTML/CSS</option><option value="cpp">C++</option>
-                </select>
-                <input type="text" class="chat-input" id="codePrompt" placeholder="صف الكود الذي تريده" style="flex:1;">
-                <button class="btn-p" id="genCode">⚡ توليد</button>
-            </div>
-            <div class="code-out hidden" id="codeOut"></div>
-        </div>
-
-        <div class="footer"><p>✦ <strong>المصري الذكي</strong> ✦</p><p>مدعوم بـ Claude · كون ثلاثي الأبعاد · موسيقى الفضاء</p></div>
     </div>
 
-    <!-- مودال المطور -->
-    <div class="modal-wrap hidden" id="devModal"><div class="modal-box"><button class="modal-close" id="closeModal">✕</button><div class="dev-avatar">MR</div><p class="dev-name">المطور الكوني</p><p class="dev-role">مهندس ذكاء اصطناعي</p><div class="dev-socials"><a href="#" class="social-link">🇪🇬</a><a href="#" class="social-link">✨</a></div></div></div>
+    <!-- ======== إشعارات Toast ======== -->
+    <div class="toast-container" id="toastContainer" aria-live="assertive" role="alert"></div>
 
     <script src="script.js"></script>
 </body>
