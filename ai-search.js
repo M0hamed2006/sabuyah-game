@@ -1,5 +1,6 @@
 // ============================================
-// المصري الذكي - DEEP SEARCH ENGINE v3.3
+// المصري الذكي - DEEP SEARCH ENGINE v3.4
+// ONLINE SEARCH ONLY - NO OFFLINE LOGIC
 // بحث + توليد إجابة ذكية + إلغاء الطلبات
 // ============================================
 
@@ -89,11 +90,8 @@ class DeepSearchEngine {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeout);
         
-        // دمج الإشارات: إذا كان هناك signal خارجي، نستخدم race بينه وبين timeout
         let finalSignal = signal;
         if (signal && controller) {
-            // لا يمكننا دمج إشارتين بسهولة، لذا نستخدم الـ signal الخارجي مع timeout يدوي
-            // نستخدم Promise.race مع الرفض اليدوي
             const abortHandler = () => controller.abort();
             signal.addEventListener('abort', abortHandler);
             finalSignal = controller.signal;
@@ -122,7 +120,6 @@ class DeepSearchEngine {
 
     async fetchWithRetry(url, retries = null, timeout = null, signal = null) {
         retries = retries ?? this.config.retryAttempts;
-        // التحقق من إلغاء الطلب
         if (signal?.aborted) throw new Error('Aborted');
         
         try {
@@ -226,7 +223,8 @@ class DeepSearchEngine {
                 source: 'Wikipedia',
                 language: 'ar',
                 confidence: 0.9,
-                date: new Date().toISOString()
+                date: new Date().toISOString(),
+                type: 'search_result'   // ✅ إضافة نوع النتيجة
             };
             this.setCached(cacheKey, result);
             return result;
@@ -237,7 +235,7 @@ class DeepSearchEngine {
         }
     }
 
-    // ========== DUCKDUCKGO SEARCH (مع fallback ذكي) ==========
+    // ========== DUCKDUCKGO SEARCH ==========
     async searchDuckDuckGo(query, signal = null) {
         if (signal?.aborted) throw new Error('Aborted');
         const normalized = this.normalizeQuery(query);
@@ -267,7 +265,8 @@ class DeepSearchEngine {
                     source: 'DuckDuckGo',
                     language: 'mixed',
                     confidence: 0.75,
-                    date: new Date().toISOString()
+                    date: new Date().toISOString(),
+                    type: 'search_result'
                 };
             } else if (data.RelatedTopics?.length) {
                 const topics = data.RelatedTopics.filter(t => t.Text?.length > 20).slice(0, 3)
@@ -280,7 +279,8 @@ class DeepSearchEngine {
                         source: 'DuckDuckGo',
                         language: 'mixed',
                         confidence: 0.6,
-                        date: new Date().toISOString()
+                        date: new Date().toISOString(),
+                        type: 'search_result'
                     };
                 }
             }
@@ -293,7 +293,8 @@ class DeepSearchEngine {
                     source: 'DuckDuckGo',
                     language: 'mixed',
                     confidence: 0.3,
-                    date: new Date().toISOString()
+                    date: new Date().toISOString(),
+                    type: 'search_result'
                 };
             }
             this.setCached(cacheKey, result);
@@ -307,12 +308,13 @@ class DeepSearchEngine {
                 url: `https://duckduckgo.com/?q=${encodeURIComponent(this.normalizeQuery(query))}`,
                 source: 'DuckDuckGo',
                 confidence: 0.2,
-                date: new Date().toISOString()
+                date: new Date().toISOString(),
+                type: 'search_result'
             };
         }
     }
 
-    // ========== NEWS SEARCH (cache أطول) ==========
+    // ========== NEWS SEARCH ==========
     async searchNews(query, signal = null) {
         if (!this.apiKey) return null;
         if (signal?.aborted) throw new Error('Aborted');
@@ -334,7 +336,8 @@ class DeepSearchEngine {
                     source: 'NewsAPI',
                     language: 'ar',
                     confidence: 0.7,
-                    date: new Date().toISOString()
+                    date: new Date().toISOString(),
+                    type: 'search_result'
                 };
                 this.setCached(cacheKey, result);
                 return result;
@@ -373,7 +376,8 @@ class DeepSearchEngine {
                 source: 'Wikipedia (English)',
                 language: 'en',
                 confidence: 0.85,
-                date: new Date().toISOString()
+                date: new Date().toISOString(),
+                type: 'search_result'
             };
             this.setCached(cacheKey, result);
             return result;
@@ -383,7 +387,7 @@ class DeepSearchEngine {
         }
     }
 
-    // ========== QUERY SUGGESTIONS ==========
+    // ========== QUERY SUGGESTIONS (لحالات الفشل فقط) ==========
     generateSuggestions(query) {
         const normalized = this.normalizeQuery(query);
         const words = normalized.split(' ').filter(w => w.length > 2);
@@ -396,12 +400,10 @@ class DeepSearchEngine {
         return [...new Set(suggestions)].slice(0, 3);
     }
 
-    // ========== RESULT SYNTHESIS (AI-like answer) ==========
+    // ========== RESULT SYNTHESIS ==========
     synthesizeResults(results, query) {
         if (!results || results.length === 0) return null;
-        // خذ أفضل نتيجة (الأعلى score)
         const best = results[0];
-        // إذا كان هناك أكثر من مصدر، قم ببناء إجابة مركبة
         let answer = '';
         if (results.length >= 2) {
             const second = results[1];
@@ -415,37 +417,32 @@ class DeepSearchEngine {
         return answer;
     }
 
-    // ========== SMART SCORING (مع keyword density) ==========
+    // ========== SMART SCORING (مع typeBoost) ==========
     calculateScore(result, queryWords) {
         let score = 0;
         const text = (result.title + ' ' + result.extract).toLowerCase();
-        // keyword density: عدد مرات ظهور الكلمات المفتاحية
         let keywordCount = 0;
         for (const w of queryWords) {
             const regex = new RegExp(w, 'g');
             const matches = text.match(regex);
             if (matches) keywordCount += matches.length;
         }
-        const keywordDensity = Math.min(1, keywordCount / 50); // تطبيع
-        // الملاءمة: 200 نقطة إذا ظهرت أي كلمة مفتاحية
+        const keywordDensity = Math.min(1, keywordCount / 50);
         const relevance = queryWords.some(w => text.includes(w)) ? 200 : 0;
-        // الثقة: 0-1 -> 500 نقطة
         const confidenceScore = (result.confidence || 0) * 500;
-        // طول النص: نعطيه وزن أقل (1 نقطة لكل 5 أحرف)
         const lengthScore = Math.min(result.extract.length / 5, 300);
-        // النضارة للأخبار
         const freshness = result.source === 'NewsAPI' ? 100 : 0;
-        // وزن المصدر
         const sourceWeights = { 'Wikipedia': 300, 'DuckDuckGo': 150, 'NewsAPI': 100, 'Wikipedia (English)': 280 };
         const sourceScore = sourceWeights[result.source] || 0;
+        // ✅ إضافة 50 نقطة إضافية للنتائج التي تحمل نوع search_result
+        const typeBoost = result.type === 'search_result' ? 50 : 0;
         
-        score = relevance + confidenceScore + lengthScore + freshness + sourceScore + (keywordDensity * 200);
+        score = relevance + confidenceScore + lengthScore + freshness + sourceScore + typeBoost + (keywordDensity * 200);
         return score;
     }
 
     // ========== COMBINED DEEP SEARCH ==========
     async performDeepSearch(query) {
-        // إلغاء الطلب السابق
         if (this.currentController) {
             this.currentController.abort();
             console.log('[DeepSearchEngine] Aborted previous search');
@@ -461,7 +458,6 @@ class DeepSearchEngine {
 
         let finalResults = [];
         try {
-            // بحث بالتوازي مع إمكانية الإلغاء
             const [wiki, ddg, news] = await Promise.allSettled([
                 this.searchWikipedia(originalQuery, signal),
                 this.searchDuckDuckGo(originalQuery, signal),
@@ -477,13 +473,12 @@ class DeepSearchEngine {
             }
         }
 
-        // إذا لم توجد نتائج عربية، جرّب الإنجليزية
+        // Fallback بسيط: إذا لم توجد نتائج عربية، جرّب الإنجليزية (بدون منطق ذكي إضافي)
         if (finalResults.length === 0 && !signal.aborted) {
             const enWiki = await this.searchEnglishWikipedia(originalQuery, signal);
             if (enWiki) finalResults.push(enWiki);
         }
 
-        // حساب الدرجات الذكية
         for (const res of finalResults) {
             res._score = this.calculateScore(res, queryWords);
         }
@@ -491,7 +486,6 @@ class DeepSearchEngine {
 
         const hasRealResults = finalResults.length > 0 && finalResults[0].source !== 'اقتراح بحث';
 
-        // إضافة اقتراحات إذا لم نجد شيئاً
         if (!hasRealResults && !signal.aborted) {
             const suggestions = this.generateSuggestions(originalQuery);
             finalResults.push({
@@ -501,14 +495,13 @@ class DeepSearchEngine {
                 source: 'اقتراح بحث',
                 confidence: 0,
                 date: new Date().toISOString(),
-                _score: 0
+                _score: 0,
+                type: 'fallback'   // ✅ ليس من نوع search_result
             });
         }
 
-        // توليد إجابة مركبة (Synthesis)
         const synthesizedAnswer = this.synthesizeResults(finalResults.filter(r => r.source !== 'اقتراح بحث'), originalQuery);
 
-        // تسجيل التاريخ
         this.searchHistory.push({
             query: normalizedQuery,
             results: finalResults.length,
@@ -524,7 +517,8 @@ class DeepSearchEngine {
             fallbackUsed: !hasRealResults,
             synthesizedAnswer: synthesizedAnswer,
             timestamp: new Date(),
-            query: originalQuery
+            query: originalQuery,
+            mode: "online"   // ✅ إضافة وضع البحث عبر الإنترنت فقط
         };
     }
 
@@ -542,7 +536,6 @@ class DeepSearchEngine {
         }
         let html = '<div style="padding:20px;">';
         let text = '🔍 نتائج البحث من الإنترنت:\n\n';
-        // عرض الإجابة المُركبة أولاً إن وُجدت
         if (searchData.synthesizedAnswer) {
             html += `<div style="background:#e3f2fd;border-radius:8px;padding:15px;margin-bottom:20px;">
                         <h3>💡 إجابة ذكية</h3>
@@ -607,7 +600,7 @@ class DeepSearchEngine {
 
     exportStats() {
         return {
-            engine: 'DeepSearchEngine v3.3',
+            engine: 'DeepSearchEngine v3.4',
             exportTime: new Date().toISOString(),
             stats: this.getStats(),
             history: this.getSearchHistory(50),
@@ -646,5 +639,5 @@ window.addEventListener('DOMContentLoaded', () => {
     };
     window.debouncedDeepSearch = debounce(window.performDeepSearch, 500);
     window.searchEngine = searchEngine;
-    console.log('[DeepSearchEngine v3.3] Ready with signal support and answer synthesis');
+    console.log('[DeepSearchEngine v3.4] Ready (online search only)');
 });

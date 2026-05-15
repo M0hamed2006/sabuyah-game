@@ -474,7 +474,7 @@ class EgyptianAI {
         }
 
         // 6. قاعدة المعرفة
-        const knowledge = this.searchKnowledge(lower);
+        const knowledge = this.searchKnowledgeSync(lower);
         if (knowledge) return this.formatKnowledge(knowledge, lower);
 
         // 7. اسم المستخدم
@@ -559,6 +559,22 @@ class EgyptianAI {
     }
 
     searchKnowledge(query) {
+searchKnowledgeSync(query) {
+    if (!this.knowledgeIndex) return null;
+
+    const normalized = this.normalizeKey(query);
+
+    const direct = this.knowledgeIndex.get(normalized);
+    if (direct) return direct;
+
+    const words = normalized.split(/\s+/);
+    for (const w of words) {
+        const m = this.knowledgeIndex.get(w);
+        if (m) return m;
+    }
+
+    return null;
+}
         const all = { ...this.getKnowledgeBase() };
         const keys = Object.keys(all);
         for (const key of keys) {
@@ -828,9 +844,8 @@ class EgyptianAI {
 }
 
 // Initialize
-let ai;
 window.addEventListener('DOMContentLoaded', () => {
-    ai = new EgyptianAI();
+    window.ai = new EgyptianAI();
 });
 
 // Dev modal
@@ -838,6 +853,7 @@ function showDevInfo() {
     const modal = document.getElementById('devModal');
     if (modal) modal.classList.remove('hidden');
 }
+
 function hideDevInfo() { 
     const modal = document.getElementById('devModal');
     if (modal) modal.classList.add('hidden');
