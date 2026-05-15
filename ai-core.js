@@ -1,12 +1,12 @@
 // ============================================
-// المصري الذكي ULTRA - v10.0 ELITE (معدل)
-// أفخم نسخة: متقدمة، ذكية، سريعة، ضخمة
+// المصري الذكي ULTRA - v10.1 (مع Gemini API)
+// أفخم نسخة: متقدمة، ذكية، سريعة، ضخمة + AI خارجي
 // ============================================
 
 class EgyptianAIUltra {
     constructor() {
         // ===== 1. الأساسيات والإعدادات =====
-        this.version = '10.0 ELITE';
+        this.version = '10.1 ELITE';
         this.model = null;
         this.isReady = false;
         this.speakEnabled = true;
@@ -16,12 +16,15 @@ class EgyptianAIUltra {
         this.friendshipLevel = 0;
         this.apiKey = localStorage.getItem('ai_api_key') || '';
         
+        // 🔑 مفتاح Gemini المجاني (غير هذا السطر بالمفتاح اللي هتجيله من Google)
+        this.geminiApiKey = '';  // 👈 حط المفتاح هنا
+        
         // ===== 2. الذاكرة المتقدمة =====
         this.memory = this.loadMemory();
         this.userProfile = this.loadProfile();
         this.conversationHistory = [];
         this.shortTermMemory = [];  // آخر 500 رسالة
-        this.longTermMemory = new Map(); // حقائق دائمة
+        this.longTermMemory = new Map();
         this.emotionalState = { happiness: 0.5, trust: 0.3, engagement: 0 };
         this.learningPatterns = new Map();
         
@@ -86,12 +89,42 @@ class EgyptianAIUltra {
         this.init();
     }
 
+    // ========== دالة الاتصال بـ Gemini API (مجاني) ==========
+    async callGemini(question) {
+        if (!this.geminiApiKey || this.geminiApiKey === 'YOUR_GEMINI_API_KEY') {
+            console.warn('⚠️ لم يتم إعداد مفتاح Gemini API');
+            return null;
+        }
+        try {
+            const response = await fetch(
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${this.geminiApiKey}`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: question }] }],
+                        generationConfig: { temperature: 0.7, maxOutputTokens: 800 }
+                    })
+                }
+            );
+            const data = await response.json();
+            if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+                return data.candidates[0].content.parts[0].text;
+            } else {
+                console.error('Gemini error:', data);
+                return null;
+            }
+        } catch (err) {
+            console.error('Network error with Gemini:', err);
+            return null;
+        }
+    }
+
     // ==================== INITIALIZATION ====================
     async init() {
-        this.showLoading('⚡ تحميل أفخم إصدارة في التاريخ... المصري الذكي v10.0');
+        this.showLoading('⚡ تحميل أفخم إصدارة في التاريخ... المصري الذكي v10.1');
         
         try {
-            // تحميل ML models (اختياري)
             if (typeof mobilenet !== 'undefined') {
                 try {
                     this.model = await mobilenet.load();
@@ -101,49 +134,41 @@ class EgyptianAIUltra {
                 }
             }
             
-            // تحضير النظام (تم بناء الفهرس مسبقاً)
             this.loadExtendedData();
             this.setupEventListeners();
-            
             this.isReady = true;
             
-            // الترحيب الذكي
             const greeting = this.getSmartGreeting();
             this.addChatMessage(greeting, 'ai');
             this.speak(greeting);
             
-            // تحديث البيانات (مع حماية من الأخطاء)
             this.startCamera();
             this.updateNetStatus();
             this.fetchWeather().catch(e => console.warn('Weather fetch error:', e));
             this.fetchNews().catch(e => console.warn('News fetch error:', e));
             this.analyzeContext();
             
-            // مراقبة دورية
             setInterval(() => this.updateNetStatus(), 30000);
             setInterval(() => this.fetchWeather().catch(e => console.warn(e)), 600000);
             setInterval(() => this.saveMemory(), 300000);
             setInterval(() => this.optimizeCache(), 900000);
             setInterval(() => this.analyzeContext(), 60000);
             
-            console.log('🔥 المصري الذكي v10.0 جاهز بكامل قوته!');
+            console.log('🔥 المصري الذكي v10.1 جاهز بكامل قوته + Gemini API');
             
         } catch(e) {
             console.error('❌ Error in init:', e);
         } finally {
-            this.hideLoading(); // تأكد من إخفاء شاشة التحميل في كل الأحوال
+            this.hideLoading();
         }
     }
 
     // ==================== المعرفة والفهرسة ====================
     buildKnowledgeIndex() {
         if (!this.knowledgeBase) return;
-        
-        // بناء فهرسة سريعة (chunked لتجنب تجميد الواجهة)
         const entries = Object.entries(this.knowledgeBase);
         let i = 0;
         const chunkSize = 100;
-        
         const processChunk = () => {
             const end = Math.min(i + chunkSize, entries.length);
             for (; i < end; i++) {
@@ -158,13 +183,9 @@ class EgyptianAIUltra {
                     this.semanticIndex.get(kw).push(normalized);
                 });
             }
-            if (i < entries.length) {
-                setTimeout(processChunk, 10);
-            } else {
-                console.log(`📚 تم بناء فهرس معرفة بـ ${this.knowledgeIndex.size} عنصر`);
-            }
+            if (i < entries.length) setTimeout(processChunk, 10);
+            else console.log(`📚 تم بناء فهرس معرفة بـ ${this.knowledgeIndex.size} عنصر`);
         };
-        
         processChunk();
     }
 
@@ -172,173 +193,85 @@ class EgyptianAIUltra {
         if (!this.knowledgeBase) return null;
         const nQuery = this.normalize(query);
         const keywords = this.extractKeywords(query);
-        
-        // 1. بحث مباشر
-        if (this.knowledgeIndex.has(nQuery)) {
-            return this.knowledgeIndex.get(nQuery);
-        }
-        
-        // 2. بحث دلالي بالكلمات المفتاحية
+        if (this.knowledgeIndex.has(nQuery)) return this.knowledgeIndex.get(nQuery);
         const results = new Map();
         keywords.forEach(kw => {
             const matched = this.semanticIndex.get(kw) || [];
-            matched.forEach(key => {
-                results.set(key, (results.get(key) || 0) + 1);
-            });
+            matched.forEach(key => results.set(key, (results.get(key) || 0) + 1));
         });
-        
         if (results.size > 0) {
-            const topMatch = Array.from(results.entries())
-                .sort((a, b) => b[1] - a[1])[0][0];
+            const topMatch = Array.from(results.entries()).sort((a, b) => b[1] - a[1])[0][0];
             return this.knowledgeIndex.get(topMatch);
         }
-        
-        // 3. بحث جزئي
         for (const [key] of this.knowledgeIndex) {
-            if (key.includes(nQuery) || nQuery.includes(key.substring(0, 5))) {
-                return this.knowledgeIndex.get(key);
-            }
+            if (key.includes(nQuery) || nQuery.includes(key.substring(0, 5))) return this.knowledgeIndex.get(key);
         }
-        
         return null;
     }
 
     // ==================== نظام الذاكرة الذكي ====================
     loadMemory() {
         const defaultMem = {
-            facts: {},
-            preferences: {},
-            corrections: {},
-            lastVisit: null,
-            visitCount: 0,
-            totalMessages: 0,
-            favoriteTopics: [],
-            achievements: [],
-            learnedSkills: [],
-            conversationThemes: new Map(),
-            userInterests: new Set(),
-            emotionalResponses: [],
-            correctionLog: []
+            facts: {}, preferences: {}, corrections: {},
+            lastVisit: null, visitCount: 0, totalMessages: 0,
+            favoriteTopics: [], achievements: [], learnedSkills: [],
+            conversationThemes: new Map(), userInterests: new Set(),
+            emotionalResponses: [], correctionLog: []
         };
-        
         try {
             const saved = localStorage.getItem('ai_egypt_memory_ultra_v10');
             if (saved) {
                 const parsed = JSON.parse(saved);
                 return { ...defaultMem, ...parsed };
             }
-        } catch(e) {
-            console.warn('Memory load error:', e);
-        }
-        
+        } catch(e) { console.warn('Memory load error:', e); }
         return defaultMem;
     }
 
     saveMemory() {
         try {
             const toSave = {
-                facts: this.memory.facts,
-                preferences: this.memory.preferences,
-                corrections: this.memory.corrections,
-                lastVisit: new Date().toISOString(),
-                visitCount: this.memory.visitCount,
-                totalMessages: this.memory.totalMessages,
+                facts: this.memory.facts, preferences: this.memory.preferences,
+                corrections: this.memory.corrections, lastVisit: new Date().toISOString(),
+                visitCount: this.memory.visitCount, totalMessages: this.memory.totalMessages,
                 favoriteTopics: Array.from(this.memory.favoriteTopics),
-                achievements: this.memory.achievements,
-                learnedSkills: this.memory.learnedSkills
+                achievements: this.memory.achievements, learnedSkills: this.memory.learnedSkills
             };
             localStorage.setItem('ai_egypt_memory_ultra_v10', JSON.stringify(toSave));
-        } catch(e) {
-            console.warn('Memory save error:', e);
-        }
+        } catch(e) { console.warn('Memory save error:', e); }
     }
 
     loadProfile() {
-        try {
-            return JSON.parse(localStorage.getItem('ai_egypt_profile_ultra') || '{}');
-        } catch {
-            return {};
-        }
+        try { return JSON.parse(localStorage.getItem('ai_egypt_profile_ultra') || '{}'); }
+        catch { return {}; }
     }
 
     saveProfile() {
-        try {
-            localStorage.setItem('ai_egypt_profile_ultra', JSON.stringify(this.userProfile));
-        } catch(e) {
-            console.warn('Profile save error:', e);
-        }
+        try { localStorage.setItem('ai_egypt_profile_ultra', JSON.stringify(this.userProfile)); }
+        catch(e) { console.warn('Profile save error:', e); }
     }
 
-    // ==================== نظام الأغراض (Intents) المتقدم ====================
+    // ==================== نظام الأغراض (Intents) ====================
     initIntents() {
         return {
-            greeting: {
-                patterns: ['سلام', 'أهلا', 'هلا', 'صباح', 'مسا', 'مرحبا', 'السلام', 'hello', 'hi', 'ازيك'],
-                weight: 1.2,
-                handler: () => this.getSmartGreeting()
-            },
-            joke: {
-                patterns: ['نكتة', 'ضحك', 'هزار', 'تنكّت', 'موقف', 'طريفة'],
-                weight: 1.5,
-                handler: () => this.getAdvancedJoke()
-            },
-            wisdom: {
-                patterns: ['حكمة', 'نصيحة', 'عظة', 'درس', 'موعظة'],
-                weight: 1.5,
-                handler: () => this.getWisdomResponse()
-            },
-            emotion: {
-                patterns: ['زعلان', 'فرحان', 'مبسوط', 'مضايق', 'عصبي', 'حزين', 'سعيد', 'خايف', 'قلق'],
-                weight: 1.6,
-                handler: (msg) => this.handleEmotion(msg)
-            },
-            setName: {
-                patterns: ['اسمي', 'أنا اسمي', 'ناديني', 'قول لي اسمي'],
-                weight: 1.8,
-                handler: (msg) => this.handleSetName(msg)
-            },
-            knowledge: {
-                patterns: [],
-                weight: 1.4,
-                handler: (msg) => this.handleKnowledgeQuery(msg)
-            },
-            weather: {
-                patterns: ['طقس', 'الجو', 'حرارة', 'شمس', 'مطر', 'غيوم', 'رياح'],
-                weight: 1.3,
-                handler: () => this.getWeatherReport()
-            },
-            time: {
-                patterns: ['وقت', 'ساعة', 'النهاردة', 'كام الساعة', 'تاريخ'],
-                weight: 1.1,
-                handler: () => this.getTimeReport()
-            },
-            health: {
-                patterns: ['صحة', 'رجيم', 'حمية', 'رياضة', 'فيتامين', 'مرض', 'دواء'],
-                weight: 1.4,
-                handler: () => this.getHealthAdvice()
-            },
-            quran: {
-                patterns: ['آية', 'قرآن', 'سورة', 'آيات', 'إسلام', 'دين'],
-                weight: 1.7,
-                handler: () => this.getQuranVerse()
-            },
-            hadith: {
-                patterns: ['حديث', 'رسول', 'النبي', 'محمد', 'صحيح البخاري'],
-                weight: 1.7,
-                handler: () => this.getHadith()
-            },
-            recall: {
-                patterns: ['افتكر', 'عرفتني', 'إحنا اتكلمنا', 'ركز', 'تذكر'],
-                weight: 1.4,
-                handler: () => this.recallMemory()
-            }
+            greeting: { patterns: ['سلام','أهلا','هلا','صباح','مسا','مرحبا','السلام','hello','hi','ازيك'], weight: 1.2, handler: () => this.getSmartGreeting() },
+            joke: { patterns: ['نكتة','ضحك','هزار','تنكّت','موقف','طريفة'], weight: 1.5, handler: () => this.getAdvancedJoke() },
+            wisdom: { patterns: ['حكمة','نصيحة','عظة','درس','موعظة'], weight: 1.5, handler: () => this.getWisdomResponse() },
+            emotion: { patterns: ['زعلان','فرحان','مبسوط','مضايق','عصبي','حزين','سعيد','خايف','قلق'], weight: 1.6, handler: (msg) => this.handleEmotion(msg) },
+            setName: { patterns: ['اسمي','أنا اسمي','ناديني','قول لي اسمي'], weight: 1.8, handler: (msg) => this.handleSetName(msg) },
+            knowledge: { patterns: [], weight: 1.4, handler: (msg) => this.handleKnowledgeQuery(msg) },
+            weather: { patterns: ['طقس','الجو','حرارة','شمس','مطر','غيوم','رياح'], weight: 1.3, handler: () => this.getWeatherReport() },
+            time: { patterns: ['وقت','ساعة','النهاردة','كام الساعة','تاريخ'], weight: 1.1, handler: () => this.getTimeReport() },
+            health: { patterns: ['صحة','رجيم','حمية','رياضة','فيتامين','مرض','دواء'], weight: 1.4, handler: () => this.getHealthAdvice() },
+            quran: { patterns: ['آية','قرآن','سورة','آيات','إسلام','دين'], weight: 1.7, handler: () => this.getQuranVerse() },
+            hadith: { patterns: ['حديث','رسول','النبي','محمد','صحيح البخاري'], weight: 1.7, handler: () => this.getHadith() },
+            recall: { patterns: ['افتكر','عرفتني','إحنا اتكلمنا','ركز','تذكر'], weight: 1.4, handler: () => this.recallMemory() }
         };
     }
 
     detectIntent(message) {
         let bestIntent = { key: 'default', score: 0, handler: null };
         const lower = message.toLowerCase();
-        
         for (const [key, intent] of Object.entries(this.intentsSystem)) {
             let score = 0;
             for (const pattern of intent.patterns) {
@@ -347,18 +280,13 @@ class EgyptianAIUltra {
                     score += boost * intent.weight;
                 }
             }
-            if (score > bestIntent.score) {
-                bestIntent = { key, score, handler: intent.handler };
-            }
+            if (score > bestIntent.score) bestIntent = { key, score, handler: intent.handler };
         }
-        
         if (bestIntent.score === 0) {
             if (this.searchKnowledgeAdvanced(lower)) {
                 bestIntent.key = 'knowledge';
                 bestIntent.handler = this.intentsSystem.knowledge.handler;
-            } else if (lower.includes('؟')) {
-                bestIntent.key = 'question';
-            }
+            } else if (lower.includes('؟')) bestIntent.key = 'question';
         }
         return bestIntent;
     }
@@ -372,12 +300,10 @@ class EgyptianAIUltra {
         else if (hour < 17) timeGreeting = 'مسا النور والهنا';
         else if (hour < 21) timeGreeting = 'مسا الخير والورد';
         else timeGreeting = 'تصبح على خير وأحلام جميلة';
-        
         const name = this.memory.facts.name?.value;
         const visitCount = this.memory.visitCount || 0;
-        
         if (visitCount === 0) {
-            return `${timeGreeting} يا غالي! 👋\nأنا المصري الذكي v10.0 - أفخم نسخة في التاريخ! 🔥\nقولي اسمك عشان نتعرف أحسن وأنا أحفظك في ذاكرتي 🧠❤️`;
+            return `${timeGreeting} يا غالي! 👋\nأنا المصري الذكي v10.1 - أفخم نسخة في التاريخ! 🔥\nقولي اسمك عشان نتعرف أحسن وأنا أحفظك في ذاكرتي 🧠❤️`;
         } else if (visitCount === 1) {
             return `${timeGreeting}${name ? ` يا ${name}` : ''}! 🎉\nأنا سعيد جداً بشوفتك تاني! شكراً إنك رجعت 💫`;
         } else {
@@ -448,13 +374,12 @@ class EgyptianAIUltra {
             if (value.benefits) response += `\n\n🍎 الفوائد: ${value.benefits}`;
             if (value.types) response += `\n\n📂 الأنواع: ${value.types.join(', ')}`;
             if (value.history) response += `\n\n📚 ${value.history}`;
-            
             this.memory.favoriteTopics.push(key);
             if (this.memory.favoriteTopics.length > 50) this.memory.favoriteTopics = this.memory.favoriteTopics.slice(-50);
             this.stats.favoriteTopics.set(key, (this.stats.favoriteTopics.get(key) || 0) + 1);
             return response;
         }
-        return `❓ لم أجد معلومات عن "${message}".\nجرب تسألني عن حاجة أخرى أو قول لي "نكتة" 😄`;
+        return null;
     }
 
     getWeatherReport() {
@@ -536,15 +461,17 @@ class EgyptianAIUltra {
         try { window.speechSynthesis.speak(utterance); } catch(e) { console.warn('Speech error:', e); this.isSpeaking = false; this.processQueue(); }
     }
 
-    // ==================== معالجة الرسائل ====================
-    sendMessage() {
+    // ==================== معالجة الرسائل (متزامنة مع Gemini) ====================
+    async sendMessage() {
         const input = this.getDom('chatInput');
         if (!input) return;
         const message = input.value.trim();
         if (!message) return;
+        
         this.addChatMessage(message, 'user');
         input.value = '';
         
+        // 1. جرب الرد من الكاش
         const cached = this.getCached(message);
         if (cached) {
             setTimeout(() => {
@@ -555,7 +482,19 @@ class EgyptianAIUltra {
             return;
         }
         
-        const response = this.generateResponse(message);
+        // 2. جرب الرد من المعرفة المحلية (نكت، حكم، قاعدة البيانات)
+        let response = this.generateResponse(message); // generateResponse تعمل synchronously في الكود الحالي
+        
+        // 3. إذا الرد ضعيف أو مش موجود، اطلب من Gemini
+        if (!response || response.includes('مش فاهم') || response.includes('سؤال حلو') || response.includes('محاولة فهم')) {
+            const aiReply = await this.callGemini(message);
+            if (aiReply) {
+                response = aiReply;
+            } else {
+                response = "آسف، الذكاء الاصطناعي مش قادر يرد دلوقتي.";
+            }
+        }
+        
         this.setCached(message, response);
         setTimeout(() => {
             this.addChatMessage(response, 'ai');
@@ -753,7 +692,7 @@ class EgyptianAIUltra {
 // ==================== البدء الفوري ====================
 window.addEventListener('DOMContentLoaded', () => {
     window.egyptianAI = new EgyptianAIUltra();
-    console.log('✅ المصري الذكي ULTRA v10.0 مُفعّل!');
+    console.log('✅ المصري الذكي ULTRA v10.1 (مع Gemini) مُفعّل!');
 });
 
 function showDevInfo() { const modal = document.getElementById('devModal'); if (modal) modal.classList.remove('hidden'); if (window.egyptianAI) console.table(window.egyptianAI.getStats()); }
