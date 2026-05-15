@@ -1,25 +1,16 @@
 // ============================================
-// المصري الذكي - Groq Edition v2.0
-// متوافق مع index.html الحالي
+// المصري الذكي - Groq AI Core
+// يعمل مع Llama 3.3 (مجاني وسريع)
 // ============================================
 
 class EgyptianAI {
     constructor() {
         this.groqApiKey = localStorage.getItem('groq_api_key') || '';
         this.speakEnabled = true;
-        this.memory = this.loadMemory();
-        
-        // عناصر DOM (نفس اللي في index.html)
-        this.dom = {
-            chatHistory: document.getElementById('chatHistory'),
-            chatInput: document.getElementById('chatInput'),
-            sendBtn: document.getElementById('sendBtn')
-        };
-        
         this.init();
     }
 
-    // تخزين مفتاح Groq
+    // حفظ المفتاح
     setGroqKey(key) {
         if (key && key.startsWith('gsk_')) {
             localStorage.setItem('groq_api_key', key);
@@ -42,136 +33,134 @@ class EgyptianAI {
                 },
                 body: JSON.stringify({
                     model: 'llama-3.3-70b-versatile',
-                    messages: [{ role: 'user', content: `أجب بالعربية: ${question}` }],
+                    messages: [{ role: 'user', content: `أجب بالعربية بشكل طبيعي ومفيد: ${question}` }],
                     temperature: 0.7,
                     max_tokens: 800
                 })
             });
-            
+
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error?.message || 'فشل الطلب');
             }
-            
+
             const data = await response.json();
             return data.choices[0]?.message?.content || null;
-        } catch(err) {
+        } catch (err) {
             console.error('Groq error:', err);
             return null;
         }
     }
 
-    // الردود المحلية (بدون نت أو لو فشل الـ API)
+    // ردود يدوية بسيطة في حالة عدم وجود نت
     getLocalResponse(message) {
         const lower = message.toLowerCase();
         if (lower.includes('نكتة')) return "😂 واحد مصري قال لصاحبه: أنا عملت حاجة تاريخية! قال: إيه؟ قال: حفظت رقم الباص!";
-        if (lower.includes('حكمة')) return "💡 اللي ياكل وحده يموت وحده — مثل مصري قديم.";
         if (lower.includes('كشري')) return "🍝 الكشري ملك الأكل المصري! عدس، رز، مكرونة، حمص، بصل محمر، وصلصة حارة.";
-        if (lower.includes('أهرامات')) return "🏛️ الأهرامات في الجيزة، بناها الفراعنة من 4500 سنة، عجائب الدنيا السبع!";
-        if (lower.includes('صلاح')) return "⚽ محمد صلاح، الفرعون المصري، نجم ليفربول ومنتخب مصر، واحد من أفضل لاعبي العالم.";
+        if (lower.includes('أهرامات')) return "🏛️ الأهرامات في الجيزة، بناها الفراعنة قبل 4500 سنة، عجائب الدنيا السبع.";
+        if (lower.includes('صلاح')) return "⚽ محمد صلاح، الفرعون المصري، هداف ليفربول ومنتخب مصر، واحد من أفضل لاعبي العالم.";
+        if (lower.includes('شكرا')) return "العفو يا غالي! 🤍 أنا هنا في خدمتك دايماً.";
+        if (lower.includes('ازيك')) return "أنا زي الفل! الحمد لله. وإنت عامل إيه؟ 😊";
         return null;
     }
 
-    // إرسال الرسالة (القلب الرئيسي)
-    async sendMessage() {
-        if (!this.dom.chatInput) return;
-        const message = this.dom.chatInput.value.trim();
-        if (!message) return;
-        
-        this.addChatMessage(message, 'user');
-        this.dom.chatInput.value = '';
-        
-        let response = null;
-        
-        // لو النت شغال والمفتاح موجود، استخدم Groq
-        if (navigator.onLine && this.groqApiKey) {
-            response = await this.callGroq(message);
-        }
-        
-        // لو فشل Groq أو مفيش نت، استخدم الردود المحلية
-        if (!response) {
-            response = this.getLocalResponse(message);
-        }
-        
-        // لو لسه مفيش رد، ارد برد عام
-        if (!response) {
-            if (!navigator.onLine) {
-                response = "🌐 أنت غير متصل بالإنترنت. اسألني عن 'نكتة' أو 'كشري' أو 'أهرامات'.";
-            } else if (!this.groqApiKey) {
-                response = "🔑 مفتاح Groq API غير موجود. هات مفتاح من console.groq.com واحفظه.";
-            } else {
-                response = "عذراً، لم أستطع الرد الآن. جرب تسأل حاجة تانية.";
-            }
-        }
-        
-        this.addChatMessage(response, 'ai');
-        if (this.speakEnabled) this.speak(response);
-    }
-
-    // إضافة رسالة للشات
+    // إضافة رسالة في الشات
     addChatMessage(text, sender) {
-        if (!this.dom.chatHistory) return;
+        const history = document.getElementById('chatHistory');
+        if (!history) return;
+        
         const div = document.createElement('div');
         div.className = `chat-message ${sender}`;
         div.textContent = text;
-        this.dom.chatHistory.appendChild(div);
-        this.dom.chatHistory.scrollTop = this.dom.chatHistory.scrollHeight;
+        history.appendChild(div);
+        history.scrollTop = history.scrollHeight;
     }
 
-    // النطق
-    speak(text) {
-        if (!this.speakEnabled || !window.speechSynthesis) return;
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'ar-EG';
-        window.speechSynthesis.speak(utterance);
-    }
+    // إرسال الرسالة الأساسية
+    async sendMessage() {
+        const input = document.getElementById('chatInput');
+        const message = input.value.trim();
+        if (!message) return;
 
-    // تحميل الذاكرة
-    loadMemory() {
-        try {
-            return JSON.parse(localStorage.getItem('ai_memory') || '{}');
-        } catch {
-            return {};
+        this.addChatMessage(message, 'user');
+        input.value = '';
+
+        let response = null;
+
+        // إذا كان هناك اتصال بالإنترنت ومفتاح موجود -> استخدم Groq
+        if (navigator.onLine && this.groqApiKey) {
+            response = await this.callGroq(message);
         }
-    }
 
-    // تهيئة AI وطلب المفتاح
-    init() {
-        // لو مفيش مفتاح، اطلب منه
-        if (!this.groqApiKey) {
-            const key = prompt("🔑 أدخل مفتاح Groq API المجاني\n(احصل عليه من console.groq.com)");
-            if (key && key.startsWith('gsk_')) {
-                this.setGroqKey(key);
-                alert("✅ تم حفظ المفتاح! إسأل أي حاجة.");
+        // إذا فشل استدعاء Groq -> استخدم الردود المحلية
+        if (!response) {
+            response = this.getLocalResponse(message);
+        }
+
+        // إذا لم يوجد رد نهائي
+        if (!response) {
+            if (!navigator.onLine) {
+                response = "🔌 أنت غير متصل بالإنترنت. أسألني مثلاً عن 'نكتة' أو 'كشري'.";
+            } else if (!this.groqApiKey) {
+                response = "🔑 لم تقم بإدخال مفتاح Groq API بعد. سأستخدم الردود البسيطة. لو عندك مفتاح، أعد تحميل الصفحة وأدخله.";
             } else {
-                alert("⚠️ المفتاح غير صالح. هترد عليك من المعلومات المحلية بس.");
+                response = "عذراً، لم أحصل على رد من الذكاء الاصطناعي الآن. جرب سؤالاً آخر.";
             }
         }
-        
-        // ربط الأزرار
-        if (this.dom.sendBtn) {
-            this.dom.sendBtn.onclick = () => this.sendMessage();
+
+        this.addChatMessage(response, 'ai');
+    }
+
+    // بدء تشغيل البوت
+    init() {
+        // تحديث حالة الاتصال
+        const statusSpan = document.getElementById('statusText');
+        if (statusSpan) {
+            statusSpan.textContent = navigator.onLine ? 'متصل' : 'غير متصل';
         }
-        if (this.dom.chatInput) {
-            this.dom.chatInput.onkeypress = (e) => {
+
+        // طلب مفتاح Groq إذا لم يكن موجوداً
+        if (!this.groqApiKey) {
+            const key = prompt("🔑 أدخل مفتاح Groq API المجاني\n(احصل عليه من console.groq.com)\n\nالمفتاح يبدأ بـ gsk_");
+            if (key && key.startsWith('gsk_')) {
+                this.setGroqKey(key);
+                alert("✅ تم حفظ المفتاح! يمكنك الآن استخدام الذكاء الاصطناعي.");
+            } else if (key) {
+                alert("❌ المفتاح غير صالح. سأعمل بالردود البسيطة فقط.");
+            }
+        }
+
+        // ربط أزرار الصفحة
+        const sendBtn = document.getElementById('sendBtn');
+        const chatInput = document.getElementById('chatInput');
+        const clearBtn = document.getElementById('clearBtn');
+
+        if (sendBtn) {
+            sendBtn.onclick = () => this.sendMessage();
+        }
+        if (chatInput) {
+            chatInput.onkeypress = (e) => {
                 if (e.key === 'Enter') this.sendMessage();
             };
         }
-        
-        console.log('✅ المصري الذكي شغال بـ Groq!');
+        if (clearBtn) {
+            clearBtn.onclick = () => {
+                const history = document.getElementById('chatHistory');
+                if (history) history.innerHTML = '';
+                this.addChatMessage('🧹 تم مسح المحادثة. إسأل أي شيء!', 'ai');
+            };
+        }
+
+        // رسالة ترحيب
+        setTimeout(() => {
+            this.addChatMessage('🎉 أهلاً بك في المصري الذكي!\n\nأنا شغال بـ Groq AI (Llama 3.3).\nاسألني أي حاجة: ثقافة، دين، رياضة، تاريخ، أو حتى قول "نكتة"!', 'ai');
+        }, 500);
+
+        console.log('✅ المصري الذكي جاهز 100%');
     }
 }
 
-// بدء التشغيل
-window.ai = new EgyptianAI();
-
-// دوال المطور (متوافقة مع index.html)
-function showDevInfo() {
-    const modal = document.getElementById('devModal');
-    if (modal) modal.classList.remove('hidden');
-    if (window.ai) console.log('AI Stats:', window.ai.memory);
-}
-function hideDevInfo() {
-    const modal = document.getElementById('devModal');
-    if (modal) modal.classList.add('hidden');
-}
+// بدء التشغيل فور تحميل الصفحة
+window.addEventListener('DOMContentLoaded', () => {
+    window.ai = new EgyptianAI();
+});

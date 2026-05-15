@@ -2,287 +2,169 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المصري الذكي | AI Egypt</title>
-    
-    <!-- Preconnect for faster loading -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-    
-    <!-- Three.js first - needed for space background (without defer) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- TensorFlow and Mobilenet with defer -->
-    <script defer src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.0/dist/mobilenet.min.js"></script>
-    
-    <!-- Fallback for CDN failure -->
-    <script>
-        window.addEventListener('load', function() {
-            if (typeof THREE === 'undefined') {
-                console.warn('Three.js CDN failed, loading fallback');
-                var script = document.createElement('script');
-                script.src = 'https://cdn.skypack.dev/three@0.128.0/build/three.min.js';
-                document.head.appendChild(script);
-            }
-            if (typeof tf === 'undefined') {
-                console.warn('TensorFlow.js CDN failed, loading fallback');
-                var script = document.createElement('script');
-                script.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js';
-                document.head.appendChild(script);
-            }
-        });
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>المصري الذكي | Groq AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #0a2f1f, #061a10);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Cairo', sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(12px);
+            border-radius: 32px;
+            padding: 20px;
+            width: 100%;
+            max-width: 900px;
+            border: 1px solid #ffd70066;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #ffd700;
+            text-shadow: 0 0 10px #ffaa44;
+        }
+
+        .subtitle {
+            color: #ffdd99;
+            font-size: 14px;
+        }
+
+        .chat-area {
+            background: #1e3a2faa;
+            border-radius: 24px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .chat-history {
+            height: 350px;
+            overflow-y: auto;
+            padding: 10px;
+            margin-bottom: 15px;
+            background: #0a2f1faa;
+            border-radius: 16px;
+        }
+
+        .chat-message {
+            padding: 10px 15px;
+            margin-bottom: 12px;
+            border-radius: 20px;
+            max-width: 85%;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .chat-message.user {
+            background: #ffd700;
+            color: #1e3a2f;
+            margin-right: auto;
+            text-align: right;
+        }
+
+        .chat-message.ai {
+            background: #2c3e50;
+            color: white;
+            margin-left: auto;
+            text-align: left;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+
+        #chatInput {
+            flex: 1;
+            padding: 12px;
+            border-radius: 60px;
+            border: none;
+            background: #0a2f1f;
+            color: white;
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        #sendBtn {
+            background: #ffd700;
+            border: none;
+            width: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: 0.2s;
+        }
+
+        #sendBtn:hover {
+            transform: scale(1.05);
+            background: #ffaa00;
+        }
+
+        .status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            font-size: 12px;
+            color: #ccc;
+        }
+
+        button {
+            background: #2c3e50;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body>
-    
-    <div class="audio-control">
-        <button id="musicToggle" aria-label="تشغيل/إيقاف الموسيقى"><i class="fas fa-play"></i></button>
-        <input type="range" id="volumeSlider" min="0" max="100" value="25" aria-label="مستوى الصوت">
-        <span id="volumeLabel">25%</span>
-    </div>
-    
-    <div class="dev-credit" id="devCreditBtn" title="معلومات المطور">
-        <i class="fas fa-code"></i>
-        <span>المطور: Mohamed Ragab Abdelmonem</span>
-    </div>
-    
-    <div class="api-section">
-        <input type="password" id="apiKeyInput" placeholder="🔑 مفتاح API (اختياري)" aria-label="مفتاح API">
-        <button id="apiKeyBtn" title="حفظ المفتاح" aria-label="حفظ"><i class="fas fa-check"></i></button>
-    </div>
-    
-    <div class="main-container">
-        <header class="glass-header">
-            <h1 class="glitch" data-text="المصري الذكي">المصري الذكي</h1>
-            <p class="subtitle">🧠 أول ذكاء اصطناعي مصري يتعلم • يفتكر • يبحث • يتكلم</p>
-            <div class="badges">
-                <span class="badge"><i class="fas fa-brain"></i> يتعلم منك</span>
-                <span class="badge"><i class="fas fa-globe"></i> بحث إنترنت</span>
-                <span class="badge"><i class="fas fa-microphone"></i> نطق عربي</span>
-                <span class="badge"><i class="fas fa-camera"></i> رؤية بصرية</span>
-                <span class="badge"><i class="fas fa-code"></i> مولد أكواد</span>
-                <span class="badge"><i class="fas fa-music"></i> موسيقى هادية</span>
-                <span class="badge"><i class="fas fa-wifi" id="onlineBadge"></i><i class="fas fa-wifi-slash" id="offlineBadge" style="display:none"></i> <span id="netStatus">متصل</span></span>
-            </div>
-        </header>
-        
-        <section class="glass-section camera-section">
-            <h2><i class="fas fa-eye"></i> الرؤية الذكية</h2>
-            <div class="camera-wrapper">
-                <video id="video" autoplay playsinline></video>
-                <canvas id="canvas"></canvas>
-                <div class="camera-overlay">
-                    <button id="snapBtn" class="btn-glow" aria-label="التقاط صورة"><i class="fas fa-camera"></i> صور واعرف</button>
-                    <button id="uploadBtn" class="btn-glass" aria-label="رفع صورة"><i class="fas fa-image"></i> ارفع صورة</button>
-                    <input type="file" id="fileInput" accept="image/*" hidden>
-                </div>
-            </div>
-            <div id="result" class="result-box hidden">
-                <div class="result-icon">🧿</div>
-                <div id="resultText">جاري التحليل العميق...</div>
-                <div id="resultConfidence"></div>
-            </div>
-        </section>
-        
-        <section class="glass-section chat-section">
-            <h2><i class="fas fa-comment-dots"></i> المحادثة العبقرية</h2>
-            <div class="chat-controls">
-                <button id="deepSearchBtn" class="btn-glass small" aria-label="بحث عميق"><i class="fas fa-spider"></i> بحث عميق</button>
-                <button id="voiceInputBtn" class="btn-glass small" aria-label="إدخال صوتي"><i class="fas fa-microphone-lines"></i> تحدث</button>
-                <button id="speakToggleBtn" class="btn-glass small" aria-label="تبديل النطق"><i class="fas fa-volume-high"></i> النطق: ON</button>
-                <button id="clearChatBtn" class="btn-glass small" aria-label="مسح المحادثة"><i class="fas fa-eraser"></i> مسح</button>
-            </div>
+    <div class="container">
+        <div class="header">
+            <h1>🇪🇬 المصري الذكي</h1>
+            <p class="subtitle">🧠 يعمل بالذكاء الاصطناعي Groq - Llama 3.3 (مجاني وسريع)</p>
+        </div>
+
+        <div class="chat-area">
             <div id="chatHistory" class="chat-history"></div>
-            <div class="chat-input-wrapper">
-                <input type="text" id="chatInput" placeholder="اسألني أي حاجة... (جرب: 'بحث عميق عن...' أو 'اكتب كود...' أو 'قولي نكتة')" aria-label="سؤال">
-                <button id="sendBtn" class="btn-glow" aria-label="إرسال"><i class="fas fa-rocket"></i></button>
+            <div class="input-wrapper">
+                <input type="text" id="chatInput" placeholder="اسألني أي حاجة... (مثال: قارن بين ميسي ورونالدو)">
+                <button id="sendBtn">➤</button>
             </div>
-        </section>
-        
-        <section class="glass-section code-section">
-            <h2><i class="fas fa-terminal"></i> معالج الأكواد</h2>
-            <div class="code-controls">
-                <select id="langSelect" aria-label="لغة البرمجة">
-                    <option value="javascript">JavaScript</option>
-                    <option value="python">Python</option>
-                    <option value="cpp">C++</option>
-                    <option value="java">Java</option>
-                    <option value="csharp">C#</option>
-                    <option value="php">PHP</option>
-                    <option value="html">HTML/CSS</option>
-                    <option value="sql">SQL</option>
-                    <option value="react">React.js</option>
-                    <option value="flutter">Flutter</option>
-                    <option value="nodejs">Node.js</option>
-                    <option value="typescript">TypeScript</option>
-                </select>
-                <button id="generateCodeBtn" class="btn-glow" aria-label="إنشاء كود"><i class="fas fa-wand-magic-sparkles"></i> اكتب كود</button>
-            </div>
-            <div id="codeOutput" class="code-output hidden"></div>
-        </section>
-        
-        <section class="features-grid">
-            <div class="feature-card glass" data-topic="food">
-                <i class="fas fa-utensils"></i>
-                <h3>🍽️ الأكل المصري</h3>
-                <p>50+ وصفة تقليدية وتاريخها</p>
-            </div>
-            <div class="feature-card glass" data-topic="history">
-                <i class="fas fa-landmark"></i>
-                <h3>🏛️ الحضارة المصرية</h3>
-                <p>7000 سنة من العظمة</p>
-            </div>
-            <div class="feature-card glass" data-topic="sports">
-                <i class="fas fa-futbol"></i>
-                <h3>⚽ الرياضة المصرية</h3>
-                <p>كل الفرق والأساطير</p>
-            </div>
-            <div class="feature-card glass" data-topic="health">
-                <i class="fas fa-heart-pulse"></i>
-                <h3>❤️ الصحة والتغذية</h3>
-                <p>نصائح طبية ووصفات طبيعية</p>
-            </div>
-            <div class="feature-card glass" data-topic="tech">
-                <i class="fas fa-laptop-code"></i>
-                <h3>💻 البرمجة والتقنية</h3>
-                <p>12 لغة برمجة + ذكاء اصطناعي</p>
-            </div>
-            <div class="feature-card glass" data-topic="movies">
-                <i class="fas fa-film"></i>
-                <h3>🎬 السينما المصرية</h3>
-                <p>أفلام ومسلسلات ونجوم</p>
-            </div>
-            <div class="feature-card glass" data-topic="islam">
-                <i class="fas fa-mosque"></i>
-                <h3>🕌 الإسلام والروحانيات</h3>
-                <p>أحاديث وأدعية وتفسير</p>
-            </div>
-            <div class="feature-card glass" data-topic="science">
-                <i class="fas fa-atom"></i>
-                <h3>🔬 العلوم والفضاء</h3>
-                <p>فيزياء، كيمياء، فلك</p>
-            </div>
-            <div class="feature-card glass" data-topic="business">
-                <i class="fas fa-chart-line"></i>
-                <h3>📈 البيزنس والتجارة</h3>
-                <p>استثمار، تسويق، ريادة</p>
-            </div>
-        </section>
-        
-        <footer class="glass-footer">
-            <p>© 2026 <strong>المصري الذكي</strong> | AI Egypt v4.0</p>
-            <p>مطور بواسطة <strong style="color:#feca57">Mohamed Ragab Abdelmonem</strong> — The Small Programmer 🇪🇬</p>
-            <p style="font-size:0.8rem; color:#555; margin-top:10px">"اللي ياكل وحده يموت وحده" — حكمة مصرية</p>
-        </footer>
-    </div>
-    
-    <div id="loading" class="loading-overlay">
-        <div class="space-loader">
-            <div class="planet"></div>
-            <div class="orbit"></div>
         </div>
-        <p>جاري تجهيز العقل المصري... 🧠⚡</p>
-        <p class="loading-sub">TensorFlow.js + Three.js + قاعدة معرفية ضخمة</p>
-        <p class="loading-sub">أول مرة فقط، بعد كده يعمل دون اتصال!</p>
-    </div>
-    
-    <div id="devModal" class="modal hidden">
-        <div class="modal-content glass">
-            <span class="close-btn" id="closeDevModalBtn" aria-label="إغلاق">&times;</span>
-            <h2><i class="fas fa-user-astronaut" style="color:var(--accent)"></i> مطور الموقع</h2>
-            <div class="dev-profile">
-                <div class="dev-avatar">MR</div>
-                <h3 style="font-size:1.5rem; margin-bottom:5px">Mohamed Ragab Abdelmonem</h3>
-                <p class="dev-title">The Small Programmer</p>
-                <div style="text-align:right; margin:20px 0; line-height:2; color:#ccc">
-                    <p>🎓 طالب علوم حاسب</p>
-                    <p>🇪🇬 من مصر، لمصر، لأجل مصر</p>
-                    <p>💻 شغف: البرمجة + الذكاء الاصطناعي + الألعاب</p>
-                    <p>🧠 باني "المصري الذكي"</p>
-                </div>
-                <div class="dev-social">
-                    <a href="#" class="social-btn" title="GitHub" aria-label="GitHub"><i class="fab fa-github"></i></a>
-                    <a href="#" class="social-btn" title="LinkedIn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                    <a href="#" class="social-btn" title="YouTube" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-                    <a href="#" class="social-btn" title="Twitter" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
-                </div>
-            </div>
+
+        <div class="status">
+            <span>🟢 <span id="statusText">متصل</span></span>
+            <button id="clearBtn">🧹 مسح المحادثة</button>
+            <span>🤖 Groq AI</span>
         </div>
     </div>
 
-    <!-- canvas-container for space background -->
-    <div id="canvas-container"></div>
-
-    <!-- Scripts loading with defer for non-blocking -->
-    <script defer src="space.js"></script>
-    <script defer src="ai-audio.js"></script>
-    <script defer src="ai-search.js"></script>
-    <script defer src="ai-knowledge.js"></script>
-    <script defer src="ai-core.js"></script>
-    
-    <!-- No inline onclick: event binding -->
-    <script>
-        (function() {
-            function waitForElement(selector, callback) {
-                const element = document.querySelector(selector);
-                if (element) {
-                    callback(element);
-                } else {
-                    const observer = new MutationObserver((mutations, obs) => {
-                        const el = document.querySelector(selector);
-                        if (el) {
-                            obs.disconnect();
-                            callback(el);
-                        }
-                    });
-                    observer.observe(document.body, { childList: true, subtree: true });
-                }
-            }
-            
-            // dev-credit click
-            waitForElement('.dev-credit', (btn) => {
-                btn.removeAttribute('onclick');
-                btn.addEventListener('click', () => {
-                    if (typeof showDevInfo === 'function') showDevInfo();
-                    else console.warn('showDevInfo not defined yet');
-                });
-            });
-            
-            // feature cards
-            const featureCards = document.querySelectorAll('.feature-card');
-            featureCards.forEach(card => {
-                card.removeAttribute('onclick');
-                const topic = card.getAttribute('data-topic');
-                if (topic) {
-                    card.addEventListener('click', () => {
-                        if (window.ai && typeof window.ai.askAbout === 'function') {
-                            window.ai.askAbout(topic);
-                        } else {
-                            console.warn('AI not ready');
-                            const chatInput = document.getElementById('chatInput');
-                            if (chatInput) {
-                                chatInput.value = `قولي عن ${topic}`;
-                                const sendBtn = document.getElementById('sendBtn');
-                                if (sendBtn) sendBtn.click();
-                            }
-                        }
-                    });
-                }
-            });
-            
-            // close modal
-            const closeModalBtn = document.getElementById('closeDevModalBtn');
-            if (closeModalBtn) {
-                closeModalBtn.addEventListener('click', () => {
-                    if (typeof hideDevInfo === 'function') hideDevInfo();
-                });
-            }
-            
-            console.log('✅ Index enhanced: canvas-container added, scripts optimized');
-        })();
-    </script>
+    <script src="ai-core.js"></script>
 </body>
 </html>
