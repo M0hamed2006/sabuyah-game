@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>اختبار العقل</title>
+    <style>
+        body { background: #0a2f1f; color: white; font-family: Arial; padding: 20px; }
+        #chat { height: 300px; overflow-y: auto; border: 1px solid gold; margin-bottom: 10px; padding: 10px; }
+        .user { color: #ffd700; text-align: right; }
+        .ai { color: #4ecdc4; text-align: left; }
+        input, button { padding: 10px; margin-top: 10px; width: 80%; }
+    </style>
+</head>
+<body>
+    <h1>اختبار العقل</h1>
+    <div id="chat"></div>
+    <input type="text" id="msg" placeholder="اكتب أي حاجة...">
+    <button id="send">إرسال</button>
+
+    <script>
+        // نسخة مبسطة من ai-core.js (بدون كاميرا ولا صور ولا search)
+        class SimpleAI {
+            constructor() {
+                this.groqKey = localStorage.getItem('groq_api_key') || '';
+                if (!this.groqKey) {
+                    let key = prompt("أدخل مفتاح Groq API (gsk_...)");
+                    if (key) localStorage.setItem('groq_api_key', key);
+                    this.groqKey = key;
+                }
+                this.bindEvents();
+                this.addMessage("أنا العقل المصري البسيط. اسألني أي حاجة", 'ai');
+            }
+            async askGroq(question) {
+                if (!this.groqKey) return "مفتاح Groq غير موجود";
+                try {
+                    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.groqKey}` },
+                        body: JSON.stringify({
+                            model: 'llama-3.3-70b-versatile',
+                            messages: [{ role: 'user', content: `أجب بالعربية: ${question}` }],
+                            temperature: 0.7,
+                            max_tokens: 500
+                        })
+                    });
+                    const data = await res.json();
+                    return data.choices?.[0]?.message?.content || "ما عرفت أرد";
+                } catch(e) {
+                    return "حدث خطأ في الاتصال";
+                }
+            }
+            async sendMessage() {
+                const input = document.getElementById('msg');
+                const text = input.value.trim();
+                if (!text) return;
+                this.addMessage(text, 'user');
+                input.value = '';
+                const reply = await this.askGroq(text);
+                this.addMessage(reply, 'ai');
+            }
+            addMessage(text, who) {
+                const div = document.createElement('div');
+                div.className = who;
+                div.textContent = (who === 'user' ? '🙋 ' : '🤖 ') + text;
+                document.getElementById('chat').appendChild(div);
+                div.scrollIntoView();
+            }
+            bindEvents() {
+                document.getElementById('send').onclick = () => this.sendMessage();
+                document.getElementById('msg').onkeypress = (e) => { if (e.key === 'Enter') this.sendMessage(); };
+            }
+        }
+        new SimpleAI();
+    </script>
+</body>
+</html>
