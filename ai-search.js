@@ -41,7 +41,7 @@ class DeepSearchEngine {
     loadApiKey() {
         let key = sessionStorage.getItem('news_api_key');
         if (!key) key = localStorage.getItem('news_api_key');
-        return key || '';
+        return 'd68e6c6fc2bb42c9b31a27dc129a8a66';
     }
 
     loadGroqKey() {
