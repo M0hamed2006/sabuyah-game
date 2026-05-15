@@ -1,6 +1,7 @@
 // ============================================
-// محرك البحث العميق v4.0 MEGA ELITE - معدل
-// معطل للأخبار + تحسين الأداء
+// محرك البحث العميق v4.0 MEGA ELITE
+// ONLINE SEARCH + AI SYNTHESIS + CACHE + ABORT
+// متوافق مع المصري الذكي
 // ============================================
 
 class DeepSearchEngine {
@@ -38,6 +39,8 @@ class DeepSearchEngine {
 
     // ==================== إدارة المفاتيح ====================
     loadApiKey() {
+        let key = sessionStorage.getItem('news_api_key');
+        if (!key) key = localStorage.getItem('news_api_key');
         return 'd68e6c6fc2bb42c9b31a27dc129a8a66';
     }
 
@@ -298,13 +301,48 @@ class DeepSearchEngine {
             return null;
         } catch (error) {
             if (error.message === 'Aborted') throw error;
-            return null; // منع ظهور أخطاء
+            console.error('❌ DuckDuckGo error:', error);
+            return null;
         }
     }
 
-    // ==================== الأخبار (معطلة نهائياً) ====================
+    // ==================== الأخبار ====================
     async searchNews(query, signal = null) {
-        return null; // تم تعطيل الأخبار لتجنب الأخطاء
+        if (!this.apiKey) return null;
+        if (signal?.aborted) throw new Error('Aborted');
+
+        const normalized = this.normalizeQuery(query);
+        const cacheKey = `news_${normalized}`;
+        const cached = this.getCached(cacheKey);
+        if (cached) return cached;
+
+        try {
+            const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(normalized)}&language=ar&sortBy=publishedAt&pageSize=5&apiKey=${this.apiKey}`;
+            const response = await this.fetchWithRetry(url, null, null, signal);
+            const data = await response.json();
+
+            if (data.status === 'ok' && data.articles?.length) {
+                const results = data.articles.slice(0, 3).map(article => ({
+                    title: article.title,
+                    extract: (article.description || article.content || '').substring(0, 800),
+                    url: article.url,
+                    source: 'الأخبار',
+                    language: 'ar',
+                    confidence: 0.75,
+                    date: article.publishedAt,
+                    type: 'search_result',
+                    image: article.urlToImage || null
+                }));
+
+                this.setCached(cacheKey, results);
+                return results;
+            }
+            return null;
+        } catch (error) {
+            if (error.message === 'Aborted') throw error;
+            console.error('❌ News error:', error);
+            return null;
+        }
     }
 
     // ==================== English Wikipedia Fallback ====================
@@ -460,9 +498,10 @@ class DeepSearchEngine {
         let allResults = [];
 
         try {
-            const [wiki, ddg, enWiki] = await Promise.allSettled([
+            const [wiki, ddg, news, enWiki] = await Promise.allSettled([
                 this.searchWikipedia(originalQuery, signal),
                 this.searchDuckDuckGo(originalQuery, signal),
+                this.apiKey ? this.searchNews(originalQuery, signal) : Promise.resolve(null),
                 this.searchEnglishWikipedia(originalQuery, signal)
             ]);
 
@@ -471,6 +510,9 @@ class DeepSearchEngine {
             }
             if (ddg.status === 'fulfilled' && ddg.value) {
                 allResults.push(...(Array.isArray(ddg.value) ? ddg.value : [ddg.value]));
+            }
+            if (news.status === 'fulfilled' && news.value) {
+                allResults.push(...(Array.isArray(news.value) ? news.value : [news.value]));
             }
             if (enWiki.status === 'fulfilled' && enWiki.value) {
                 allResults.push(...(Array.isArray(enWiki.value) ? enWiki.value : [enWiki.value]));
