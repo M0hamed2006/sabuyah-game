@@ -669,56 +669,120 @@
         addToChat('assistant', '⚠️ لازم تحفظ مفتاح Groq الأول من تبويب الإعدادات.');
         return;
       }
-      if (state.isSending) return;
 
+      if (state.isSending) return;
       state.isSending = true;
+      const resetComposer = () => {
+        state.isSending = false;
+        els.sendBtn.disabled = false;
+        els.sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال';
+        els.apiState.textContent = 'جاهز';
+      };
+
       els.sendBtn.disabled = true;
       els.sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> يتم الإرسال...';
       els.apiState.textContent = 'يرسل...';
 
-      addMessageToUI('user', text);
-      addToChat('user', text);
-      addThinking();
+      let abortController = null;
+      let timeoutId = null;
 
-      const chat = getActiveChat();
-      const convo = [
-        { role: 'system', content: SYSTEM_PROMPT },
-        ...chat.messages
-          .filter(m => m.role === 'user' || m.role === 'assistant')
-          .slice(-18)
-          .map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }))
-      ];
+      try {
+        addMessageToUI('user', text);
+        addToChat('user', text);
+        addThinking();
 
-      let lastError = '';
-      for (const model of getModelCandidates()) {
-        try {
-          const reply = await callGroq(model, convo);
-          removeThinking();
-          addMessageToUI('bot', reply);
-          addToChat('assistant', reply);
-          state.currentModel = model;
-          chat.model = model;
-          persistChats();
-          renderConversationList();
-          els.modelState.textContent = model;
-          els.apiState.textContent = `تم الرد (${model})`;
-          return;
-        } catch (err) {
-          lastError = err?.message || 'خطأ غير معروف';
-          console.log('Groq model failed:', model, err?.payload || err);
-          if (err?.status === 401 || err?.status === 403) break;
+        const chat = getActiveChat();
+        const convo = [
+          { role: 'system', content: SYSTEM_PROMPT },
+          ...chat.messages
+            .filter(m => m.role === 'user' || m.role === 'assistant')
+            .slice(-18)
+            .map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }))
+        ];
+
+        const models = getModelCandidates();
+        let lastError = '';
+
+        for (const model of models) {
+          abortController = new AbortController();
+          timeoutId = setTimeout(() => abortController.abort('timeout'), 40000);
+
+          try {
+            const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${state.groqKey}`
+              },
+              signal: abortController.signal,
+              body: JSON.stringify({
+                model,
+                messages: convo,
+                temperature: 0.7,
+                max_tokens: 1600,
+                top_p: 0.95,
+                stream: false
+              })
+            });
+
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+              lastError = data?.error?.message || `HTTP ${response.status}`;
+              console.log('Groq model failed:', model, data);
+              if (response.status === 401 || response.status === 403) break;
+              continue;
+            }
+
+            const reply = data?.choices?.[0]?.message?.content;
+            if (!reply) {
+              lastError = data?.error?.message || 'الرد فاضي أو غير صالح.';
+              continue;
+            }
+
+            removeThinking();
+            addMessageToUI('bot', reply);
+            addToChat('assistant', reply);
+            state.currentModel = model;
+            chat.model = model;
+            persistChats();
+            renderConversationList();
+            els.modelState.textContent = model;
+            els.modelSelect.value = model;
+            els.apiState.textContent = `تم الرد (${model})`;
+            els.chatInput.focus();
+            return;
+          } catch (err) {
+            lastError = err?.name === 'AbortError' ? 'انتهت مهلة الاتصال.' : (err?.message || 'خطأ غير معروف');
+            console.log('Groq model exception:', model, err?.payload || err);
+          } finally {
+            if (timeoutId) clearTimeout(timeoutId);
+            timeoutId = null;
+            abortController = null;
+          }
         }
-      }
 
-      removeThinking();
-      const msg = `❌ فشل الرد من Groq:\n${lastError}\n\nلو المفتاح شغال على موديل واحد فقط، خليه هو الافتراضي من القائمة، والباقي سيبهم fallback.`;
-      addMessageToUI('bot', msg);
-      addToChat('assistant', msg);
-      els.apiState.textContent = 'خطأ';
-      state.isSending = false;
-      els.sendBtn.disabled = false;
-      els.sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال';
-      saveAll();
+        removeThinking();
+        const msg = `❌ فشل الرد من Groq:
+${lastError}
+
+لو المفتاح شغال على موديل واحد فقط، خليه هو الافتراضي من القائمة، والباقي سيبهم fallback.`;
+        addMessageToUI('bot', msg);
+        addToChat('assistant', msg);
+        els.apiState.textContent = 'خطأ';
+      } catch (err) {
+        removeThinking();
+        const msg = `❌ حصل خطأ غير متوقع:
+${err?.message || 'غير معروف'}`;
+        addMessageToUI('bot', msg);
+        addToChat('assistant', msg);
+        els.apiState.textContent = 'خطأ';
+      } finally {
+        if (timeoutId) clearTimeout(timeoutId);
+        abortController = null;
+        resetComposer();
+        saveAll();
+      }
     }
 
     function addResultButtons() {
