@@ -590,7 +590,7 @@ ${joke}
 متنسهاش!`;
     }
 
-        searchKnowledgeSync(query) {
+    searchKnowledgeSync(query) {
         const all = { ...this.getKnowledgeBase() };
         const keys = Object.keys(all);
         for (const key of keys) {
