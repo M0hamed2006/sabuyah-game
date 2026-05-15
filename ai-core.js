@@ -1,12 +1,11 @@
 // ============================================
-// المصري الذكي ULTRA - v10.1 (مع Gemini API)
-// أفخم نسخة: متقدمة، ذكية، سريعة، ضخمة + AI خارجي
+// المصري الذكي ULTRA - v10.3 (Gemini + Fallback محلي)
+// المفتاح يُخزَّن في localStorage، غير ظاهر في الكود
 // ============================================
 
 class EgyptianAIUltra {
     constructor() {
-        // ===== 1. الأساسيات والإعدادات =====
-        this.version = '10.1 ELITE';
+        this.version = '10.3 ELITE';
         this.model = null;
         this.isReady = false;
         this.speakEnabled = true;
@@ -14,38 +13,29 @@ class EgyptianAIUltra {
         this.currentContext = 'general';
         this.mood = 'حنون';
         this.friendshipLevel = 0;
-        this.apiKey = localStorage.getItem('ai_api_key') || '';
-        
-        // 🔑 مفتاح Gemini المجاني (غير هذا السطر بالمفتاح اللي هتجيله من Google)
-        this.geminiApiKey = '';  // 👈 حط المفتاح هنا
         
         // ===== 2. الذاكرة المتقدمة =====
         this.memory = this.loadMemory();
         this.userProfile = this.loadProfile();
         this.conversationHistory = [];
-        this.shortTermMemory = [];  // آخر 500 رسالة
+        this.shortTermMemory = [];
         this.longTermMemory = new Map();
         this.emotionalState = { happiness: 0.5, trust: 0.3, engagement: 0 };
         this.learningPatterns = new Map();
         
-        // ===== 3. Cache المتقدم (LRU + TTL) =====
+        // ===== 3. Cache =====
         this.responseCache = new Map();
         this.cacheMaxSize = 500;
-        this.cacheExpiry = 1000 * 60 * 30; // 30 دقيقة
+        this.cacheExpiry = 1000 * 60 * 30;
         this.queryAnalyticsCache = new Map();
         
-        // ===== 4. نظام الكلام المتقدم =====
+        // ===== 4. نظام الكلام =====
         this.speechQueue = [];
         this.isSpeaking = false;
         this.maxQueueSize = 20;
-        this.voiceSettings = {
-            lang: 'ar-EG',
-            rate: 0.95,
-            pitch: 1.0,
-            volume: 1
-        };
+        this.voiceSettings = { lang: 'ar-EG', rate: 0.95, pitch: 1.0, volume: 1 };
         
-        // ===== 5. معرفة شاملة =====
+        // ===== 5. قاعدة المعرفة المحلية =====
         this.knowledgeBase = null;
         this.knowledgeIndex = new Map();
         this.semanticIndex = new Map();
@@ -53,10 +43,10 @@ class EgyptianAIUltra {
             this.knowledgeBase = MEGA_KNOWLEDGE;
             this.buildKnowledgeIndex();
         } else {
-            console.warn('⚠️ MEGA_KNOWLEDGE غير موجود، سيتم استخدام قاعدة معرفة فارغة مؤقتاً');
+            console.warn('⚠️ MEGA_KNOWLEDGE غير موجود');
         }
         
-        // ===== 6. معالجات النية (Intents) =====
+        // ===== 6. معالجات النية =====
         this.intentsSystem = this.initIntents();
         
         // ===== 7. DOM والواجهة =====
@@ -67,37 +57,44 @@ class EgyptianAIUltra {
             theme: localStorage.getItem('theme') || 'modern'
         };
         
-        // ===== 8. البيانات الضخمة =====
-        this.loadExtendedData();
-        
-        // ===== 9. أدوات خارجية =====
+        // ===== 8. بيانات خارجية =====
         this.weatherCache = { data: null, timestamp: 0 };
         this.newsCache = { data: null, timestamp: 0 };
         this.trendingCache = { data: null, timestamp: 0 };
         
-        // ===== 10. الإحصائيات =====
+        // ===== 9. إحصائيات =====
         this.stats = {
-            totalMessages: 0,
-            totalResponses: 0,
-            avgResponseTime: 0,
-            favoriteTopics: new Map(),
-            userSatisfaction: 0,
-            cacheHitRate: 0,
-            learningAccuracy: 0
+            totalMessages: 0, totalResponses: 0, avgResponseTime: 0,
+            favoriteTopics: new Map(), userSatisfaction: 0,
+            cacheHitRate: 0, learningAccuracy: 0
         };
         
         this.init();
     }
 
-    // ========== دالة الاتصال بـ Gemini API (مجاني) ==========
+    // ========== إدارة مفتاح Gemini في localStorage ==========
+    getGeminiKey() {
+        return localStorage.getItem('gemini_api_key');
+    }
+
+    setGeminiKey(key) {
+        if (key && key.trim()) {
+            localStorage.setItem('gemini_api_key', key.trim());
+            return true;
+        }
+        return false;
+    }
+
+    // ========== دالة الاتصال بـ Gemini (تستخدم المفتاح المخزن) ==========
     async callGemini(question) {
-        if (!this.geminiApiKey || this.geminiApiKey === 'YOUR_GEMINI_API_KEY') {
-            console.warn('⚠️ لم يتم إعداد مفتاح Gemini API');
+        const apiKey = this.getGeminiKey();
+        if (!apiKey) {
+            console.warn('⚠️ مفتاح Gemini غير موجود');
             return null;
         }
         try {
             const response = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${this.geminiApiKey}`,
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -120,23 +117,35 @@ class EgyptianAIUltra {
         }
     }
 
-    // ==================== INITIALIZATION ====================
+    // ========== طلب إدخال المفتاح من المستخدم (مرة واحدة) ==========
+    promptForGeminiKey() {
+        const key = prompt("🔑 أدخل مفتاح Gemini API (مجاني)\nاحصل عليه من: https://aistudio.google.com");
+        if (key && key.trim()) {
+            this.setGeminiKey(key.trim());
+            alert("✅ تم حفظ المفتاح. يمكنك الآن استخدام Gemini عند الاتصال بالإنترنت.");
+            return true;
+        }
+        return false;
+    }
+
+    // ==================== INIT ====================
     async init() {
-        this.showLoading('⚡ تحميل أفخم إصدارة في التاريخ... المصري الذكي v10.1');
-        
+        this.showLoading('⚡ تحميل المصري الذكي v10.3 ...');
         try {
             if (typeof mobilenet !== 'undefined') {
                 try {
                     this.model = await mobilenet.load();
                     console.log('✅ mobilenet loaded');
-                } catch(e) { 
-                    console.warn('⚠️ mobilenet failed:', e); 
-                }
+                } catch(e) { console.warn('⚠️ mobilenet failed:', e); }
             }
-            
             this.loadExtendedData();
             this.setupEventListeners();
             this.isReady = true;
+            
+            // إذا لم يكن هناك مفتاح مخزّن، نطلب من المستخدم إدخاله (مرة واحدة)
+            if (!this.getGeminiKey()) {
+                this.promptForGeminiKey();
+            }
             
             const greeting = this.getSmartGreeting();
             this.addChatMessage(greeting, 'ai');
@@ -144,8 +153,8 @@ class EgyptianAIUltra {
             
             this.startCamera();
             this.updateNetStatus();
-            this.fetchWeather().catch(e => console.warn('Weather fetch error:', e));
-            this.fetchNews().catch(e => console.warn('News fetch error:', e));
+            this.fetchWeather().catch(e => console.warn(e));
+            this.fetchNews().catch(e => console.warn(e));
             this.analyzeContext();
             
             setInterval(() => this.updateNetStatus(), 30000);
@@ -154,8 +163,7 @@ class EgyptianAIUltra {
             setInterval(() => this.optimizeCache(), 900000);
             setInterval(() => this.analyzeContext(), 60000);
             
-            console.log('🔥 المصري الذكي v10.1 جاهز بكامل قوته + Gemini API');
-            
+            console.log('🔥 المصري الذكي v10.3 جاهز (Gemini اختياري + قاعدة محلية)');
         } catch(e) {
             console.error('❌ Error in init:', e);
         } finally {
@@ -163,7 +171,7 @@ class EgyptianAIUltra {
         }
     }
 
-    // ==================== المعرفة والفهرسة ====================
+    // ==================== المعرفة المحلية (نفس الكود السابق) ====================
     buildKnowledgeIndex() {
         if (!this.knowledgeBase) return;
         const entries = Object.entries(this.knowledgeBase);
@@ -177,9 +185,7 @@ class EgyptianAIUltra {
                 this.knowledgeIndex.set(normalized, { key, value });
                 const keywords = this.extractKeywords(key);
                 keywords.forEach(kw => {
-                    if (!this.semanticIndex.has(kw)) {
-                        this.semanticIndex.set(kw, []);
-                    }
+                    if (!this.semanticIndex.has(kw)) this.semanticIndex.set(kw, []);
                     this.semanticIndex.get(kw).push(normalized);
                 });
             }
@@ -209,21 +215,17 @@ class EgyptianAIUltra {
         return null;
     }
 
-    // ==================== نظام الذاكرة الذكي ====================
+    // ==================== الذاكرة ====================
     loadMemory() {
         const defaultMem = {
-            facts: {}, preferences: {}, corrections: {},
-            lastVisit: null, visitCount: 0, totalMessages: 0,
-            favoriteTopics: [], achievements: [], learnedSkills: [],
-            conversationThemes: new Map(), userInterests: new Set(),
+            facts: {}, preferences: {}, corrections: {}, lastVisit: null,
+            visitCount: 0, totalMessages: 0, favoriteTopics: [], achievements: [],
+            learnedSkills: [], conversationThemes: new Map(), userInterests: new Set(),
             emotionalResponses: [], correctionLog: []
         };
         try {
             const saved = localStorage.getItem('ai_egypt_memory_ultra_v10');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                return { ...defaultMem, ...parsed };
-            }
+            if (saved) return { ...defaultMem, ...JSON.parse(saved) };
         } catch(e) { console.warn('Memory load error:', e); }
         return defaultMem;
     }
@@ -246,12 +248,7 @@ class EgyptianAIUltra {
         catch { return {}; }
     }
 
-    saveProfile() {
-        try { localStorage.setItem('ai_egypt_profile_ultra', JSON.stringify(this.userProfile)); }
-        catch(e) { console.warn('Profile save error:', e); }
-    }
-
-    // ==================== نظام الأغراض (Intents) ====================
+    // ==================== الأغراض (Intents) ====================
     initIntents() {
         return {
             greeting: { patterns: ['سلام','أهلا','هلا','صباح','مسا','مرحبا','السلام','hello','hi','ازيك'], weight: 1.2, handler: () => this.getSmartGreeting() },
@@ -291,7 +288,7 @@ class EgyptianAIUltra {
         return bestIntent;
     }
 
-    // ==================== معالجات الأغراض ====================
+    // ==================== معالجات الأغراض (نفس الكود القديم) ====================
     getSmartGreeting() {
         const hour = new Date().getHours();
         let timeGreeting;
@@ -303,9 +300,9 @@ class EgyptianAIUltra {
         const name = this.memory.facts.name?.value;
         const visitCount = this.memory.visitCount || 0;
         if (visitCount === 0) {
-            return `${timeGreeting} يا غالي! 👋\nأنا المصري الذكي v10.1 - أفخم نسخة في التاريخ! 🔥\nقولي اسمك عشان نتعرف أحسن وأنا أحفظك في ذاكرتي 🧠❤️`;
+            return `${timeGreeting} يا غالي! 👋\nأنا المصري الذكي v10.3 - أنتظر مفتاح Gemini (اختياري) للردود المتقدمة. 🧠❤️`;
         } else if (visitCount === 1) {
-            return `${timeGreeting}${name ? ` يا ${name}` : ''}! 🎉\nأنا سعيد جداً بشوفتك تاني! شكراً إنك رجعت 💫`;
+            return `${timeGreeting}${name ? ` يا ${name}` : ''}! 🎉\nأنا سعيد بشوفتك تاني!`;
         } else {
             const daysSince = this.getDaysSince(new Date(this.memory.lastVisit));
             if (daysSince === 0) {
@@ -342,13 +339,13 @@ class EgyptianAIUltra {
     handleEmotion(message) {
         const lower = message.toLowerCase();
         if (lower.includes('زعلان') || lower.includes('حزين')) {
-            return `متزعلش يا قلبي! 🤗\nحتى أفضل الأيام بتشوبها ساعات سيئة.\nبس تذكر دايماً: "بعد العسر يسر" ✨\nأنا هنا لو حاجة أساعدك فيها`;
+            return `متزعلش يا قلبي! 🤗\n"بعد العسر يسر" ✨\nأنا هنا لو حاجة أساعدك فيها`;
         }
         if (lower.includes('فرحان') || lower.includes('مبسوط')) {
-            return `🎉 يا سلام! فرحتني بفرحتك!\nدي طاقة إيجابية كويسة جداً.\nتستاهل أفضل حاجة في الدنيا يا غالي! 💫`;
+            return `🎉 يا سلام! فرحتني بفرحتك!\nتستاهل أفضل حاجة في الدنيا! 💫`;
         }
         if (lower.includes('خايف') || lower.includes('قلق')) {
-            return `هدّي بالك يا حبيبي! 🧘\nالقلق بيأكل التركيز.\nخد نفس عميق واتوكل على الله.\nأنت أقوى مما تتخيل! 💪`;
+            return `هدّي بالك يا حبيبي! 🧘\nخد نفس عميق واتوكل على الله.\nأنت أقوى مما تتخيل! 💪`;
         }
         return `أنا حاسس بمشاعرك. تحتاج شيء معين؟ 💙`;
     }
@@ -360,7 +357,7 @@ class EgyptianAIUltra {
             this.memory.facts.name = { value: name, time: Date.now(), firstSet: this.memory.facts.name ? false : true };
             this.saveMemory();
             this.emotionalState.trust += 0.2;
-            return `🎉 حفظت يا سيدي!\nمن النهاردة هناديك ${name}!\nاسم جميل والله! فرحتني بمعرفة اسمك! 💙`;
+            return `🎉 حفظت! من النهاردة هناديك ${name}! 💙`;
         }
         return 'قول اسمك بوضوح زي "اسمي أحمد" مثلاً 😊';
     }
@@ -386,7 +383,7 @@ class EgyptianAIUltra {
         if (this.weatherCache.data && Date.now() - this.weatherCache.timestamp < 600000) {
             return `🌦️ الطقس: ${this.weatherCache.data}`;
         }
-        return 'معلومات الطقس غير متاحة حالياً. حاول تاني بعدين.';
+        return 'معلومات الطقس غير متاحة حالياً.';
     }
 
     getTimeReport() {
@@ -402,7 +399,7 @@ class EgyptianAIUltra {
     }
 
     getHealthAdvice() {
-        const tips = ['🥗 كل صحي: فول + طعمية + خضار = طاقة وصحة', '🏃 اتمشى: 30 دقيقة يومياً = صحة قلب وعقل', '💧 اشرب مية: 8 أكواب يومياً = جسم صحي', '😴 نم كويس: 7-8 ساعات = تركيز أحسن', '🧘 تنفس عميق: يهدي الأعصاب والقلق', '🚴 مارس رياضة: السباحة أحسن رياضة'];
+        const tips = ['🥗 كل صحي: فول + طعمية + خضار', '🏃 اتمشى 30 دقيقة يومياً', '💧 اشرب 8 أكواب مية', '😴 نم 7-8 ساعات', '🧘 تنفس عميق', '🚴 مارس رياضة'];
         return tips[Math.floor(Math.random() * tips.length)];
     }
 
@@ -438,7 +435,7 @@ class EgyptianAIUltra {
         return text;
     }
 
-    // ==================== نظام الكلام المتقدم ====================
+    // ==================== الكلام ====================
     speak(text) {
         if (!this.speakEnabled || !('speechSynthesis' in window)) return;
         const cleanText = text.replace(/[🎯📖📝🍎📂📚❓🌦️⏰🕐💫🎉🤗😄💔🌟💡🧘💙🎉🏃💧😴🚴📖💪]/g, '').trim();
@@ -461,17 +458,16 @@ class EgyptianAIUltra {
         try { window.speechSynthesis.speak(utterance); } catch(e) { console.warn('Speech error:', e); this.isSpeaking = false; this.processQueue(); }
     }
 
-    // ==================== معالجة الرسائل (متزامنة مع Gemini) ====================
+    // ==================== معالجة الرسائل (الذكاء المختلط) ====================
     async sendMessage() {
         const input = this.getDom('chatInput');
         if (!input) return;
         const message = input.value.trim();
         if (!message) return;
-        
         this.addChatMessage(message, 'user');
         input.value = '';
-        
-        // 1. جرب الرد من الكاش
+
+        // 1. الكاش
         const cached = this.getCached(message);
         if (cached) {
             setTimeout(() => {
@@ -481,20 +477,33 @@ class EgyptianAIUltra {
             this.stats.cacheHitRate = ((this.stats.cacheHitRate * this.stats.totalMessages) + 1) / (this.stats.totalMessages + 1);
             return;
         }
-        
-        // 2. جرب الرد من المعرفة المحلية (نكت، حكم، قاعدة البيانات)
-        let response = this.generateResponse(message); // generateResponse تعمل synchronously في الكود الحالي
-        
-        // 3. إذا الرد ضعيف أو مش موجود، اطلب من Gemini
-        if (!response || response.includes('مش فاهم') || response.includes('سؤال حلو') || response.includes('محاولة فهم')) {
-            const aiReply = await this.callGemini(message);
-            if (aiReply) {
-                response = aiReply;
-            } else {
-                response = "آسف، الذكاء الاصطناعي مش قادر يرد دلوقتي.";
+
+        let response = null;
+        const isOnline = navigator.onLine;
+        const hasGeminiKey = !!this.getGeminiKey();
+
+        // 2. إذا كان النت شغال والمفتاح موجود → استخدم Gemini
+        if (isOnline && hasGeminiKey) {
+            const geminiReply = await this.callGemini(message);
+            if (geminiReply) {
+                response = geminiReply;
             }
         }
-        
+
+        // 3. فشل Gemini أو لا نت أو لا مفتاح → استخدم المعرفة المحلية
+        if (!response) {
+            response = this.generateResponse(message);
+            if (!response || response.includes('مش فاهم') || response.includes('سؤال حلو')) {
+                if (!isOnline) {
+                    response = "🌐 أنت غير متصل بالإنترنت. أنا أرد من معلوماتي المحلية. جرب تسألني عن الأكل المصري، التاريخ، أو النكت. 🔌";
+                } else if (!hasGeminiKey) {
+                    response = "🔑 لم تقم بإدخال مفتاح Gemini بعد. يمكنك إدخاله الآن من خلال الضغط على زر الإعدادات (أو سيظهر لك طلب في البداية). حالياً أرد من معرفتي المحلية. 💡";
+                } else {
+                    response = response || "آسف، لم أستطع جلب إجابة من Gemini حالياً. إليك رد من معلوماتي المحلية. 😊";
+                }
+            }
+        }
+
         this.setCached(message, response);
         setTimeout(() => {
             this.addChatMessage(response, 'ai');
@@ -535,7 +544,7 @@ class EgyptianAIUltra {
         this.saveMemory();
     }
 
-    // ==================== نظام الـ Cache المتقدم ====================
+    // ==================== Cache ====================
     getCached(query) {
         const key = this.normalize(query);
         if (this.responseCache.has(key)) {
@@ -572,7 +581,7 @@ class EgyptianAIUltra {
         if (removed > 0) console.log(`🧹 تم تنظيف ${removed} عناصر من الـ Cache`);
     }
 
-    // ==================== بيانات خارجية ====================
+    // ==================== خدمات خارجية ====================
     async fetchWeather(city = 'Cairo') {
         try {
             const res = await fetch(`https://wttr.in/${city}?format=%C+%t+%w+%h`);
@@ -605,7 +614,7 @@ class EgyptianAIUltra {
 
     getDaysSince(date) { return Math.floor((Date.now() - date) / (1000*60*60*24)); }
 
-    // ==================== واجهة المستخدم ====================
+    // ==================== DOM والواجهة ====================
     getDom(id) {
         if (!this.dom[id]) this.dom[id] = document.getElementById(id);
         return this.dom[id];
@@ -689,10 +698,10 @@ class EgyptianAIUltra {
     }
 }
 
-// ==================== البدء الفوري ====================
+// ==================== بدء التشغيل ====================
 window.addEventListener('DOMContentLoaded', () => {
     window.egyptianAI = new EgyptianAIUltra();
-    console.log('✅ المصري الذكي ULTRA v10.1 (مع Gemini) مُفعّل!');
+    console.log('✅ المصري الذكي ULTRA v10.3 (Gemini اختياري) مُفعّل!');
 });
 
 function showDevInfo() { const modal = document.getElementById('devModal'); if (modal) modal.classList.remove('hidden'); if (window.egyptianAI) console.table(window.egyptianAI.getStats()); }
