@@ -5,7 +5,6 @@
 
 class EgyptianAI {
     constructor() {
-        // الأساسيات
         this.model = null;
         this.isReady = false;
         this.speakEnabled = true;
@@ -15,35 +14,23 @@ class EgyptianAI {
         this.friendshipLevel = 0;
         this.apiKey = localStorage.getItem('ai_api_key') || '';
         this.weatherCache = { data: null, timestamp: 0 };
-
-        // Speech queue
         this.speechQueue = [];
         this.isSpeaking = false;
         this.maxQueueSize = 8;
-
-        // Response cache (LRU)
         this.responseCache = new Map();
         this.cacheMaxSize = 200;
-        this.cacheExpiry = 1000 * 60 * 10; // 10 دقائق
-
-        // Memory (sync)
+        this.cacheExpiry = 1000 * 60 * 10;
         this.memory = this.loadMemory();
         this.userProfile = this.loadProfile();
-
-        // معرفة من window.aiKnowledgeBase? (إن وجدت)
         this.knowledgeBase = null;
         if (typeof MEGA_KNOWLEDGE !== 'undefined') this.knowledgeBase = MEGA_KNOWLEDGE;
-
-        // DOM refs (سيتم تعبئتها عند الحاجة)
         this.dom = {};
-
         this.init();
     }
 
-    // ========== MEMORY (مع حدود) ==========
     loadMemory() {
         const defaultMem = {
-            facts: {},             // max 100
+            facts: {},
             preferences: {},
             corrections: {},
             lastVisit: null,
@@ -57,7 +44,6 @@ class EgyptianAI {
             const saved = localStorage.getItem('ai_egypt_ultra_memory_profile');
             if (saved) {
                 const profile = JSON.parse(saved);
-                // تنظيف الحقائق: إزالة القديمة (أكثر من 7 أيام) والحد الأقصى 100
                 const now = Date.now();
                 const cleanFacts = {};
                 for (const [key, val] of Object.entries(profile.facts || {})) {
@@ -100,7 +86,6 @@ class EgyptianAI {
         catch { return {}; }
     }
 
-    // ========== INTENTS (scoring محسن) ==========
     intents = [
         { key: 'greeting', patterns: ['سلام','أهلا','هلا','صباح','مسا','مرحبا','السلام','hello','hi'], weight: 1.2 },
         { key: 'joke', patterns: ['نكتة','ضحك','هزار','تنكّت'], weight: 1.5 },
@@ -124,7 +109,6 @@ class EgyptianAI {
             for (let pat of intent.patterns) {
                 let idx = lower.indexOf(pat);
                 if (idx !== -1) {
-                    // boost حسب طول النمط وموقعه
                     let boost = (pat.length > 2 ? 1.5 : 1) * (idx === 0 ? 1.2 : 1);
                     score += boost * intent.weight;
                 }
@@ -140,14 +124,12 @@ class EgyptianAI {
         return best.key;
     }
 
-    // ========== KNOWLEDGE (بحث سريع) ==========
     searchKnowledge(query) {
         if (!this.knowledgeBase) return null;
         const q = query.toLowerCase();
         for (let [key, data] of Object.entries(this.knowledgeBase)) {
             if (q.includes(key.toLowerCase())) return { key, data };
         }
-        // حاول بالكلمات
         let words = q.split(/\s+/);
         for (let w of words) {
             if (w.length < 2) continue;
@@ -158,14 +140,13 @@ class EgyptianAI {
         return null;
     }
 
-    // ========== RESPONSE CACHE ==========
     getCached(query) {
         let key = this.normalizeKey(query);
         if (this.responseCache.has(key)) {
             let cached = this.responseCache.get(key);
             if (Date.now() - cached.time < this.cacheExpiry) {
                 this.responseCache.delete(key);
-                this.responseCache.set(key, cached); // LRU update
+                this.responseCache.set(key, cached);
                 return cached.response;
             } else {
                 this.responseCache.delete(key);
@@ -187,7 +168,6 @@ class EgyptianAI {
         return str.trim().toLowerCase().replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/[ى]/g,'ي');
     }
 
-    // ========== SPEECH QUEUE ==========
     speak(text) {
         if (!this.speakEnabled || !('speechSynthesis' in window)) return;
         this.speechQueue.push(text);
@@ -214,7 +194,6 @@ class EgyptianAI {
         window.speechSynthesis.speak(utterance);
     }
 
-    // ========== INIT ==========
     async init() {
         this.showLoading('بصيص العقل المصري... 🧠⚡');
         if (typeof mobilenet !== 'undefined') {
@@ -240,7 +219,6 @@ class EgyptianAI {
         return name ? `${time} يا ${name}! ❤️` : `${time} يا فندم! تشرفنا`;
     }
 
-    // ========== UI & DOM ==========
     getDom(id) {
         if (!this.dom[id]) this.dom[id] = document.getElementById(id);
         return this.dom[id];
@@ -380,13 +358,11 @@ class EgyptianAI {
     }
 
     learnFromConversation(user, ai) {
-        // حفظ آخر محادثة (اختياري) بدون تعقيد
         this.memory.totalMessages++;
         this.memory.visitCount = (this.memory.visitCount||0)+1;
         this.saveMemory();
     }
 
-    // ========== WEATHER ==========
     async fetchWeather(city='Cairo') {
         try {
             let res = await fetch(`https://wttr.in/${city}?format=%C+%t+%w+%h`);
@@ -397,7 +373,6 @@ class EgyptianAI {
         }
     }
 
-    // ========== DEEP SEARCH (يستخدم searchEngine من ai-search.js) ==========
     async performDeepSearch(query) {
         if (window.searchEngine) {
             let result = await window.searchEngine.performDeepSearch(query);
@@ -408,7 +383,6 @@ class EgyptianAI {
         }
     }
 
-    // ========== CAMERA (اختصار) ==========
     async startCamera() {
         let vid = this.getDom('video');
         if (!vid) return;
@@ -485,7 +459,6 @@ class EgyptianAI {
     }
 }
 
-// بدء التشغيل
 window.addEventListener('DOMContentLoaded', () => {
     window.ai = new EgyptianAI();
 });
