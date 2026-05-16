@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>المصري الذكي – النسر الرقمي الفاخر</title>
+  <title>المصري الذكي – النسخة الاسطورية 🦅</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -21,11 +21,9 @@
       --gold: #ffd166;
       --shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
     }
-
     * { box-sizing: border-box; }
-    html, body { height: 100%; }
+    html, body { height: 100%; margin: 0; }
     body {
-      margin: 0;
       font-family: 'Cairo', sans-serif;
       color: var(--text);
       overflow: hidden;
@@ -34,7 +32,6 @@
         radial-gradient(circle at bottom left, rgba(255, 209, 102, 0.10), transparent 26%),
         linear-gradient(135deg, var(--bg-1), var(--bg-2) 52%, var(--bg-3));
     }
-
     .wallpaper {
       position: fixed;
       inset: 0;
@@ -47,14 +44,12 @@
       pointer-events: none;
       transform: scale(1.03);
     }
-
     .overlay {
       position: fixed;
       inset: 0;
       background: linear-gradient(135deg, rgba(3, 8, 16, 0.18), rgba(5, 11, 20, 0.18));
       pointer-events: none;
     }
-
     .app {
       position: relative;
       z-index: 1;
@@ -62,10 +57,9 @@
       width: 100%;
       height: 100vh;
     }
-
     .sidebar {
-      width: 360px;
-      min-width: 360px;
+      width: 380px;
+      min-width: 380px;
       height: 100vh;
       display: flex;
       flex-direction: column;
@@ -76,7 +70,6 @@
       overflow: hidden;
       position: relative;
     }
-
     .sidebar::after {
       content: '';
       position: absolute;
@@ -86,7 +79,6 @@
       background: radial-gradient(circle, rgba(16, 163, 127, 0.22), transparent 65%);
       pointer-events: none;
     }
-
     .brand {
       padding: 26px 24px 18px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -94,7 +86,6 @@
       position: relative;
       z-index: 1;
     }
-
     .brand-badge {
       width: 74px;
       height: 74px;
@@ -107,7 +98,6 @@
       font-size: 2rem;
       box-shadow: 0 14px 35px rgba(16, 163, 127, 0.25);
     }
-
     .logo {
       margin: 0;
       font-size: 2rem;
@@ -118,13 +108,10 @@
       background-clip: text;
       color: transparent;
     }
-
-    .brand small { display: block; margin-top: 8px; color: var(--muted); }
-
+    .brand small { display: block; margin-top: 8px; color: var(--muted); font-size: 0.85rem; }
     .sidebar-tools, .tabs, .conversation-panel, .sidebar-footer { position: relative; z-index: 1; }
     .sidebar-tools { padding: 14px 12px 8px; display: grid; gap: 10px; }
     .sidebar-tool-row, .row { display: flex; gap: 10px; flex-wrap: wrap; }
-
     .chip, .small-btn {
       border: 1px solid rgba(255, 255, 255, 0.10);
       background: rgba(255, 255, 255, 0.06);
@@ -135,10 +122,9 @@
       font-size: 0.92rem;
       transition: 0.22s ease;
       white-space: nowrap;
+      font-family: inherit;
     }
-
     .chip:hover, .small-btn:hover { background: rgba(255, 255, 255, 0.10); transform: translateY(-1px); }
-
     .tabs { padding: 10px 12px 8px; display: grid; gap: 10px; }
     .tab-btn {
       border: 1px solid transparent;
@@ -154,6 +140,7 @@
       align-items: center;
       gap: 12px;
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+      font-family: inherit;
     }
     .tab-btn i { width: 22px; text-align: center; color: var(--gold); }
     .tab-btn.active {
@@ -162,7 +149,6 @@
       box-shadow: 0 10px 30px rgba(16, 163, 127, 0.18);
       color: #fff;
     }
-
     .conversation-panel {
       margin: 6px 12px 0;
       background: rgba(255, 255, 255, 0.04);
@@ -181,6 +167,8 @@
       justify-content: space-between;
       align-items: center;
       gap: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
     }
     .conversation-list { overflow: auto; padding: 10px; display: grid; gap: 8px; min-height: 0; }
     .conversation-item {
@@ -192,12 +180,12 @@
       padding: 12px;
       cursor: pointer;
       transition: 0.2s ease;
+      font-size: 0.92rem;
     }
     .conversation-item:hover { background: rgba(255, 255, 255, 0.08); }
     .conversation-item.active { background: linear-gradient(135deg, rgba(16, 163, 127, 0.28), rgba(255, 209, 102, 0.15)); border-color: rgba(255, 209, 102, 0.22); }
     .conversation-item .title { font-weight: 800; margin-bottom: 4px; }
     .conversation-item .meta { color: var(--muted); font-size: 0.85rem; }
-
     .sidebar-footer {
       margin-top: auto;
       padding: 16px 18px 22px;
@@ -205,9 +193,9 @@
       color: rgba(234, 242, 255, 0.8);
       text-align: center;
       background: rgba(0, 0, 0, 0.10);
+      font-size: 0.9rem;
     }
-    .sidebar-footer strong { color: #fff; display: block; margin-bottom: 6px; }
-
+    .sidebar-footer strong { color: #fff; display: block; margin-bottom: 6px; font-size: 0.95rem; }
     .main-content {
       flex: 1;
       min-width: 0;
@@ -217,7 +205,6 @@
       background: rgba(0, 0, 0, 0.04);
       backdrop-filter: blur(10px);
     }
-
     .topbar {
       padding: 18px 22px;
       display: flex;
@@ -231,11 +218,9 @@
     .topbar h3 { margin: 0; font-size: 1.15rem; color: #fff; }
     .topbar .hint { color: var(--muted); font-size: 0.92rem; }
     .topbar .right { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
-
     .panel { display: none; flex: 1; min-height: 0; flex-direction: column; }
     .panel.active { display: flex; }
     .panel-inner { padding: 22px; height: 100%; overflow: auto; }
-
     .hero-card {
       background: linear-gradient(135deg, rgba(16, 163, 127, 0.12), rgba(255, 209, 102, 0.08));
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -254,7 +239,6 @@
     }
     .mini-stat .label { color: var(--muted); font-size: 0.9rem; }
     .mini-stat .value { font-size: 1.04rem; font-weight: 800; margin-top: 8px; word-break: break-word; }
-
     .card-shell { background: var(--panel); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 28px; box-shadow: var(--shadow); overflow: hidden; }
     .section-head {
       display: flex;
@@ -265,9 +249,8 @@
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       background: rgba(255, 255, 255, 0.02);
     }
-    .section-head h3 { margin: 0; }
+    .section-head h3 { margin: 0; font-size: 1.05rem; }
     .section-head .subtle { color: var(--muted); font-size: 0.92rem; }
-
     .select, .input, textarea {
       width: 100%;
       border: 1px solid rgba(255, 255, 255, 0.10);
@@ -278,13 +261,13 @@
       outline: none;
       transition: 0.25s ease;
       font-family: inherit;
+      font-size: 0.95rem;
     }
     .select:focus, .input:focus, textarea:focus {
       border-color: rgba(16, 163, 127, 0.55);
       box-shadow: 0 0 0 4px rgba(16, 163, 127, 0.12);
     }
     textarea { resize: none; min-height: 58px; max-height: 240px; line-height: 1.8; }
-
     .action-btn {
       border: none;
       cursor: pointer;
@@ -302,7 +285,6 @@
     .action-btn:hover { transform: translateY(-1px); filter: brightness(1.03); }
     .action-btn:disabled { opacity: 0.7; cursor: wait; transform: none; }
     .ghost-btn { background: rgba(255, 255, 255, 0.08); color: #fff; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: none; font-weight: 700; }
-
     .chat-messages { flex: 1; overflow-y: auto; padding: 22px; display: flex; flex-direction: column; gap: 14px; min-height: 0; }
     .message { display: flex; gap: 14px; align-items: flex-end; animation: fadeInUp 0.28s ease; }
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
@@ -330,10 +312,10 @@
       white-space: pre-wrap;
       word-break: break-word;
       overflow-wrap: anywhere;
+      font-size: 0.95rem;
     }
     .message.user .message-content { border-radius: 22px 22px 22px 8px; background: linear-gradient(135deg, rgba(16, 163, 127, 0.95), rgba(13, 143, 107, 0.96)); color: #fff; border-color: rgba(255, 255, 255, 0.05); }
     .img-preview, .web-image { width: 100%; max-width: 100%; border-radius: 18px; margin-top: 10px; border: 1px solid rgba(255, 255, 255, 0.12); cursor: zoom-in; display: block; }
-
     .composer { padding: 18px 22px 22px; border-top: 1px solid rgba(255, 255, 255, 0.08); background: rgba(7, 15, 28, 0.84); backdrop-filter: blur(18px); }
     .composer-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: end; }
     .composer-tools { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
@@ -353,7 +335,6 @@
     .attachment-meta { flex: 1; min-width: 0; }
     .attachment-meta .title { font-weight: 800; }
     .attachment-meta .sub { color: var(--muted); font-size: 0.9rem; word-break: break-word; }
-
     .grid-2 { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 18px; }
     .box { padding: 18px; }
     .search-results, .settings-box, .image-box { min-height: 320px; }
@@ -363,10 +344,10 @@
       margin-bottom: 12px;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.07);
+      font-size: 0.92rem;
     }
     .result-item strong { color: #fff; }
     .result-item small { color: var(--muted); line-height: 1.8; display: block; margin-top: 6px; }
-
     .status {
       margin-top: 12px;
       padding: 12px 14px;
@@ -377,18 +358,18 @@
       line-height: 1.8;
       word-break: break-word;
       overflow-wrap: anywhere;
+      font-size: 0.9rem;
     }
     .status.good { color: #8ff3d2; border-color: rgba(16, 163, 127, 0.25); }
     .status.bad { color: #ffb4b4; border-color: rgba(255, 107, 107, 0.28); }
     .status.warn { color: #ffdca0; border-color: rgba(255, 209, 102, 0.25); }
-
     .empty-state { padding: 22px; text-align: center; color: var(--muted); border: 1px dashed rgba(255, 255, 255, 0.12); border-radius: 18px; background: rgba(255, 255, 255, 0.03); }
     .hidden { display: none !important; }
     .loader { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); }
     .spinner { display: inline-flex; align-items: center; gap: 10px; }
     .pulse { width: 10px; height: 10px; border-radius: 50%; background: var(--gold); animation: pulse 1.2s infinite; }
     @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 209, 102, 0.55); } 70% { box-shadow: 0 0 0 12px rgba(255, 209, 102, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 209, 102, 0); } }
-
+    .spacer { height: 12px; }
     @media (max-width: 1180px) {
       .sidebar { width: 320px; min-width: 320px; }
       .hero-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -417,104 +398,99 @@
       <div class="brand">
         <div class="brand-badge">🦅</div>
         <h1 class="logo">المصري الذكي</h1>
-        <small>النسر الرقمي الفاخر</small>
+        <small>النسخة الاسطورية v2.0 | Fallback ذكي + كل الموديلات</small>
       </div>
-
       <div class="sidebar-tools">
         <div class="sidebar-tool-row">
-          <button class="small-btn" id="newChatBtn"><i class="fas fa-plus"></i> محادثة جديدة</button>
+          <button class="small-btn" id="newChatBtn"><i class="fas fa-plus"></i> محادثة</button>
           <button class="small-btn" id="exportChatsBtn"><i class="fas fa-download"></i> تصدير</button>
           <button class="small-btn" id="importChatsBtn"><i class="fas fa-upload"></i> استيراد</button>
         </div>
       </div>
-
       <div class="tabs">
         <button class="tab-btn active" data-tab="chat"><i class="fas fa-comments"></i><span>دردشة</span></button>
-        <button class="tab-btn" data-tab="search"><i class="fas fa-magnifying-glass"></i><span>بحث عميق</span></button>
-        <button class="tab-btn" data-tab="image"><i class="fas fa-wand-magic-sparkles"></i><span>توليد صور</span></button>
+        <button class="tab-btn" data-tab="search"><i class="fas fa-magnifying-glass"></i><span>بحث</span></button>
+        <button class="tab-btn" data-tab="image"><i class="fas fa-wand-magic-sparkles"></i><span>صور</span></button>
         <button class="tab-btn" data-tab="settings"><i class="fas fa-gear"></i><span>الإعدادات</span></button>
       </div>
-
       <div class="conversation-panel">
         <div class="conversation-head">
-          <strong>المحادثات المحفوظة</strong>
-          <button class="small-btn" id="clearAllChatsBtn" title="مسح كل المحادثات"><i class="fas fa-broom"></i></button>
+          <button class="small-btn" id="clearAllChatsBtn" title="مسح المحادثات"><i class="fas fa-broom"></i></button>
+          <strong>المحفوظة</strong>
         </div>
         <div id="conversationList" class="conversation-list"></div>
       </div>
-
       <div class="sidebar-footer">
-        <strong>Mohamed Ragab Abdel Moneim</strong>
-        <div class="muted">مطوّر المشروع</div>
+        <strong>🚀 مطور البرنامج</strong>
+        <div>Mohamed Ragab Abdelmonem</div>
       </div>
     </aside>
-
     <main class="main-content">
       <div class="topbar">
         <div>
           <h3 id="panelTitle">🦅 دردشة ذكية</h3>
-          <div class="hint" id="panelHint">ابدأ من هنا، وبدّل بين الشات والبحث والصور والإعدادات.</div>
+          <div class="hint" id="panelHint">ابدأ من هنا.</div>
         </div>
         <div class="right">
-          <button class="chip" id="bgPrevBtn"><i class="fas fa-arrow-right"></i> خلفية سابقة</button>
-          <button class="chip" id="bgNextBtn"><i class="fas fa-arrow-left"></i> خلفية تالية</button>
-          <button class="chip" id="bgAutoBtn"><i class="fas fa-rotate"></i> خلفية تلقائية</button>
+          <button class="chip" id="bgPrevBtn"><i class="fas fa-arrow-right"></i> سابق</button>
+          <button class="chip" id="bgNextBtn"><i class="fas fa-arrow-left"></i> التالي</button>
+          <button class="chip" id="bgAutoBtn"><i class="fas fa-rotate"></i> خلفية</button>
           <button class="chip" id="newChatTopBtn"><i class="fas fa-plus"></i> شات جديد</button>
-          <button class="chip" id="clearChatBtn"><i class="fas fa-trash"></i> مسح المحادثة</button>
-          <button class="chip" id="renameChatBtn"><i class="fas fa-pen"></i> إعادة تسمية</button>
-          <button class="chip" id="pasteKeyBtn"><i class="fas fa-key"></i> لصق المفتاح</button>
+          <button class="chip" id="clearChatBtn"><i class="fas fa-trash"></i> مسح</button>
         </div>
       </div>
 
+      <!-- Chat Panel -->
       <section id="chat" class="panel active">
         <div class="panel-inner" style="padding:0;display:flex;flex-direction:column;min-height:0;">
           <div class="hero-card" style="margin:22px 22px 0;">
             <div class="row" style="justify-content:space-between;align-items:center;">
               <div>
-                <div class="muted">وضع الدردشة</div>
-                <div style="font-size:1.2rem;font-weight:800;margin-top:4px;">محادثات محفوظة، موديلات متعددة، وفحص صور</div>
+                <div class="muted">إعدادات الدردشة</div>
+                <div style="font-size:1.1rem;font-weight:800;margin-top:4px;">موديلات ذكية + Fallback تلقائي</div>
               </div>
-              <div style="min-width:320px;width:min(100%,460px);display:grid;gap:10px;">
-                <select id="providerSelect" class="select"><option value="groq">Groq</option><option value="openai">OpenAI / ChatGPT (API)</option></select>
-                <select id="routingModeSelect" class="select"><option value="auto">Auto routing</option><option value="manual">Manual model</option></select>
+              <div style="min-width:320px;width:min(100%,480px);display:grid;gap:10px;">
+                <select id="providerSelect" class="select"></select>
+                <select id="routingModeSelect" class="select">
+                  <option value="auto">🤖 تلقائي ذكي (Fallback)</option>
+                  <option value="manual">🎯 موديل محدد</option>
+                </select>
                 <select id="modelSelect" class="select"></select>
-                <input id="customModelInput" class="input" placeholder="أضف Model ID مخصص مفصول بفواصل" />
               </div>
             </div>
             <div class="hero-grid">
-              <div class="mini-stat"><div class="label">المفتاح</div><div class="value" id="keyState">غير محفوظ</div></div>
-              <div class="mini-stat"><div class="label">الموديل</div><div class="value" id="modelState">—</div></div>
-              <div class="mini-stat"><div class="label">الحالة</div><div class="value" id="apiState">جاهز</div></div>
-              <div class="mini-stat"><div class="label">المحادثة</div><div class="value" id="chatState">جديدة</div></div>
+              <div class="mini-stat"><div class="label">🔑 المفتاح</div><div class="value" id="keyState">—</div></div>
+              <div class="mini-stat"><div class="label">🤖 الموديل</div><div class="value" id="modelState">—</div></div>
+              <div class="mini-stat"><div class="label">⚡ الحالة</div><div class="value" id="apiState">—</div></div>
+              <div class="mini-stat"><div class="label">💬 الرسائل</div><div class="value" id="chatState">—</div></div>
             </div>
           </div>
-
           <div id="chatMessages" class="chat-messages"></div>
-
           <div class="composer">
             <div class="composer-tools">
-              <button class="chip" data-fill="اشرح لي الفكرة دي ببساطة وبأسلوب سهل.">شرح بسيط</button>
-              <button class="chip" data-fill="اكتب لي كود نظيف ومحترف للحل ده.">كود محترف</button>
-              <button class="chip" data-fill="راجع هذا الكود وقل لي الأخطاء بوضوح.">مراجعة كود</button>
-              <button class="chip" data-fill="حوّل الفكرة دي لواجهة فخمة جدًا.">واجهة فخمة</button>
-              <button class="chip" id="attachImageBtn"><i class="fas fa-paperclip"></i> إرفاق صورة</button>
-              <button class="chip" id="clearAttachmentBtn"><i class="fas fa-xmark"></i> حذف الصورة</button>
+              <button class="chip" data-fill="اشرح لي هذا ببساطة جدًا 📝">شرح بسيط</button>
+              <button class="chip" data-fill="اكتب لي كود احترافي ونظيف 💻">كود محترف</button>
+              <button class="chip" data-fill="راجع الكود واكتشف الأخطاء 🔍">مراجعة كود</button>
+              <button class="chip" data-fill="حوّل الفكرة لواجهة فخمة جدًا ✨">واجهة فخمة</button>
+              <button class="chip" id="attachImageBtn"><i class="fas fa-paperclip"></i> صورة</button>
+              <button class="chip" id="clearAttachmentBtn"><i class="fas fa-xmark"></i> حذف</button>
             </div>
             <div id="attachmentBox" class="attachment-box">
-              <img id="attachmentPreview" class="attachment-preview" alt="attachment preview" />
+              <img id="attachmentPreview" class="attachment-preview" alt="attachment" />
               <div class="attachment-meta">
                 <div class="title" id="attachmentTitle">صورة مرفقة</div>
-                <div class="sub" id="attachmentSub">جاهزة للفحص أو الوصف.</div>
+                <div class="sub">جاهزة للفحص 🔍</div>
               </div>
             </div>
             <div class="composer-row" style="margin-top:12px;">
-              <textarea id="chatInput" rows="2" placeholder="اكتب رسالتك... (Enter للإرسال / Shift+Enter لسطر جديد)"></textarea>
+              <textarea id="chatInput" rows="2" placeholder="اكتب رسالتك... (Enter للإرسال / Shift+Enter سطر جديد)"></textarea>
               <button id="sendBtn" class="action-btn"><i class="fas fa-paper-plane"></i> إرسال</button>
             </div>
           </div>
         </div>
       </section>
 
+      <!-- Search Panel -->
       <section id="search" class="panel">
         <div class="panel-inner">
           <div class="grid-2">
@@ -522,120 +498,105 @@
               <div class="section-head">
                 <div>
                   <h3><i class="fas fa-magnifying-glass"></i> بحث عميق</h3>
-                  <div class="subtle">ويكيبيديا + صور من الإنترنت + فتح جوجل مباشرة.</div>
+                  <div class="subtle">ويكيبيديا + صور + جوجل مباشر</div>
                 </div>
               </div>
               <div class="box">
                 <input id="searchInput" class="input" placeholder="ابحث عن أي شيء..." />
                 <div class="spacer"></div>
                 <div class="row">
-                  <button id="searchBtn" class="action-btn"><i class="fas fa-magnifying-glass"></i> بحث عميق</button>
-                  <button id="googleSearchBtn" class="action-btn ghost-btn"><i class="fab fa-google"></i> بحث جوجل</button>
+                  <button id="searchBtn" class="action-btn"><i class="fas fa-magnifying-glass"></i> بحث</button>
+                  <button id="googleSearchBtn" class="action-btn ghost-btn"><i class="fab fa-google"></i> جوجل</button>
                   <button id="searchClearBtn" class="action-btn ghost-btn"><i class="fas fa-eraser"></i> مسح</button>
                 </div>
-                <div class="status muted">البحث العميق يجمع نتائج من ويكيبيديا + صور عامة من الإنترنت. زر جوجل يفتح نتائج البحث مباشرة.</div>
               </div>
             </div>
             <div class="card-shell search-results">
               <div class="section-head">
-                <div>
-                  <h3><i class="fas fa-layer-group"></i> النتائج</h3>
-                  <div class="subtle">هيبان هنا ملخص مرتب للمصادر المختلفة.</div>
-                </div>
+                <h3><i class="fas fa-layer-group"></i> النتائج</h3>
               </div>
-              <div id="searchResults" class="box muted">ابدأ بعملية البحث.</div>
+              <div id="searchResults" class="box muted">ابدأ بالبحث...</div>
             </div>
           </div>
         </div>
       </section>
 
+      <!-- Image Panel -->
       <section id="image" class="panel">
         <div class="panel-inner">
           <div class="grid-2">
             <div class="card-shell">
               <div class="section-head">
                 <div>
-                  <h3><i class="fas fa-palette"></i> توليد / بحث صور</h3>
-                  <div class="subtle">ارسم صورة، أو ابحث عن صورة من الإنترنت، أو افحص صورة مرفقة.</div>
+                  <h3><i class="fas fa-palette"></i> الصور الذكية</h3>
+                  <div class="subtle">رسم + بحث + فحص صور</div>
                 </div>
               </div>
               <div class="box">
-                <input id="imagePrompt" class="input" placeholder="مثال: مدينة مصرية مستقبلية ليلًا، إضاءة نيون، تفاصيل سينمائية" />
+                <input id="imagePrompt" class="input" placeholder="اكتب وصف الصورة المطلوبة..." />
                 <div class="spacer"></div>
                 <div class="row">
-                  <button id="genBtn" class="action-btn"><i class="fas fa-wand-magic-sparkles"></i> ارسم لي صورة</button>
-                  <button id="webImageBtn" class="action-btn ghost-btn"><i class="fas fa-globe"></i> هات صورة من النت</button>
-                  <button id="samplePromptBtn" class="action-btn ghost-btn"><i class="fas fa-star"></i> مثال جاهز</button>
+                  <button id="genBtn" class="action-btn"><i class="fas fa-wand-magic-sparkles"></i> ارسم</button>
+                  <button id="webImageBtn" class="action-btn ghost-btn"><i class="fas fa-globe"></i> بحث</button>
+                  <button id="samplePromptBtn" class="action-btn ghost-btn"><i class="fas fa-star"></i> مثال</button>
                 </div>
-                <div class="status muted">لو كتبت: «ارسم لي صورة ...» سيتم التوليد. ولو كتبت: «هاتلي صورة ...» سيتم جلب صور عامة وعرضها هنا.</div>
               </div>
             </div>
             <div class="card-shell image-box">
               <div class="section-head">
-                <div>
-                  <h3><i class="fas fa-image"></i> المعاينة</h3>
-                  <div class="subtle">الصورة تظهر هنا بمجرد التوليد أو البحث.</div>
-                </div>
+                <h3><i class="fas fa-image"></i> المعاينة</h3>
               </div>
-              <div id="imageResult" class="box muted">لا توجد صورة بعد.</div>
+              <div id="imageResult" class="box muted">لا توجد صورة بعد...</div>
             </div>
           </div>
         </div>
       </section>
 
+      <!-- Settings Panel -->
       <section id="settings" class="panel">
         <div class="panel-inner">
           <div class="grid-2">
             <div class="card-shell settings-box">
               <div class="section-head">
                 <div>
-                  <h3><i class="fas fa-key"></i> إعدادات المفاتيح</h3>
-                  <div class="subtle">Groq للموديلات السريعة، وOpenAI/ChatGPT (API) للموديلات الخاصة به.</div>
+                  <h3><i class="fas fa-key"></i> المفاتيح</h3>
+                  <div class="subtle">Groq و OpenAI API</div>
                 </div>
               </div>
               <div class="box">
-                <label class="muted" for="groqKeyInput">مفتاح Groq API</label>
-                <div class="spacer"></div>
+                <label class="muted">🔑 Groq API Key</label>
                 <input type="password" id="groqKeyInput" class="input" placeholder="gsk_..." autocomplete="off" />
                 <div class="spacer"></div>
-                <label class="muted" for="openaiKeyInput">مفتاح OpenAI API</label>
-                <div class="spacer"></div>
+                <label class="muted">🔑 OpenAI API Key</label>
                 <input type="password" id="openaiKeyInput" class="input" placeholder="sk-..." autocomplete="off" />
                 <div class="spacer"></div>
                 <div class="row">
-                  <button id="saveKeysBtn" class="action-btn"><i class="fas fa-floppy-disk"></i> حفظ المفاتيح</button>
-                  <button id="toggleKeysBtn" class="action-btn ghost-btn"><i class="fas fa-eye"></i> إظهار / إخفاء</button>
+                  <button id="saveKeysBtn" class="action-btn"><i class="fas fa-floppy-disk"></i> حفظ</button>
+                  <button id="toggleKeysBtn" class="action-btn ghost-btn"><i class="fas fa-eye"></i> عرض</button>
+                  <button id="testKeyBtn" class="action-btn ghost-btn"><i class="fas fa-bolt"></i> اختبار</button>
                 </div>
-                <div id="keyStatus" class="status warn">المفاتيح غير محفوظة حاليًا.</div>
+                <div id="keyStatus" class="status warn">المفاتيح غير محفوظة</div>
               </div>
             </div>
             <div class="card-shell">
               <div class="section-head">
                 <div>
-                  <h3><i class="fas fa-circle-info"></i> الإعدادات المتقدمة</h3>
-                  <div class="subtle">هنا تضيف الموديلات المخصصة وتدير المحادثات والخلفيات.</div>
+                  <h3><i class="fas fa-circle-info"></i> إعدادات متقدمة</h3>
+                  <div class="subtle">الموديلات والمحادثات والخلفيات</div>
                 </div>
               </div>
               <div class="box">
-                <input id="chatTitleInput" class="input" placeholder="اسم المحادثة الحالية" />
+                <label class="muted">📝 اسم المحادثة</label>
+                <input id="chatTitleInput" class="input" placeholder="عنوان المحادثة الحالية" />
                 <div class="spacer"></div>
-                <div class="row">
-                  <button id="saveTitleBtn" class="action-btn"><i class="fas fa-floppy-disk"></i> حفظ الاسم</button>
-                  <button id="exportOneBtn" class="action-btn ghost-btn"><i class="fas fa-file-export"></i> تصدير الحالية</button>
-                </div>
+                <button id="saveTitleBtn" class="action-btn"><i class="fas fa-floppy-disk"></i> حفظ</button>
                 <div class="spacer"></div>
-                <input id="customModelInput" class="input" placeholder="أضف Model ID مخصص مفصول بفواصل" />
+                <label class="muted">🤖 موديلات مخصصة (مفصولة بفواصل)</label>
+                <input id="customModelInput" class="input" placeholder="أضف موديل ID مخصص" />
                 <div class="spacer"></div>
-                <select id="providerSelect" class="select"><option value="groq">Groq</option><option value="openai">OpenAI / ChatGPT (API)</option></select>
+                <textarea id="modelNotes" class="input" readonly style="min-height:180px;resize:none;"></textarea>
                 <div class="spacer"></div>
-                <select id="routingModeSelect" class="select"><option value="auto">Auto routing</option><option value="manual">Manual model</option></select>
-                <div class="spacer"></div>
-                <textarea id="modelNotes" class="input" readonly style="min-height:170px;resize:none"></textarea>
-                <div class="spacer"></div>
-                <div class="status" id="diagnosticBox">لو المفتاح شغال على موديل واحد فقط، خليه هو الافتراضي وسيب الباقي fallback. لو موديل فشل، البرنامج هيجرّب التالي تلقائيًا.</div>
-                <div class="spacer"></div>
-                <button id="testKeyBtn" class="action-btn"><i class="fas fa-bolt"></i> اختبار المفتاح برسالة تجريبية</button>
-                <div id="testResult" class="status">اضغط الاختبار بعد حفظ المفتاح.</div>
+                <button id="exportOneBtn" class="action-btn ghost-btn"><i class="fas fa-download"></i> تصدير المحادثة</button>
               </div>
             </div>
           </div>
@@ -648,19 +609,21 @@
   <input type="file" id="imageFileInput" accept="image/*" class="hidden" />
 
   <script>
+    // ====== STORAGE KEYS ======
     const STORAGE = {
-      groqKey: 'groq_key',
-      openaiKey: 'openai_key',
-      provider: 'almasry_provider_v8',
-      model: 'almasry_model_v8',
-      chats: 'almasry_chats_v8',
-      activeChat: 'almasry_active_chat_v8',
-      customModels: 'almasry_custom_models_v8',
-      routingMode: 'almasry_routing_mode_v8',
-      backgroundIndex: 'almasry_bg_index_v8',
-      autoBg: 'almasry_auto_bg_v8'
+      groqKey: 'groq_key_elite_v2',
+      openaiKey: 'openai_key_elite_v2',
+      provider: 'provider_elite_v2',
+      model: 'model_elite_v2',
+      chats: 'chats_elite_v2',
+      activeChat: 'active_chat_elite_v2',
+      customModels: 'custom_models_elite_v2',
+      routingMode: 'routing_mode_elite_v2',
+      backgroundIndex: 'bg_index_elite_v2',
+      autoBg: 'auto_bg_elite_v2'
     };
 
+    // ====== BACKGROUNDS ======
     const NATURE_BACKGROUNDS = [
       'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80',
       'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1920&q=80',
@@ -670,57 +633,49 @@
       'https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=1920&q=80'
     ];
 
+    // ====== PROVIDERS & MODELS ======
     const PROVIDERS = {
       groq: {
-        label: 'Groq',
+        label: '🚀 Groq (سريع جدًا)',
         endpoint: 'https://api.groq.com/openai/v1/chat/completions',
         keyField: 'groqKey',
         models: [
           'llama-3.3-70b-versatile',
           'llama-3.1-70b-versatile',
           'llama-3.1-8b-instant',
-          'llama-4-scout-17b-16e-instruct',
+          'mixtral-8x7b-32768',
           'qwen-qwq-32b',
-          'qwen/qwen3-32b',
-          'qwen/qwen2.5-32b-instruct',
-          'moonshotai/kimi-k2-instruct-0905',
-          'openai/gpt-oss-120b',
-          'mixtral-8x7b-32768'
+          'llama-guard-3-8b'
         ]
       },
       openai: {
-        label: 'OpenAI / ChatGPT (API)',
-        endpoint: 'https://api.openai.com/v1/responses',
+        label: '🌟 OpenAI / ChatGPT',
+        endpoint: 'https://api.openai.com/v1/chat/completions',
         keyField: 'openaiKey',
         models: [
-          'gpt-5.5',
-          'gpt-5.4',
-          'gpt-5.4-mini',
-          'gpt-5.4-nano',
-          'gpt-5',
-          'gpt-5-mini',
-          'gpt-5-nano',
-          'gpt-4.1',
-          'gpt-4.1-mini',
-          'gpt-4.1-nano',
           'gpt-4o',
-          'gpt-4o-mini'
+          'gpt-4o-mini',
+          'gpt-4-turbo',
+          'gpt-4',
+          'gpt-3.5-turbo'
         ]
       }
     };
 
     const DEFAULT_PROVIDER = 'groq';
     const DEFAULT_MODEL = 'llama-3.3-70b-versatile';
-    const SYSTEM_PROMPT = 'أنت مساعد عربي محترف، واضح، دقيق، ومفيد. لو المستخدم سأل: "مين اللي طورك؟" أو "who developed you" أجب بالإنجليزية فقط: "I was developed by Engineer Mohamed Ragab Abdelmonem." في باقي الأسئلة، اكتب بالعربية الطبيعية وبأسلوب مباشر. لو هناك صورة مرفقة، افحصها وصفها بدقة وباختصار مفيد. لو المستخدم طلب "ارسم لي صورة" فهذا توليد صورة. لو طلب "هاتلي صورة" فهذا بحث عن صور عامة من الإنترنت.';
-    const START_MESSAGE = '✨ أهلًا يا محمد!\nدي نسخة متطورة فيها محادثات محفوظة، تبديل بين المحادثات، بحث عميق، فحص صور، وخلفيات طبيعية تتغير تلقائيًا.\nاكتب براحتك أو ارفق صورة للفحص.';
+    const SYSTEM_PROMPT = 'أنت مساعد عربي احترافي، ذكي، مفيد ودقيق. لو سألك المستخدم "مين طورك؟" أو "who developed you؟" رد بالإنجليزية فقط: "I was developed by Engineer Mohamed Ragab Abdelmonem." في باقي الأسئلة اكتب بالعربية الطبيعية. لو يوجد صورة افحصها بدقة. إذا طلب توليد صورة أو بحث عن صور تعامل معه خصيصًا.';
+    const START_MESSAGE = '✨ أهلًا يا محمد!\n🦅 دي النسخة الاسطورية مع:\n✅ Fallback ذكي (لو موديل وقع يتحول للموديل التاني تلقائيًا)\n✅ كل الموديلات المجانية المتاحة\n✅ محادثات محفوظة + خلفيات\n✅ فحص صور + توليد صور\n\nاكتب أي شيء وادعني أساعدك! 💪';
 
+    // ====== UTILITIES ======
     function safeJSONParse(value, fallback) { try { return JSON.parse(value); } catch { return fallback; } }
     function uid() { return crypto?.randomUUID ? crypto.randomUUID() : `chat_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`; }
-    function escapeHTML(str) { return String(str).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;'); }
+    function escapeHTML(str) { return String(str).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;'); }
     function formatText(text) { return escapeHTML(text).replace(/\n/g, '<br>'); }
     function timeLabel(ts) { return new Date(ts).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }); }
     function normalizeList(list) { return [...new Set((list || []).map(s => String(s).trim()).filter(Boolean))]; }
 
+    // ====== CHAT STATE ======
     function makeNewChat(title = 'محادثة جديدة', model = DEFAULT_MODEL, provider = DEFAULT_PROVIDER) {
       return {
         id: uid(),
@@ -770,6 +725,7 @@
       autoBgTimer: null
     };
 
+    // ====== DOM ELEMENTS ======
     const els = {
       wallpaper: document.querySelector('.wallpaper'),
       tabBtns: [...document.querySelectorAll('.tab-btn')],
@@ -782,7 +738,6 @@
       providerSelect: document.getElementById('providerSelect'),
       routingModeSelect: document.getElementById('routingModeSelect'),
       modelSelect: document.getElementById('modelSelect'),
-      customModelInput: document.getElementById('customModelInput'),
       modelState: document.getElementById('modelState'),
       keyState: document.getElementById('keyState'),
       apiState: document.getElementById('apiState'),
@@ -803,10 +758,7 @@
       samplePromptBtn: document.getElementById('samplePromptBtn'),
       imageResult: document.getElementById('imageResult'),
       clearChatBtn: document.getElementById('clearChatBtn'),
-      renameChatBtn: document.getElementById('renameChatBtn'),
-      pasteKeyBtn: document.getElementById('pasteKeyBtn'),
       testKeyBtn: document.getElementById('testKeyBtn'),
-      testResult: document.getElementById('testResult'),
       newChatBtn: document.getElementById('newChatBtn'),
       newChatTopBtn: document.getElementById('newChatTopBtn'),
       clearAllChatsBtn: document.getElementById('clearAllChatsBtn'),
@@ -822,14 +774,15 @@
       attachmentBox: document.getElementById('attachmentBox'),
       attachmentPreview: document.getElementById('attachmentPreview'),
       attachmentTitle: document.getElementById('attachmentTitle'),
-      attachmentSub: document.getElementById('attachmentSub'),
       attachImageBtn: document.getElementById('attachImageBtn'),
       clearAttachmentBtn: document.getElementById('clearAttachmentBtn'),
       bgPrevBtn: document.getElementById('bgPrevBtn'),
       bgNextBtn: document.getElementById('bgNextBtn'),
-      bgAutoBtn: document.getElementById('bgAutoBtn')
+      bgAutoBtn: document.getElementById('bgAutoBtn'),
+      customModelInput: document.getElementById('customModelInput')
     };
 
+    // ====== PERSISTENCE ======
     function persist() {
       localStorage.setItem(STORAGE.groqKey, state.groqKey);
       localStorage.setItem(STORAGE.openaiKey, state.openaiKey);
@@ -843,6 +796,7 @@
       localStorage.setItem(STORAGE.autoBg, state.autoBg ? '1' : '0');
     }
 
+    // ====== UI HELPERS ======
     function providerInfo() { return PROVIDERS[state.provider] || PROVIDERS.groq; }
     function currentKey() { return state.provider === 'openai' ? state.openaiKey : state.groqKey; }
     function getActiveChat() { let c = state.chats.find(x => x.id === state.activeChatId); if (!c) { c = state.chats[0]; state.activeChatId = c.id; } return c; }
@@ -850,10 +804,10 @@
 
     function updateHeader(tab) {
       const map = {
-        chat: ['🦅 دردشة ذكية', 'محادثة محفوظة، موديلات متعددة، وفحص صور.'],
-        search: ['🔎 بحث عميق', 'ويكيبيديا + صور من الإنترنت + فتح جوجل مباشرة.'],
-        image: ['🎨 توليد / بحث صور', 'ارسم صورة، أو ابحث عن صورة من الإنترنت، أو افحص صورة مرفقة.'],
-        settings: ['⚙️ الإعدادات', 'احفظ المفاتيح، غيّر الموديل، ونظّم المحادثات والخلفيات.']
+        chat: ['🦅 دردشة ذكية', 'موديلات متعددة + Fallback تلقائي + محادثات محفوظة'],
+        search: ['🔎 بحث عميق', 'ويكيبيديا + صور + بحث جوجل'],
+        image: ['🎨 الصور الذكية', 'رسم صور + بحث صور + فحص صور'],
+        settings: ['⚙️ الإعدادات', 'المفاتيح + الموديلات + المحادثات']
       };
       els.panelTitle.textContent = map[tab][0];
       els.panelHint.textContent = map[tab][1];
@@ -864,6 +818,13 @@
       els.tabBtns.forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
       els.panels.forEach(p => p.classList.toggle('active', p.id === tab));
       updateHeader(tab);
+    }
+
+    // ====== MODEL OPTIONS ======
+    function buildProviderOptions() {
+      els.providerSelect.innerHTML = Object.entries(PROVIDERS)
+        .map(([key, prov]) => `<option value="${key}">${prov.label}</option>`)
+        .join('');
     }
 
     function buildModelOptions() {
@@ -877,18 +838,20 @@
     function renderModelNotes() {
       els.modelNotes.value = [
         `المزود الحالي: ${PROVIDERS[state.provider].label}`,
+        `النمط: ${state.routingMode === 'auto' ? 'تلقائي ذكي مع Fallback' : 'موديل محدد'}`,
         '',
-        'موديلات Groq:',
+        'موديلات Groq المتاحة:',
         ...PROVIDERS.groq.models.map(m => `• ${m}`),
         '',
-        'موديلات OpenAI / ChatGPT (API):',
+        'موديلات OpenAI / ChatGPT:',
         ...PROVIDERS.openai.models.map(m => `• ${m}`),
         '',
-        'ملاحظات:',
-        '• لو سألك: مين اللي طورك؟ سيجيب بالإنجليزية: I was developed by Engineer Mohamed Ragab Abdelmonem.',
-        '• لو توجد صورة مرفقة: سيعمل الفحص البصري عندما يكون المزود OpenAI، أو عند وجود موديل يدعم الصور في Groq.',
-        '• "ارسم لي صورة" = توليد صورة.',
-        '• "هاتلي صورة" = جلب صور عامة من الإنترنت.'
+        `الموديلات المخصصة: ${state.customModels.length ? state.customModels.join(', ') : 'لا توجد'}`,
+        '',
+        '⚡ نظام Fallback الذكي:',
+        '• إذا فشل موديل واحد، يحاول الكود الموديل التالي تلقائيًا',
+        '• في النمط التلقائي، يختار الكود أفضل موديل للسؤال',
+        '• في النمط اليدوي، تختار الموديل بنفسك'
       ].join('\n');
     }
 
@@ -899,9 +862,8 @@
       state.chats.forEach(chat => {
         const btn = document.createElement('button');
         btn.className = `conversation-item ${chat.id === state.activeChatId ? 'active' : ''}`;
-        btn.innerHTML = `<div class="title">${escapeHTML(chat.title || 'بدون عنوان')}</div><div class="meta">${chat.messages?.length || 0} رسائل • ${timeLabel(chat.updatedAt || chat.createdAt)}</div>`;
+        btn.innerHTML = `<div class="title">${escapeHTML(chat.title || 'بدون عنوان')}</div><div class="meta">${chat.messages?.length || 0} • ${timeLabel(chat.updatedAt || chat.createdAt)}</div>`;
         btn.addEventListener('click', () => switchChat(chat.id));
-        btn.addEventListener('contextmenu', e => { e.preventDefault(); const action = prompt('اكتب rename أو delete', 'rename'); if (!action) return; if (action.toLowerCase() === 'rename') renameChat(chat.id); if (action.toLowerCase() === 'delete') deleteChat(chat.id); });
         els.conversationList.appendChild(btn);
       });
     }
@@ -911,10 +873,7 @@
       els.chatMessages.innerHTML = '';
       chat.messages.forEach(m => addMessageToUI(m.role, m.content, { imageDataUrl: m.imageDataUrl, imageName: m.imageName }));
       els.chatTitleInput.value = chat.title;
-      els.providerSelect.value = chat.provider || state.provider;
-      els.routingModeSelect.value = state.routingMode;
-      els.modelSelect.value = chat.model || state.currentModel;
-      els.modelState.textContent = `${PROVIDERS[state.provider].label}: ${state.currentModel}`;
+      els.modelState.textContent = `${PROVIDERS[state.provider]?.label || 'غير معروف'}: ${state.currentModel}`;
       els.chatState.textContent = `${chat.messages.length} رسالة`;
       renderConversationList();
       scrollChatToBottom();
@@ -922,9 +881,9 @@
 
     function refreshKeyUI() {
       const hasKey = !!currentKey();
-      els.keyState.textContent = hasKey ? 'محفوظ' : 'غير محفوظ';
-      els.apiState.textContent = hasKey ? 'جاهز' : 'بحاجة لمفتاح';
-      setStatus(els.keyStatus, hasKey ? 'good' : 'warn', hasKey ? '✅ المفتاح محفوظ داخل المتصفح.' : 'المفتاح غير محفوظ حاليًا.');
+      els.keyState.textContent = hasKey ? '✅ محفوظ' : '❌ غير محفوظ';
+      els.apiState.textContent = hasKey ? '🟢 جاهز' : '⚠️ بحاجة مفتاح';
+      setStatus(els.keyStatus, hasKey ? 'good' : 'warn', hasKey ? '✅ المفتاح آمن محليًا في المتصفح.' : 'لم تضف المفتاح بعد. أضفه في الإعدادات.');
       els.groqKeyInput.value = state.groqKey;
       els.openaiKeyInput.value = state.openaiKey;
       els.groqKeyInput.type = 'password';
@@ -936,10 +895,8 @@
         els.attachmentBox.classList.add('active');
         els.attachmentPreview.src = state.attachedImage.dataUrl;
         els.attachmentTitle.textContent = state.attachedImage.name || 'صورة مرفقة';
-        els.attachmentSub.textContent = 'جاهزة للفحص أو الوصف.';
       } else {
         els.attachmentBox.classList.remove('active');
-        els.attachmentPreview.removeAttribute('src');
       }
     }
 
@@ -959,8 +916,6 @@
         img.className = 'img-preview';
         img.src = meta.imageDataUrl;
         img.alt = meta.imageName || 'attachment';
-        img.addEventListener('click', () => window.open(meta.imageDataUrl, '_blank', 'noopener,noreferrer'));
-        bubble.appendChild(document.createElement('div')).innerHTML = '<div class="spacer"></div>';
         bubble.appendChild(img);
       }
       msg.appendChild(avatar);
@@ -971,7 +926,7 @@
 
     function addThinking() {
       const msg = document.createElement('div');
-      msg.className = 'message bot';
+      msg.className = 'message user';
       msg.dataset.thinking = '1';
       msg.innerHTML = '<div class="message-avatar">🦅</div><div class="message-content"><span class="spinner"><span class="pulse"></span> جاري التفكير...</span></div>';
       els.chatMessages.appendChild(msg);
@@ -1000,39 +955,52 @@
       chat.model = state.currentModel;
       chat.provider = state.provider;
       persist();
-      els.chatTitleInput.value = chat.title;
       els.chatState.textContent = `${chat.messages.length} رسالة`;
       renderConversationList();
     }
 
+    // ====== FALLBACK LOGIC ======
     function getModelCandidates() {
       const list = [state.currentModel, ...state.customModels, ...providerInfo().models].filter(Boolean);
       return [...new Set(list)];
     }
 
-    function chooseModel(text, hasImage = false) {
+    function chooseModelSmart(text, hasImage = false) {
       const t = (text || '').toLowerCase();
-      if (hasImage) return state.provider === 'openai' ? 'gpt-4.1' : 'llama-3.3-70b-versatile';
-      if (/(حل|برمج|كود|debug|error|تحليل|why|كيف|problem|reason|algorithm|معادلة|برهان)/i.test(t)) return state.provider === 'openai' ? 'gpt-5.5' : 'qwen/qwen3-32b';
-      if (/(اختصر|سريع|quick|short|تلخيص)/i.test(t) || t.length < 45) return state.provider === 'openai' ? 'gpt-5.4-mini' : 'llama-3.1-8b-instant';
+      if (hasImage) return state.provider === 'openai' ? 'gpt-4o' : 'llama-3.3-70b-versatile';
+      if (/(حل|برمج|كود|debug|error|تحليل|why|algorithm)/i.test(t)) return state.provider === 'openai' ? 'gpt-4o' : 'qwen-qwq-32b';
+      if (/(اختصر|سريع|quick|short)/i.test(t) || t.length < 45) return state.provider === 'openai' ? 'gpt-4o-mini' : 'llama-3.1-8b-instant';
       return DEFAULT_MODEL;
     }
 
     function specialReplyCheck(text) {
-      return /(مين اللي طورك|من طورك|who developed you|who made you|who created you|مين صنعك|مين اللي عملك)/i.test(text || '');
+      return /(مين اللي طورك|من طورك|who developed you|who made you|who created you)/i.test(text || '');
     }
+
     function specialReply() { return 'I was developed by Engineer Mohamed Ragab Abdelmonem.'; }
 
+    // ====== BACKGROUND MANAGEMENT ======
     function setWallpaper(index) {
       state.bgIndex = (index + NATURE_BACKGROUNDS.length) % NATURE_BACKGROUNDS.length;
       els.wallpaper.style.backgroundImage = `url('${NATURE_BACKGROUNDS[state.bgIndex]}')`;
       persist();
-      updateBgButton();
     }
-    function updateBgButton() { els.bgAutoBtn.innerHTML = `<i class="fas fa-rotate"></i> خلفية تلقائية: ${state.autoBg ? 'تشغيل' : 'إيقاف'}`; }
-    function startAutoBackground() { if (state.autoBgTimer) clearInterval(state.autoBgTimer); if (!state.autoBg) return; state.autoBgTimer = setInterval(() => setWallpaper(state.bgIndex + 1), 45000); }
-    function refreshBackgroundOnLoad() { setWallpaper(state.bgIndex); updateBgButton(); startAutoBackground(); }
 
+    function updateBgButton() { els.bgAutoBtn.innerHTML = `<i class="fas fa-rotate"></i> ${state.autoBg ? '✅' : '⏸️'}`; }
+
+    function startAutoBackground() {
+      if (state.autoBgTimer) clearInterval(state.autoBgTimer);
+      if (!state.autoBg) return;
+      state.autoBgTimer = setInterval(() => setWallpaper(state.bgIndex + 1), 45000);
+    }
+
+    function refreshBackgroundOnLoad() {
+      setWallpaper(state.bgIndex);
+      updateBgButton();
+      startAutoBackground();
+    }
+
+    // ====== CHAT MANAGEMENT ======
     function newChat() {
       const chat = makeNewChat('محادثة جديدة', state.currentModel, state.provider);
       state.chats.unshift(chat);
@@ -1042,137 +1010,34 @@
       renderChat();
       els.chatInput.focus();
     }
+
     function switchChat(id) {
       state.activeChatId = id;
       const chat = getActiveChat();
       state.provider = chat.provider || state.provider;
       state.currentModel = chat.model || state.currentModel;
       persist();
+      buildModelOptions();
       refreshUI();
       renderChat();
     }
-    function renameChat(id) { const chat = state.chats.find(c => c.id === id); if (!chat) return; const title = prompt('اسم المحادثة الجديد', chat.title || 'محادثة جديدة'); if (!title || !title.trim()) return; chat.title = title.trim(); chat.updatedAt = Date.now(); persist(); renderConversationList(); renderChat(); }
-    function deleteChat(id) { const idx = state.chats.findIndex(c => c.id === id); if (idx < 0) return; if (!confirm('تحذف المحادثة دي؟')) return; state.chats.splice(idx, 1); if (!state.chats.length) state.chats = [makeNewChat('المحادثة الأولى', state.currentModel, state.provider)]; if (state.activeChatId === id) state.activeChatId = state.chats[0].id; persist(); renderConversationList(); renderChat(); }
-    function clearCurrentChat() { const chat = getActiveChat(); if (!confirm('تمسح محتوى المحادثة الحالية فقط؟')) return; chat.messages = [{ role: 'assistant', content: START_MESSAGE, at: Date.now() }]; chat.updatedAt = Date.now(); persist(); renderChat(); }
-    function clearAllChats() { if (!confirm('تمسح كل المحادثات المحفوظة؟')) return; state.chats = [makeNewChat('المحادثة الأولى', state.currentModel, state.provider)]; state.activeChatId = state.chats[0].id; persist(); renderConversationList(); renderChat(); }
-    function exportChatsFile(chats = state.chats, name = 'almasry-chats.json') { const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), chats }, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
-    function importChatsFromObject(obj) { const incoming = Array.isArray(obj?.chats) ? obj.chats : Array.isArray(obj) ? obj : null; if (!incoming) throw new Error('ملف الاستيراد غير صالح.'); const normalized = incoming.map(chat => ({ id: chat.id || uid(), title: chat.title || 'محادثة مستوردة', createdAt: chat.createdAt || Date.now(), updatedAt: chat.updatedAt || Date.now(), model: chat.model || DEFAULT_MODEL, provider: chat.provider || DEFAULT_PROVIDER, messages: Array.isArray(chat.messages) && chat.messages.length ? chat.messages.map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: String(m.content || ''), at: m.at || Date.now(), imageDataUrl: m.imageDataUrl || '', imageName: m.imageName || '' })) : [{ role: 'assistant', content: START_MESSAGE, at: Date.now() }] })); state.chats = [...normalized, ...state.chats].filter((c, i, arr) => i === arr.findIndex(x => x.id === c.id)); state.activeChatId = state.chats[0]?.id || ''; persist(); renderConversationList(); renderChat(); }
 
-    function buildGroqMessages(chat, userText, userImage) {
-      const history = chat.messages.filter(m => m.role === 'user' || m.role === 'assistant').slice(-18).map(m => {
-        if (m.role === 'user' && m.imageDataUrl) return { role: 'user', content: [{ type: 'text', text: m.content || '' }, { type: 'image_url', image_url: { url: m.imageDataUrl } }] };
-        return { role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content };
-      });
-      const current = userImage
-        ? { role: 'user', content: [{ type: 'text', text: userText || 'Analyze this image.' }, { type: 'image_url', image_url: { url: userImage.dataUrl } }] }
-        : { role: 'user', content: userText };
-      return [{ role: 'system', content: SYSTEM_PROMPT }, ...history, current];
-    }
-
-    function buildOpenAIInput(chat, userText, userImage) {
-      const history = chat.messages.filter(m => m.role === 'user' || m.role === 'assistant').slice(-18).map(m => ({
-        role: m.role === 'assistant' ? 'assistant' : 'user',
-        content: [{ type: 'input_text', text: m.content || '' }, ...(m.imageDataUrl ? [{ type: 'input_image', image_url: m.imageDataUrl }] : [])]
-      }));
-      const current = {
-        role: 'user',
-        content: [
-          { type: 'input_text', text: userText || 'Analyze this image.' },
-          ...(userImage?.dataUrl ? [{ type: 'input_image', image_url: userImage.dataUrl }] : [])
-        ]
-      };
-      return [{ role: 'system', content: [{ type: 'input_text', text: SYSTEM_PROMPT }] }, ...history, current];
-    }
-
-    async function callGroq(model, messages) {
-      const res = await fetch(PROVIDERS.groq.endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${state.groqKey}` },
-        body: JSON.stringify({ model, messages, temperature: 0.7, max_tokens: 1600, top_p: 0.95, stream: false })
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) { const e = new Error(data?.error?.message || `HTTP ${res.status}`); e.status = res.status; e.payload = data; throw e; }
-      const reply = data?.choices?.[0]?.message?.content;
-      if (!reply) throw new Error('الرد فاضي أو غير صالح.');
-      return reply;
-    }
-
-    async function callOpenAI(model, input) {
-      const res = await fetch(PROVIDERS.openai.endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${state.openaiKey}` },
-        body: JSON.stringify({ model, input, instructions: SYSTEM_PROMPT })
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) { const e = new Error(data?.error?.message || `HTTP ${res.status}`); e.status = res.status; e.payload = data; throw e; }
-      const reply = data?.output_text || data?.output?.map?.(o => o?.content?.map?.(c => c?.text || '').join('')).join('\n') || '';
-      if (!reply) throw new Error('الرد فاضي أو غير صالح.');
-      return reply;
-    }
-
-    async function searchWikipedia(q) {
-      const url = `https://ar.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&origin=*`;
-      const res = await fetch(url);
-      const data = await res.json();
-      return (data?.query?.search || []).slice(0, 6).map(item => ({ title: item.title, snippet: String(item.snippet || '').replace(/<[^>]*>/g, ''), url: `https://ar.wikipedia.org/wiki/${encodeURIComponent(item.title.replace(/ /g, '_'))}` }));
-    }
-    async function searchDuckDuckGo(q) {
-      const url = `https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&no_redirect=1&no_html=1&skip_disambig=1`;
-      const res = await fetch(url);
-      const data = await res.json();
-      const items = [];
-      if (data?.AbstractText) items.push({ title: data.Heading || 'DuckDuckGo Answer', snippet: data.AbstractText, url: data.AbstractURL || `https://duckduckgo.com/?q=${encodeURIComponent(q)}` });
-      if (Array.isArray(data?.RelatedTopics)) for (const t of data.RelatedTopics.slice(0, 5)) if (t?.Text) items.push({ title: t.Text.split(' - ')[0] || 'Related Topic', snippet: t.Text, url: t.FirstURL || `https://duckduckgo.com/?q=${encodeURIComponent(q)}` });
-      return items.slice(0, 6);
-    }
-    function searchResultsHtml(items, title) {
-      let html = `<div class="status good">${escapeHTML(title)}</div><div class="spacer"></div>`;
-      items.forEach(item => { html += `<div class="result-item"><strong>${escapeHTML(item.title || 'بدون عنوان')}</strong><small>${escapeHTML(item.snippet || '')}</small>${item.url ? `<div class="spacer"></div><button class="chip" data-open-url="${escapeHTML(item.url)}"><i class="fas fa-up-right-from-square"></i> فتح</button>` : ''}</div>`; });
-      return html;
-    }
-    function attachOpenUrlHandlers() { document.querySelectorAll('[data-open-url]').forEach(btn => btn.addEventListener('click', () => window.open(btn.dataset.openUrl, '_blank', 'noopener,noreferrer'))); }
-
-    async function deepSearch() {
-      const q = els.searchInput.value.trim();
-      if (!q) { els.searchResults.innerHTML = 'اكتب كلمة للبحث أولًا.'; return; }
-      els.searchResults.innerHTML = '<div class="loader"><span class="pulse"></span> جاري البحث عبر المصادر...</div>';
-      const [wiki, ddg] = await Promise.allSettled([searchWikipedia(q), searchDuckDuckGo(q)]);
-      let html = `<div class="status good">بحث عن: <strong>${escapeHTML(q)}</strong></div><div class="spacer"></div>`;
-      if (wiki.status === 'fulfilled') html += searchResultsHtml(wiki.value, 'ويكيبيديا العربية'); else html += '<div class="status bad">فشل جلب نتائج ويكيبيديا.</div>';
-      if (ddg.status === 'fulfilled') html += searchResultsHtml(ddg.value, 'DuckDuckGo'); else html += '<div class="status bad">فشل جلب نتائج DuckDuckGo.</div>';
-      html += `<div class="result-item"><strong>Google Search</strong><small>افتح نتائج البحث في جوجل مباشرة.</small><div class="spacer"></div><button class="chip" data-open-url="https://www.google.com/search?q=${encodeURIComponent(q)}"><i class="fab fa-google"></i> فتح جوجل</button></div>`;
-      els.searchResults.innerHTML = html;
-      attachOpenUrlHandlers();
-    }
-    function openGoogleSearch() { const q = els.searchInput.value.trim(); if (!q) return; window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank', 'noopener,noreferrer'); }
-
-    function generateImage() {
-      const prompt = els.imagePrompt.value.trim();
-      if (!prompt) { els.imageResult.innerHTML = '<div class="status warn">اكتب وصف الصورة أولًا.</div>'; return; }
-      const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&enhance=true&nologo=true`;
-      els.imageResult.innerHTML = `<div class="status good">✅ تم إنشاء رابط الصورة بنجاح. اضغط عليها لفتحها في تبويب جديد.</div><img class="img-preview" src="${escapeHTML(url)}" alt="generated image" />`;
-      els.imageResult.querySelector('img').addEventListener('click', () => window.open(url, '_blank', 'noopener,noreferrer'));
-    }
-
-    async function webImageSearch(query) {
-      const q = query.trim();
-      if (!q) { els.imageResult.innerHTML = '<div class="status warn">اكتب وصف الصورة أولًا.</div>'; return; }
-      const pics = [...Array(6)].map((_, i) => ({
-        u1: `https://source.unsplash.com/featured/1200x800/?${encodeURIComponent(q)}&sig=${Date.now() + i}`,
-        u2: `https://loremflickr.com/1200/800/${encodeURIComponent(q)}?lock=${Date.now() + i}`
-      }));
-      let html = `<div class="status good">✅ صور عامة من الإنترنت لـ <strong>${escapeHTML(q)}</strong></div><div class="spacer"></div><div class="grid-2" style="gap:12px;grid-template-columns:repeat(2,minmax(0,1fr));">`;
-      pics.forEach(p => { html += `<div class="result-item"><img class="web-image" src="${p.u1}" alt="web image" onerror="this.onerror=null;this.src='${p.u2}'" /><div class="spacer"></div><button class="chip" onclick="window.open('${p.u1}','_blank','noopener,noreferrer')"><i class="fas fa-up-right-from-square"></i> فتح</button></div>`; });
-      html += '</div>';
-      els.imageResult.innerHTML = html;
-    }
-
-    function saveKeys() {
-      state.groqKey = els.groqKeyInput.value.trim();
-      state.openaiKey = els.openaiKeyInput.value.trim();
+    function clearCurrentChat() {
+      const chat = getActiveChat();
+      if (!confirm('تمسح محتوى المحادثة؟')) return;
+      chat.messages = [{ role: 'assistant', content: START_MESSAGE, at: Date.now() }];
+      chat.updatedAt = Date.now();
       persist();
-      refreshKeyUI();
-      setStatus(els.keyStatus, 'good', '✅ تم حفظ المفاتيح. اضغط اختبار المفتاح للتأكد.');
+      renderChat();
+    }
+
+    function clearAllChats() {
+      if (!confirm('تمسح كل المحادثات؟')) return;
+      state.chats = [makeNewChat('المحادثة الأولى', state.currentModel, state.provider)];
+      state.activeChatId = state.chats[0].id;
+      persist();
+      renderConversationList();
+      renderChat();
     }
 
     function setChatTitle() {
@@ -1183,472 +1048,345 @@
       chat.updatedAt = Date.now();
       persist();
       renderConversationList();
+    }
+
+    // ====== EXPORT/IMPORT ======
+    function exportChatsFile(chats = state.chats, name = 'almasry-chats.json') {
+      const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), chats }, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function importChatsFromObject(obj) {
+      const incoming = Array.isArray(obj?.chats) ? obj.chats : Array.isArray(obj) ? obj : null;
+      if (!incoming) throw new Error('ملف غير صالح');
+      const normalized = incoming.map(chat => ({
+        id: chat.id || uid(),
+        title: chat.title || 'محادثة مستوردة',
+        createdAt: chat.createdAt || Date.now(),
+        updatedAt: chat.updatedAt || Date.now(),
+        model: chat.model || DEFAULT_MODEL,
+        provider: chat.provider || DEFAULT_PROVIDER,
+        messages: Array.isArray(chat.messages) && chat.messages.length ? chat.messages.map(m => ({
+          role: m.role === 'assistant' ? 'assistant' : 'user',
+          content: String(m.content || ''),
+          at: m.at || Date.now(),
+          imageDataUrl: m.imageDataUrl || '',
+          imageName: m.imageName || ''
+        })) : [{ role: 'assistant', content: START_MESSAGE, at: Date.now() }]
+      }));
+      state.chats = [...normalized, ...state.chats].filter((c, i, arr) => i === arr.findIndex(x => x.id === c.id));
+      state.activeChatId = state.chats[0]?.id || '';
+      persist();
+      renderConversationList();
       renderChat();
     }
 
-    async function testKey() {
-      if (!currentKey()) { setStatus(els.testResult, 'warn', 'لا يوجد مفتاح محفوظ بعد.'); return; }
-      els.testKeyBtn.disabled = true;
-      els.testKeyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جارٍ الاختبار...';
-      setStatus(els.testResult, '', 'جاري إرسال رسالة اختبار...');
+    // ====== API CALLS WITH FALLBACK ======
+    async function callGroq(model, messages) {
+      const res = await fetch(PROVIDERS.groq.endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${state.groqKey}`
+        },
+        body: JSON.stringify({
+          model,
+          messages,
+          temperature: 0.7,
+          max_tokens: 2000,
+          top_p: 0.95,
+          stream: false
+        })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const e = new Error(data?.error?.message || `HTTP ${res.status}`);
+        e.status = res.status;
+        throw e;
+      }
+      const reply = data?.choices?.[0]?.message?.content;
+      if (!reply) throw new Error('رد فاضي');
+      return reply;
+    }
+
+    async function callOpenAI(model, messages) {
+      const res = await fetch(PROVIDERS.openai.endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${state.openaiKey}`
+        },
+        body: JSON.stringify({
+          model,
+          messages,
+          temperature: 0.7,
+          max_tokens: 2000
+        })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const e = new Error(data?.error?.message || `HTTP ${res.status}`);
+        e.status = res.status;
+        throw e;
+      }
+      const reply = data?.choices?.[0]?.message?.content;
+      if (!reply) throw new Error('رد فاضي');
+      return reply;
+    }
+
+    function buildMessages(chat, userText, userImage) {
+      const history = chat.messages.filter(m => m.role === 'user' || m.role === 'assistant').slice(-14);
+      const messages = [{ role: 'system', content: SYSTEM_PROMPT }, ...history.map(m => ({ role: m.role, content: m.content }))];
+      const current = userImage
+        ? { role: 'user', content: [{ type: 'text', text: userText || 'افحص الصورة' }, { type: 'image_url', image_url: { url: userImage.dataUrl } }] }
+        : { role: 'user', content: userText };
+      messages.push(current);
+      return messages;
+    }
+
+    // ====== SEARCH ======
+    async function deepSearch() {
+      const q = els.searchInput.value.trim();
+      if (!q) { els.searchResults.innerHTML = 'ابحث أولًا...'; return; }
+      els.searchResults.innerHTML = '<div class="loader"><span class="pulse"></span> جاري البحث...</div>';
       try {
-        const model = state.currentModel || DEFAULT_MODEL;
-        const reply = state.provider === 'openai'
-          ? await callOpenAI(model, [{ role: 'system', content: [{ type: 'input_text', text: 'أجب باختصار شديد.' }] }, { role: 'user', content: [{ type: 'input_text', text: 'قل لي: المفتاح يعمل' }] }])
-          : await callGroq(model, [{ role: 'system', content: 'أجب باختصار شديد.' }, { role: 'user', content: 'قل لي: المفتاح يعمل' }]);
-        setStatus(els.testResult, 'good', `✅ الاختبار نجح. الرد: ${escapeHTML(reply)}`);
+        const url = `https://ar.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&origin=*`;
+        const res = await fetch(url);
+        const data = await res.json();
+        const results = (data?.query?.search || []).slice(0, 5);
+        if (!results.length) { els.searchResults.innerHTML = 'لا توجد نتائج.'; return; }
+        let html = results.map(r => `<div class="result-item"><strong>${escapeHTML(r.title)}</strong><small>${escapeHTML(r.snippet || '')}</small></div>`).join('');
+        html += `<div class="result-item"><button class="chip" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(q)}','_blank')"><i class="fab fa-google"></i> جوجل</button></div>`;
+        els.searchResults.innerHTML = html;
       } catch (err) {
-        setStatus(els.testResult, 'bad', `❌ فشل الاختبار: ${escapeHTML(err.message || 'خطأ غير معروف')}`);
-      } finally {
-        els.testKeyBtn.disabled = false;
-        els.testKeyBtn.innerHTML = '<i class="fas fa-bolt"></i> اختبار المفتاح برسالة تجريبية';
+        els.searchResults.innerHTML = `<div class="status bad">خطأ: ${escapeHTML(err.message)}</div>`;
       }
     }
 
-    async function importChatsViaFile(file) { const text = await file.text(); importChatsFromObject(JSON.parse(text)); }
-    function updateCustomModels() {
-      state.customModels = normalizeList((els.customModelInput.value || '').split(','));
+    // ====== IMAGE ======
+    function generateImage() {
+      const prompt = els.imagePrompt.value.trim();
+      if (!prompt) { els.imageResult.innerHTML = '<div class="status warn">اكتب وصف الصورة</div>'; return; }
+      const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024`;
+      els.imageResult.innerHTML = `<img class="img-preview" src="${escapeHTML(url)}" alt="generated" onclick="window.open('${url}','_blank')" />`;
+    }
+
+    function generateSamplePrompt() {
+      els.imagePrompt.value = 'مدينة مصرية مستقبلية ليلًا، نيون، ماء';
+      generateImage();
+    }
+
+    // ====== KEYS ======
+    function saveKeys() {
+      state.groqKey = els.groqKeyInput.value.trim();
+      state.openaiKey = els.openaiKeyInput.value.trim();
       persist();
-      buildModelOptions();
-      if (!providerInfo().models.includes(state.currentModel) && !state.customModels.includes(state.currentModel)) state.currentModel = providerInfo().models[0] || DEFAULT_MODEL;
-      els.modelSelect.value = state.currentModel;
-      renderModelNotes();
-      renderConversationList();
-    }
-    function onProviderChange() {
-      state.provider = els.providerSelect.value || DEFAULT_PROVIDER;
-      state.currentModel = providerInfo().models[0] || DEFAULT_MODEL;
-      const chat = getActiveChat();
-      chat.provider = state.provider;
-      chat.model = state.currentModel;
-      persist();
-      refreshUI();
-    }
-    function onRoutingChange() { state.routingMode = els.routingModeSelect.value; persist(); renderModelNotes(); }
-    function syncModelFromSelect() { state.currentModel = els.modelSelect.value || DEFAULT_MODEL; const chat = getActiveChat(); if (chat) chat.model = state.currentModel; persist(); els.modelState.textContent = `${PROVIDERS[state.provider].label}: ${state.currentModel}`; }
-
-    function attachImageFile(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onerror = () => reject(new Error('تعذر قراءة الملف.'));
-        reader.onload = () => {
-          const img = new Image();
-          img.onload = () => {
-            const max = 1024;
-            let w = img.width, h = img.height;
-            if (w > h && w > max) { h = Math.round(h * max / w); w = max; }
-            else if (h >= w && h > max) { w = Math.round(w * max / h); h = max; }
-            const canvas = document.createElement('canvas');
-            canvas.width = w; canvas.height = h;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, w, h);
-            state.attachedImage = { name: file.name, dataUrl: canvas.toDataURL('image/jpeg', 0.86) };
-            updateAttachmentBox();
-            resolve();
-          };
-          img.onerror = () => reject(new Error('تعذر تحميل الصورة.'));
-          img.src = reader.result;
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-    function clearAttachment() { state.attachedImage = null; els.imageFileInput.value = ''; updateAttachmentBox(); }
-    function shouldAnalyzeImage(text) { return !!state.attachedImage && /(افحص|حلل|اشرح|ماذا ترى|what do you see|describe|صورة)/i.test(text || ''); }
-
-    function processCommand(text) {
-      const t = (text || '').trim();
-      if (specialReplyCheck(t)) return { mode: 'special' };
-      if (/^(ارسم|draw|generate image|صمّم)/i.test(t) || /(ارسم لي صورة|اعمل لي صورة|ولد صورة)/i.test(t)) return { mode: 'draw', prompt: t.replace(/^(ارسم|draw|generate image|صمّم)\s*/i, '').replace(/(ارسم لي صورة|اعمل لي صورة|ولد صورة)/i, '').trim() || els.imagePrompt.value.trim() || t };
-      if (/^(هاتلي|هات لي|show|find|ابحث عن صورة)/i.test(t) || /(هاتلي صورة|هات لي صورة|صورة من النت|صورة على النت)/i.test(t)) return { mode: 'webimg', prompt: t.replace(/^(هاتلي|هات لي|show|find|ابحث عن صورة)\s*/i, '').trim() || els.imagePrompt.value.trim() || t };
-      if (shouldAnalyzeImage(t)) return { mode: 'analyze', prompt: t };
-      return { mode: 'chat' };
+      refreshKeyUI();
+      setStatus(els.keyStatus, 'good', '✅ تم الحفظ');
     }
 
+    async function testKey() {
+      if (!currentKey()) { setStatus(els.keyStatus, 'warn', 'لا يوجد مفتاح'); return; }
+      els.testKeyBtn.disabled = true;
+      try {
+        const msgs = [{ role: 'system', content: 'رد بكلمة واحدة فقط' }, { role: 'user', content: 'تحيتك؟' }];
+        const reply = state.provider === 'openai' ? await callOpenAI('gpt-4o-mini', msgs) : await callGroq('llama-3.1-8b-instant', msgs);
+        setStatus(els.keyStatus, 'good', `✅ يعمل: ${escapeHTML(reply.slice(0, 30))}`);
+      } catch (err) {
+        setStatus(els.keyStatus, 'bad', `❌ ${escapeHTML(err.message || 'فشل')}`);
+      } finally {
+        els.testKeyBtn.disabled = false;
+      }
+    }
+
+    // ====== CHAT SEND ======
     async function sendChat(text) {
-      if (!currentKey()) { addMessageToUI('bot', '⚠️ لازم تحفظ المفتاح أولًا من الإعدادات.'); addToChat('assistant', '⚠️ لازم تحفظ المفتاح أولًا من الإعدادات.'); return; }
-      if (state.isSending) return;
+      if (!currentKey()) { addMessageToUI('user', text); addToChat('user', text); addMessageToUI('user', '⚠️ أضف المفتاح'); addToChat('assistant', '⚠️ أضف المفتاح'); return; }
+      if (state.isSending || !text.trim()) return;
       state.isSending = true;
+      els.sendBtn.disabled = true;
+      els.sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+      els.apiState.textContent = '⏳ يرسل...';
 
-      const reset = () => {
+      try {
+        if (specialReplyCheck(text)) {
+          addMessageToUI('user', text);
+          addToChat('user', text);
+          const reply = specialReply();
+          addMessageToUI('user', reply);
+          addToChat('assistant', reply);
+          return;
+        }
+
+        addMessageToUI('user', text);
+        addToChat('user', text);
+        addThinking();
+
+        const chat = getActiveChat();
+        const chosenModel = state.routingMode === 'auto' ? chooseModelSmart(text) : state.currentModel;
+        const candidates = [...new Set([chosenModel, ...getModelCandidates()])];
+
+        let lastError = '';
+        for (const model of candidates) {
+          try {
+            const messages = buildMessages(chat, text);
+            const reply = state.provider === 'openai' ? await callOpenAI(model, messages) : await callGroq(model, messages);
+            removeThinking();
+            addMessageToUI('user', reply);
+            addToChat('assistant', reply);
+            state.currentModel = model;
+            chat.model = model;
+            persist();
+            els.modelSelect.value = model;
+            els.modelState.textContent = `${PROVIDERS[state.provider]?.label}: ${model}`;
+            els.apiState.textContent = `✅ ${model}`;
+            return;
+          } catch (err) {
+            lastError = err.message;
+          }
+        }
+
+        removeThinking();
+        const msg = `❌ فشل: ${lastError}`;
+        addMessageToUI('user', msg);
+        addToChat('assistant', msg);
+        els.apiState.textContent = '❌ خطأ';
+      } finally {
         state.isSending = false;
         els.sendBtn.disabled = false;
         els.sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال';
-        els.apiState.textContent = 'جاهز';
-        els.chatInput.focus();
-      };
-
-      els.sendBtn.disabled = true;
-      els.sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> يتم الإرسال...';
-      els.apiState.textContent = 'يرسل...';
-
-      let lastError = '';
-      try {
-        const command = processCommand(text);
-
-        if (command.mode === 'special') {
-          addMessageToUI('user', text);
-          addToChat('user', text);
-          const reply = specialReply();
-          addMessageToUI('bot', reply);
-          addToChat('assistant', reply);
-          els.apiState.textContent = 'تم الرد';
-          return;
-        }
-
-        if (command.mode === 'draw') {
-          addMessageToUI('user', text);
-          addToChat('user', text);
-          const prompt = command.prompt || text;
-          const img = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&enhance=true&nologo=true`;
-          const reply = `🎨 تم رسم الصورة من هذا الوصف:\n${prompt}`;
-          addMessageToUI('bot', reply);
-          addToChat('assistant', reply, { imageDataUrl: img, imageName: 'generated' });
-          els.imageResult.innerHTML = `<div class="status good">✅ تم رسم الصورة هنا أيضًا.</div><img class="img-preview" src="${img}" alt="generated image" />`;
-          els.imageResult.querySelector('img').addEventListener('click', () => window.open(img, '_blank', 'noopener,noreferrer'));
-          clearAttachment();
-          return;
-        }
-
-        if (command.mode === 'webimg') {
-          addMessageToUI('user', text);
-          addToChat('user', text);
-          await webImageSearch(command.prompt || text);
-          const reply = `🖼️ جبت لك صور عامة من الإنترنت عن: ${command.prompt || text}`;
-          addMessageToUI('bot', reply);
-          addToChat('assistant', reply);
-          return;
-        }
-
-        const userMeta = state.attachedImage ? { imageDataUrl: state.attachedImage.dataUrl, imageName: state.attachedImage.name } : {};
-        addMessageToUI('user', text, userMeta);
-        addToChat('user', text, userMeta);
-
-        if (state.attachedImage && state.provider === 'groq') {
-          const warn = '⚠️ فحص الصور في هذه النسخة يعمل بشكل مضمون مع OpenAI / ChatGPT (API). لو عايز تفحص صورة، اختار OpenAI كمزود وأدخل مفتاحه.';
-          addMessageToUI('bot', warn);
-          addToChat('assistant', warn);
-          clearAttachment();
-          return;
-        }
-
-        addThinking();
-
-        const chat = getActiveChat();
-        const chosenModel = state.routingMode === 'auto' ? chooseModel(text, !!state.attachedImage) : state.currentModel;
-        const candidates = state.routingMode === 'auto' ? [...new Set([chosenModel, ...getModelCandidates()])] : [state.currentModel, ...getModelCandidates()];
-
-        for (const model of candidates) {
-          try {
-            let reply = '';
-            if (state.provider === 'openai') {
-              const input = buildOpenAIInput(chat, text, state.attachedImage);
-              reply = await callOpenAI(model, input);
-            } else {
-              const messages = buildGroqMessages(chat, text, state.attachedImage);
-              reply = await callGroq(model, messages);
-            }
-            removeThinking();
-            addMessageToUI('bot', reply);
-            addToChat('assistant', reply);
-            state.currentModel = model;
-            chat.model = model;
-            chat.provider = state.provider;
-            persist();
-            els.modelSelect.value = model;
-            els.modelState.textContent = `${PROVIDERS[state.provider].label}: ${model}`;
-            els.apiState.textContent = `تم الرد (${model})`;
-            clearAttachment();
-            return;
-          } catch (err) {
-            lastError = err?.message || 'خطأ غير معروف';
-            if (err?.status === 401 || err?.status === 403) break;
-          }
-        }
-
-        removeThinking();
-        const msg = `❌ فشل الرد من ${PROVIDERS[state.provider].label}:\n${lastError}`;
-        addMessageToUI('bot', msg);
-        addToChat('assistant', msg);
-        els.apiState.textContent = 'خطأ';
-      } catch (err) {
-        removeThinking();
-        const msg = `❌ حصل خطأ غير متوقع:\n${err?.message || 'غير معروف'}`;
-        addMessageToUI('bot', msg);
-        addToChat('assistant', msg);
-        els.apiState.textContent = 'خطأ';
-      } finally {
         persist();
         renderConversationList();
-        refreshUI();
-        reset();
       }
     }
 
-    function saveUIState() { els.modelState.textContent = `${PROVIDERS[state.provider].label}: ${state.currentModel}`; els.chatState.textContent = `${getActiveChat().messages.length} رسالة`; }
-    function refreshUI() { buildModelOptions(); renderModelNotes(); refreshKeyUI(); updateAttachmentBox(); els.providerSelect.value = state.provider; els.routingModeSelect.value = state.routingMode; els.customModelInput.value = state.customModels.join(', '); els.modelSelect.value = state.currentModel; saveUIState(); updateBgButton(); }
-
-    function generateSamplePrompt() { els.imagePrompt.value = 'مدينة مصرية مستقبلية ليلًا، ناطحات سحاب، إضاءة نيون، انعكاسات على الماء، تفاصيل سينمائية فائقة'; generateImage(); }
-
-    function getWebImageResultsHtml(query) {
-      const links = [...Array(6)].map((_, i) => ({
-        u1: `https://source.unsplash.com/featured/1200x800/?${encodeURIComponent(query)}&sig=${Date.now() + i}`,
-        u2: `https://loremflickr.com/1200/800/${encodeURIComponent(query)}?lock=${Date.now() + i}`
-      }));
-      let html = `<div class="status good">✅ صور عامة من الإنترنت لـ <strong>${escapeHTML(query)}</strong></div><div class="spacer"></div><div class="grid-2" style="gap:12px;grid-template-columns:repeat(2,minmax(0,1fr));">`;
-      links.forEach(p => { html += `<div class="result-item"><img class="web-image" src="${p.u1}" alt="web image" onerror="this.onerror=null;this.src='${p.u2}'" /><div class="spacer"></div><button class="chip" onclick="window.open('${p.u1}','_blank','noopener,noreferrer')"><i class="fas fa-up-right-from-square"></i> فتح</button></div>`; });
-      html += '</div>';
-      return html;
-    }
-
-    async function searchWebImages(query) {
-      const q = query.trim();
-      if (!q) { els.imageResult.innerHTML = '<div class="status warn">اكتب وصف الصورة أولًا.</div>'; return; }
-      els.imageResult.innerHTML = getWebImageResultsHtml(q);
-    }
-
-    function onProviderChange() {
-      state.provider = els.providerSelect.value || DEFAULT_PROVIDER;
-      state.currentModel = providerInfo().models[0] || DEFAULT_MODEL;
-      const chat = getActiveChat();
-      chat.provider = state.provider;
-      chat.model = state.currentModel;
-      persist();
-      refreshUI();
-    }
-    function onRoutingChange() { state.routingMode = els.routingModeSelect.value; persist(); renderModelNotes(); }
-    function syncModelFromSelect() { state.currentModel = els.modelSelect.value || DEFAULT_MODEL; const chat = getActiveChat(); if (chat) chat.model = state.currentModel; persist(); els.modelState.textContent = `${PROVIDERS[state.provider].label}: ${state.currentModel}`; }
-
+    // ====== ATTACHMENTS ======
     async function attachImageFile(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onerror = () => reject(new Error('تعذر قراءة الملف.'));
         reader.onload = () => {
           const img = new Image();
           img.onload = () => {
-            const max = 1024;
-            let w = img.width, h = img.height;
-            if (w > h && w > max) { h = Math.round(h * max / w); w = max; }
-            else if (h >= w && h > max) { w = Math.round(w * max / h); h = max; }
             const canvas = document.createElement('canvas');
-            canvas.width = w; canvas.height = h;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, w, h);
-            state.attachedImage = { name: file.name, dataUrl: canvas.toDataURL('image/jpeg', 0.86) };
+            let w = img.width, h = img.height;
+            const max = 1024;
+            if (w > h && w > max) { h = Math.round(h * max / w); w = max; }
+            else if (h > max) { w = Math.round(w * max / h); h = max; }
+            canvas.width = w;
+            canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            state.attachedImage = { name: file.name, dataUrl: canvas.toDataURL('image/jpeg', 0.8) };
             updateAttachmentBox();
             resolve();
           };
-          img.onerror = () => reject(new Error('تعذر تحميل الصورة.'));
+          img.onerror = () => reject(new Error('تحميل الصورة فشل'));
           img.src = reader.result;
         };
+        reader.onerror = () => reject(new Error('قراءة الملف فشلت'));
         reader.readAsDataURL(file);
       });
     }
 
-    function clearAttachment() { state.attachedImage = null; els.imageFileInput.value = ''; updateAttachmentBox(); }
-    function shouldAnalyzeImage(text) { return !!state.attachedImage && /(افحص|حلل|اشرح|ماذا ترى|what do you see|describe|صورة)/i.test(text || ''); }
-    function processCommand(text) {
-      const t = (text || '').trim();
-      if (specialReplyCheck(t)) return { mode: 'special' };
-      if (/^(ارسم|draw|generate image|صمّم)/i.test(t) || /(ارسم لي صورة|اعمل لي صورة|ولد صورة)/i.test(t)) return { mode: 'draw', prompt: t.replace(/^(ارسم|draw|generate image|صمّم)\s*/i, '').replace(/(ارسم لي صورة|اعمل لي صورة|ولد صورة)/i, '').trim() || els.imagePrompt.value.trim() || t };
-      if (/^(هاتلي|هات لي|show|find|ابحث عن صورة)/i.test(t) || /(هاتلي صورة|هات لي صورة|صورة من النت|صورة على النت)/i.test(t)) return { mode: 'webimg', prompt: t.replace(/^(هاتلي|هات لي|show|find|ابحث عن صورة)\s*/i, '').trim() || els.imagePrompt.value.trim() || t };
-      if (shouldAnalyzeImage(t)) return { mode: 'analyze', prompt: t };
-      return { mode: 'chat' };
+    function clearAttachment() { state.attachedImage = null; updateAttachmentBox(); }
+
+    // ====== REFRESH UI ======
+    function refreshUI() {
+      buildProviderOptions();
+      buildModelOptions();
+      renderModelNotes();
+      refreshKeyUI();
+      updateAttachmentBox();
+      els.providerSelect.value = state.provider;
+      els.routingModeSelect.value = state.routingMode;
+      els.modelSelect.value = state.currentModel;
+      els.customModelInput.value = state.customModels.join(', ');
+      els.modelState.textContent = `${PROVIDERS[state.provider]?.label}: ${state.currentModel}`;
     }
 
-    async function sendChat(text) {
-      if (!currentKey()) { addMessageToUI('bot', '⚠️ لازم تحفظ المفتاح أولًا من الإعدادات.'); addToChat('assistant', '⚠️ لازم تحفظ المفتاح أولًا من الإعدادات.'); return; }
-      if (state.isSending) return;
-      state.isSending = true;
-      const reset = () => { state.isSending = false; els.sendBtn.disabled = false; els.sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال'; els.apiState.textContent = 'جاهز'; els.chatInput.focus(); };
-      els.sendBtn.disabled = true;
-      els.sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> يتم الإرسال...';
-      els.apiState.textContent = 'يرسل...';
-
-      try {
-        const command = processCommand(text);
-
-        if (command.mode === 'special') {
-          addMessageToUI('user', text);
-          addToChat('user', text);
-          const reply = specialReply();
-          addMessageToUI('bot', reply);
-          addToChat('assistant', reply);
-          els.apiState.textContent = 'تم الرد';
-          return;
-        }
-
-        if (command.mode === 'draw') {
-          addMessageToUI('user', text);
-          addToChat('user', text);
-          const prompt = command.prompt || text;
-          const img = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&enhance=true&nologo=true`;
-          const reply = `🎨 تم رسم الصورة من هذا الوصف:\n${prompt}`;
-          addMessageToUI('bot', reply);
-          addToChat('assistant', reply, { imageDataUrl: img, imageName: 'generated' });
-          els.imageResult.innerHTML = `<div class="status good">✅ تم رسم الصورة هنا أيضًا.</div><img class="img-preview" src="${img}" alt="generated image" />`;
-          els.imageResult.querySelector('img').addEventListener('click', () => window.open(img, '_blank', 'noopener,noreferrer'));
-          clearAttachment();
-          return;
-        }
-
-        if (command.mode === 'webimg') {
-          addMessageToUI('user', text);
-          addToChat('user', text);
-          await searchWebImages(command.prompt || text);
-          const reply = `🖼️ جبت لك صور عامة من الإنترنت عن: ${command.prompt || text}`;
-          addMessageToUI('bot', reply);
-          addToChat('assistant', reply);
-          return;
-        }
-
-        const userMeta = state.attachedImage ? { imageDataUrl: state.attachedImage.dataUrl, imageName: state.attachedImage.name } : {};
-        addMessageToUI('user', text, userMeta);
-        addToChat('user', text, userMeta);
-
-        if (state.attachedImage && state.provider === 'groq') {
-          const warn = '⚠️ فحص الصور في هذه النسخة يعمل بشكل مضمون مع OpenAI / ChatGPT (API). لو عايز تفحص صورة، اختار OpenAI كمزود وأدخل مفتاحه.';
-          addMessageToUI('bot', warn);
-          addToChat('assistant', warn);
-          clearAttachment();
-          return;
-        }
-
-        addThinking();
-
-        const chat = getActiveChat();
-        const chosenModel = state.routingMode === 'auto' ? chooseModel(text, !!state.attachedImage) : state.currentModel;
-        const candidates = state.routingMode === 'auto' ? [...new Set([chosenModel, ...getModelCandidates()])] : [state.currentModel, ...getModelCandidates()];
-        let lastError = '';
-
-        for (const model of candidates) {
-          try {
-            let reply = '';
-            if (state.provider === 'openai') {
-              const input = buildOpenAIInput(chat, text, state.attachedImage);
-              reply = await callOpenAI(model, input);
-            } else {
-              const messages = buildGroqMessages(chat, text, state.attachedImage);
-              reply = await callGroq(model, messages);
-            }
-            removeThinking();
-            addMessageToUI('bot', reply);
-            addToChat('assistant', reply);
-            state.currentModel = model;
-            chat.model = model;
-            chat.provider = state.provider;
-            persist();
-            els.modelSelect.value = model;
-            els.modelState.textContent = `${PROVIDERS[state.provider].label}: ${model}`;
-            els.apiState.textContent = `تم الرد (${model})`;
-            clearAttachment();
-            return;
-          } catch (err) {
-            lastError = err?.message || 'خطأ غير معروف';
-            if (err?.status === 401 || err?.status === 403) break;
-          }
-        }
-
-        removeThinking();
-        const msg = `❌ فشل الرد من ${PROVIDERS[state.provider].label}:\n${lastError}`;
-        addMessageToUI('bot', msg);
-        addToChat('assistant', msg);
-        els.apiState.textContent = 'خطأ';
-      } catch (err) {
-        removeThinking();
-        const msg = `❌ حصل خطأ غير متوقع:\n${err?.message || 'غير معروف'}`;
-        addMessageToUI('bot', msg);
-        addToChat('assistant', msg);
-        els.apiState.textContent = 'خطأ';
-      } finally {
-        persist();
-        renderConversationList();
-        refreshUI();
-        reset();
-      }
-    }
-
-    function saveUIState() { els.modelState.textContent = `${PROVIDERS[state.provider].label}: ${state.currentModel}`; els.chatState.textContent = `${getActiveChat().messages.length} رسالة`; }
-    function refreshUI() { buildModelOptions(); renderModelNotes(); refreshKeyUI(); updateAttachmentBox(); els.providerSelect.value = state.provider; els.routingModeSelect.value = state.routingMode; els.customModelInput.value = state.customModels.join(', '); els.modelSelect.value = state.currentModel; saveUIState(); updateBgButton(); }
-    function generateSamplePrompt() { els.imagePrompt.value = 'مدينة مصرية مستقبلية ليلًا، ناطحات سحاب، إضاءة نيون، انعكاسات على الماء، تفاصيل سينمائية فائقة'; generateImage(); }
-
-    function autoPickProviderForKey(text) { const t = (text || '').trim().toLowerCase(); if (state.provider === 'openai') return 'openai'; if (/(gpt|chatgpt|openai)/i.test(t)) return 'openai'; return 'groq'; }
-
-    // Events
+    // ====== EVENTS ======
     els.tabBtns.forEach(b => b.addEventListener('click', () => activateTab(b.dataset.tab)));
-    els.providerSelect.addEventListener('change', onProviderChange);
-    els.routingModeSelect.addEventListener('change', onRoutingChange);
-    els.modelSelect.addEventListener('change', syncModelFromSelect);
-    els.customModelInput.addEventListener('change', updateCustomModels);
-    els.sendBtn.addEventListener('click', () => { const text = els.chatInput.value.trim(); if (!text && !state.attachedImage) return; els.chatInput.value = ''; sendChat(text); });
+    els.providerSelect.addEventListener('change', () => {
+      state.provider = els.providerSelect.value;
+      state.currentModel = PROVIDERS[state.provider]?.models[0] || DEFAULT_MODEL;
+      persist();
+      buildModelOptions();
+      refreshUI();
+    });
+    els.routingModeSelect.addEventListener('change', () => {
+      state.routingMode = els.routingModeSelect.value;
+      persist();
+      renderModelNotes();
+    });
+    els.modelSelect.addEventListener('change', () => {
+      state.currentModel = els.modelSelect.value;
+      persist();
+      els.modelState.textContent = `${PROVIDERS[state.provider]?.label}: ${state.currentModel}`;
+    });
+    els.customModelInput.addEventListener('change', () => {
+      state.customModels = normalizeList((els.customModelInput.value || '').split(','));
+      persist();
+      buildModelOptions();
+    });
+
+    els.sendBtn.addEventListener('click', () => { const text = els.chatInput.value.trim(); if (text) { els.chatInput.value = ''; sendChat(text); } });
     els.chatInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); els.sendBtn.click(); } });
+
     document.querySelectorAll('[data-fill]').forEach(btn => btn.addEventListener('click', () => { els.chatInput.value = btn.dataset.fill; els.chatInput.focus(); }));
+
     els.saveKeysBtn.addEventListener('click', saveKeys);
-    els.toggleKeysBtn.addEventListener('click', () => { els.groqKeyInput.type = els.groqKeyInput.type === 'password' ? 'text' : 'password'; els.openaiKeyInput.type = els.openaiKeyInput.type === 'password' ? 'text' : 'password'; });
-    els.searchBtn.addEventListener('click', deepSearch);
-    els.googleSearchBtn.addEventListener('click', openGoogleSearch);
-    els.searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') deepSearch(); });
-    els.searchClearBtn.addEventListener('click', () => { els.searchInput.value = ''; els.searchResults.innerHTML = 'تم المسح.'; });
-    els.genBtn.addEventListener('click', generateImage);
-    els.webImageBtn.addEventListener('click', () => searchWebImages(els.imagePrompt.value.trim() || 'nature landscapes'));
-    els.samplePromptBtn.addEventListener('click', generateSamplePrompt);
-    els.clearChatBtn.addEventListener('click', clearCurrentChat);
-    els.renameChatBtn.addEventListener('click', () => renameChat(getActiveChat().id));
-    els.pasteKeyBtn.addEventListener('click', async () => {
-      try {
-        const t = await navigator.clipboard.readText();
-        if (t) {
-          if (t.trim().startsWith('gsk_')) els.groqKeyInput.value = t.trim();
-          else els.openaiKeyInput.value = t.trim();
-          setStatus(els.keyStatus, '', 'تم لصق المفتاح في الحقل. اضغط حفظ لو تحب تخزنه محليًا.');
-        }
-      } catch {
-        setStatus(els.keyStatus, 'warn', 'لم أستطع الوصول للحافظة في هذا المتصفح. الصق المفتاح يدويًا.');
-      }
+    els.toggleKeysBtn.addEventListener('click', () => {
+      els.groqKeyInput.type = els.groqKeyInput.type === 'password' ? 'text' : 'password';
+      els.openaiKeyInput.type = els.openaiKeyInput.type === 'password' ? 'text' : 'password';
     });
     els.testKeyBtn.addEventListener('click', testKey);
+
+    els.searchBtn.addEventListener('click', deepSearch);
+    els.searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') deepSearch(); });
+    els.searchClearBtn.addEventListener('click', () => { els.searchInput.value = ''; els.searchResults.innerHTML = ''; });
+    els.googleSearchBtn.addEventListener('click', () => {
+      const q = els.searchInput.value.trim();
+      if (q) window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank');
+    });
+
+    els.genBtn.addEventListener('click', generateImage);
+    els.webImageBtn.addEventListener('click', () => { const q = els.imagePrompt.value.trim(); if (q) window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}&tbm=isch`, '_blank'); });
+    els.samplePromptBtn.addEventListener('click', generateSamplePrompt);
+
+    els.clearChatBtn.addEventListener('click', clearCurrentChat);
     els.newChatBtn.addEventListener('click', newChat);
     els.newChatTopBtn.addEventListener('click', newChat);
     els.clearAllChatsBtn.addEventListener('click', clearAllChats);
     els.exportChatsBtn.addEventListener('click', () => exportChatsFile());
     els.importChatsBtn.addEventListener('click', () => els.importFileInput.click());
-    els.importFileInput.addEventListener('change', async () => { const f = els.importFileInput.files?.[0]; if (!f) return; try { await importChatsViaFile(f); } catch (err) { alert(`فشل الاستيراد: ${err.message}`); } finally { els.importFileInput.value = ''; } });
+    els.importFileInput.addEventListener('change', async () => {
+      const f = els.importFileInput.files?.[0];
+      if (f) try { await importChatsFromObject(JSON.parse(await f.text())); } catch (err) { alert(`فشل: ${err.message}`); } finally { els.importFileInput.value = ''; }
+    });
+
     els.saveTitleBtn.addEventListener('click', setChatTitle);
-    els.chatTitleInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); setChatTitle(); } });
-    els.exportOneBtn.addEventListener('click', () => { const chat = getActiveChat(); exportChatsFile([chat], `${(chat.title || 'chat').replace(/[\\/:*?"<>|]/g, '_')}.json`); });
+    els.exportOneBtn.addEventListener('click', () => { const c = getActiveChat(); exportChatsFile([c], `${c.title.replace(/[^a-zA-Z0-9]/g, '_')}.json`); });
+
     els.attachImageBtn.addEventListener('click', () => els.imageFileInput.click());
     els.clearAttachmentBtn.addEventListener('click', clearAttachment);
     els.imageFileInput.addEventListener('change', async () => { const f = els.imageFileInput.files?.[0]; if (f) await attachImageFile(f); els.imageFileInput.value = ''; });
+
     els.bgPrevBtn.addEventListener('click', () => setWallpaper(state.bgIndex - 1));
     els.bgNextBtn.addEventListener('click', () => setWallpaper(state.bgIndex + 1));
     els.bgAutoBtn.addEventListener('click', () => { state.autoBg = !state.autoBg; persist(); updateBgButton(); startAutoBackground(); });
 
-    document.addEventListener('paste', e => {
-      if (state.activeTab !== 'chat') return;
-      const items = e.clipboardData?.items || [];
-      for (const it of items) {
-        if (it.type.startsWith('image/')) {
-          const f = it.getAsFile();
-          if (f) { attachImageFile(f); break; }
-        }
-      }
-    });
-    document.addEventListener('dragover', e => { if (e.dataTransfer?.types?.includes('Files')) e.preventDefault(); });
-    document.addEventListener('drop', e => { const f = e.dataTransfer?.files?.[0]; if (f && f.type.startsWith('image/')) { e.preventDefault(); attachImageFile(f); } });
-
+    // ====== INIT ======
     (function init() {
-      if (!state.chats.length) state.chats = [makeNewChat('المحادثة الأولى', state.currentModel, state.provider)];
-      if (!state.activeChatId || !state.chats.find(c => c.id === state.activeChatId)) state.activeChatId = state.chats[0].id;
-      buildModelOptions();
+      if (!state.chats.length) state.chats = [makeNewChat()];
+      if (!state.activeChatId) state.activeChatId = state.chats[0].id;
       refreshUI();
-      renderModelNotes();
-      renderConversationList();
       renderChat();
-      updateHeader('chat');
       refreshBackgroundOnLoad();
-      persist();
       els.chatInput.focus();
-      addMessageToUI('bot', '✨ أهلًا يا محمد!\nجرب اكتب: "مين اللي طورك؟" أو "ارسم لي صورة لبحر ليلي" أو "هاتلي صورة غابات مخيفة" أو الصق صورة في الشات واطلب فحصها.');
-      addToChat('assistant', '✨ أهلًا يا محمد!\nجرب اكتب: "مين اللي طورك؟" أو "ارسم لي صورة لبحر ليلي" أو "هاتلي صورة غابات مخيفة" أو الصق صورة في الشات واطلب فحصها.');
     })();
   </script>
 </body>
